@@ -1,0 +1,109 @@
+<%
+  bool_translate = {
+    true  => 'yes',
+    false => 'no',
+  }
+-%>
+Host <%= @name %>
+    AddressFamily <%= @address_family %>
+    BatchMode <%= bool_translate[@batchmode] %>
+    ChallengeResponseAuthentication <%= bool_translate[@challengeresponseauthentication] %>
+    CheckHostIP <%= bool_translate[@checkhostip] %>
+    Cipher <%= @cipher %>
+    Ciphers <%= @ciphers.join(',') %>
+    ClearAllForwardings <%= bool_translate[@clearallforwardings] %>
+    Compression <%= bool_translate[@compression] %>
+    CompressionLevel <%= @compressionlevel %>
+    ConnectionAttempts <%= @connectionattempts %>
+    ConnectTimeout <%= @connecttimeout %>
+    ControlMaster <%= bool_translate[@controlmaster] %>
+    EnableSSHKeysign <%= bool_translate[@enablesshkeysign] %>
+    EscapeChar <%= @escapechar %>
+    ExitOnForwardFailure <%= bool_translate[@exitonforwardfailure] %>
+    ForwardAgent <%= bool_translate[@forwardagent] %>
+    ForwardX11 <%= bool_translate[@forwardx11] %>
+    ForwardX11Trusted <%= bool_translate[@forwardx11trusted] %>
+    GatewayPorts <%= bool_translate[@gatewayports] %>
+    GSSAPIAuthentication <%= bool_translate[@gssapiauthentication] %>
+    GSSAPIKeyExchange <%= bool_translate[@gssapikeyexchange] %>
+    GSSAPIDelegateCredentials <%= bool_translate[@gssapidelegatecredentials] %>
+    GSSAPIRenewalForcesRekey <%= bool_translate[@gssapirenewalforcesrekey] %>
+    GSSAPITrustDns <%= bool_translate[@gssapitrustdns] %>
+    HashKnownHosts <%= bool_translate[@hashknownhosts] %>
+    HostbasedAuthentication <%= bool_translate[@hostbasedauthentication] %>
+    HostKeyAlgorithms <%= @hostkeyalgorithms %>
+    IdentitiesOnly <%= bool_translate[@identitiesonly] %>
+    KbdInteractiveAuthentication <%= bool_translate[@kbdinteractiveauthentication] %>
+    LogLevel <%= @ssh_loglevel %>
+    MACs <%= @macs.join(',') %>
+    NoHostAuthenticationForLocalhost <%= bool_translate[@nohostauthenticationforlocalhost] %>
+    NumberOfPasswordPrompts <%= @numberofpasswordprompts %>
+    PasswordAuthentication <%= bool_translate[@passwordauthentication] %>
+    PermitLocalCommand <%= bool_translate[@permitlocalcommand] %>
+    Port <%= @port %>
+    PreferredAuthentications <%= @preferredauthentications.join(',') %>
+    Protocol <%= @protocol %>
+    PubkeyAuthentication <%= bool_translate[@pubkeyauthentication] %>
+    RhostsRSAAuthentication <%= bool_translate[@rhostsrsaauthentication] %>
+    RSAAuthentication <%= bool_translate[@rsaauthentication] %>
+    SendEnv <%= @sendenv.join(' ') %>
+    ServerAliveCountMax <%= @serveralivecountmax %>
+    ServerAliveInterval <%= @serveraliveinterval %>
+    StrictHostKeyChecking <%= @stricthostkeychecking %>
+    TCPKeepAlive <%= bool_translate[@tcpkeepalive] %>
+    Tunnel <%= @tunnel %>
+    UsePrivilegedPort <%= bool_translate[@useprivilegedport] %>
+    VerifyHostKeyDNS <%= bool_translate[@verifyhostkeydns] %>
+    VisualHostKey <%= bool_translate[@visualhostkey] %>
+    XAuthLocation <%= @xauthlocation %>
+<% if !@bindaddress.eql?("nil") then -%>
+    BindAddress <%= @bindaddress %>
+<% end -%>
+<% if !@controlpath.eql?("nil") then -%>
+    ControlPath <%= @controlpath %>
+<% end -%>
+<% if !@dynamicforward.eql?("nil") then -%>
+    DynamicForward <%= @dynamicforward %>
+<% end -%>
+<% if !@globalknownhostsfile.eql?("nil") then -%>
+    GlobalKnownHostsFile <%= @globalknownhostsfile %>
+<% end -%>
+<% if !@hostkeyalias.eql?("nil") then -%>
+    HostKeyAlias <%= @hostkeyalias %>
+<% end -%>
+<% if !@hostname.eql?("nil") then -%>
+    HostName <%= @hostname %>
+<% end -%>
+<% if !@identityfile.eql?("nil") then -%>
+    IdentityFile <%= @identityfile %>
+<% end -%>
+<% if !@kbdinteractivedevices.eql?("nil") then -%>
+    KbdInteractiveDevices <%= @kbdinteractivedevices %>
+<% end -%>
+<% if !@localcommand.eql?("nil") then -%>
+    LocalCommand <%= @localcommand %>
+<% end -%>
+<% if !@localforward.eql?("nil") then -%>
+    LocalForward <%= @localforward %>
+<% end -%>
+<% if !@proxycommand.eql?("nil") then -%>
+    ProxyCommand <%= @proxycommand %>
+<% end -%>
+<% if !@rekeylimit.eql?("nil") then -%>
+    RekeyLimit <%= @rekeylimit %>
+<% end -%>
+<% if !@remoteforward.eql?("nil") then -%>
+    RemoteForward <%= @remoteforward %>
+<% end -%>
+<% if !@smartcarddevice.eql?("nil") then -%>
+    SmartcardDevice <%= @smartcarddevice %>
+<% end -%>
+<% if !@tunneldevice.eql?("nil") then -%>
+    TunnelDevice <%= @tunneldevice %>
+<% end -%>
+<% if !@user.eql?("nil") then -%>
+    User <%= @user %>
+<% end -%>
+<% if !@userknownhostsfile.eql?("nil") then -%>
+    UserKnownHostsFile <%= @userknownhostsfile %>
+<% end -%>
