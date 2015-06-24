@@ -117,11 +117,11 @@ class ssh::server::conf (
     $acceptenv_array = split($acceptenv, ' ')
   }
 
-  sshd_config{ 'AcceptEnv': value => $acceptenv_array, preserve => true}
+  sshd_config{ 'AcceptEnv': value => $acceptenv_array }
   sshd_config{ 'AuthorizedKeysFile': value => $authorizedkeysfile }
   sshd_config{ 'Banner': value => $banner }
   sshd_config{ 'ChallengeResponseAuthentication': value => ssh_config_bool_translate($challengeresponseauthentication) }
-  sshd_config{ 'Ciphers': value => $ciphers, preserve => true }
+  sshd_config{ 'Ciphers': value => $ciphers }
   sshd_config{ 'Compression': value => ssh_config_bool_translate($compression) }
   sshd_config{ 'SyslogFacility': value => $syslogfacility}
   sshd_config{ 'GSSAPIAuthentication': value => ssh_config_bool_translate($gssapiauthentication) }
