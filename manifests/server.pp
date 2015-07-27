@@ -20,6 +20,15 @@ class ssh::server (
   include 'ssh'
   include 'ssh::server::conf'
 
+  # A hack to work around broken Augeas Lenses
+  file { '/usr/share/augeas/lenses/sshd.aug':
+    owner  => 'root',
+    group  => 'root',
+    mode   => '0640',
+    source => "puppet:///modules/${module_name}/augeas_lenses/sshd.aug",
+    before => Class['ssh::server::conf']
+  }
+
   file { '/etc/ssh/moduli':
     owner => 'root',
     group => 'root',
@@ -97,7 +106,8 @@ class ssh::server (
     enable     => true,
     hasstatus  => true,
     hasrestart => true,
-    require    => Package['openssh-server']
+    require    => Package['openssh-server'],
+    subscribe  => Class['::ssh::server::conf']
   }
 
   if $use_system_pki {

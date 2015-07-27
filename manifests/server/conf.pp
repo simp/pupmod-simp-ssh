@@ -21,6 +21,7 @@
 # [*ciphers*]
 # [*syslogfacility*]
 # [*gssapiauthentication*]
+# [*kex_algorithms*]
 # [*listenaddress*]
 # [*port*]
 # [*macs*]
@@ -76,19 +77,14 @@ class ssh::server::conf (
   $authorizedkeyscommanduser = 'nobody',
   $banner = '/etc/issue.net',
   $challengeresponseauthentication = false,
-  $ciphers = [
-    'aes256-cbc',
-    'aes192-cbc',
-    'aes128-cbc'
-  ],
+  $ciphers = $::ssh::server::params::ciphers,
   $compression = false,
   $syslogfacility = 'AUTHPRIV',
   $gssapiauthentication = false,
+  $kex_algorithms = $::ssh::server::params::kex_algorithms,
   $listenaddress = '0.0.0.0',
   $port = '22',
-  $macs = [
-    'hmac-sha1'
-  ],
+  $macs = $::ssh::server::params::macs,
   $permitrootlogin = false,
   $printlastlog = false,
   $subsystem = 'sftp /usr/libexec/openssh/sftp-server',
@@ -99,8 +95,34 @@ class ssh::server::conf (
   $use_iptables = hiera('use_iptables',true),
   $use_ldap = hiera('use_ldap',true),
   $use_tcpwrappers = true
-) {
+) inherits ::ssh::server::params {
   include 'ssh::server'
+
+  if !empty($authorizedkeyscommand) {
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
+      if empty($authorizedkeyscommanduser) {
+        fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
+      }
+    }
+
+    validate_absolute_path($authorizedkeyscommand)
+  }
+  validate_array($acceptenv)
+  validate_array($ciphers)
+  if $compression != 'delayed' { validate_bool($compression) }
+  validate_bool($challengeresponseauthentication)
+  validate_bool($gssapiauthentication)
+  validate_array($kex_algorithms)
+  validate_bool($permitrootlogin)
+  validate_bool($printlastlog)
+  validate_bool($usepam)
+  validate_bool($useprivilegeseparation)
+  validate_bool($x11forwarding)
+  validate_port($port)
+  validate_array($macs)
+  validate_bool($use_iptables)
+  validate_bool($use_ldap)
+  validate_bool($use_tcpwrappers)
 
   file { '/etc/ssh/sshd_config':
     owner  => 'root',
@@ -125,6 +147,7 @@ class ssh::server::conf (
   sshd_config{ 'Compression': value => ssh_config_bool_translate($compression) }
   sshd_config{ 'SyslogFacility': value => $syslogfacility}
   sshd_config{ 'GSSAPIAuthentication': value => ssh_config_bool_translate($gssapiauthentication) }
+  sshd_config{ 'KexAlgorithms': value => $kex_algorithms }
   sshd_config{ 'ListenAddress': value => $listenaddress }
   sshd_config{ 'Port': value => $port }
   sshd_config{ 'MACs': value => $macs }
@@ -180,29 +203,4 @@ class ssh::server::conf (
       order   => '1'
     }
   }
-
-  if !empty($authorizedkeyscommand) {
-    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
-      if empty($authorizedkeyscommanduser) {
-        fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
-      }
-    }
-
-    validate_absolute_path($authorizedkeyscommand)
-  }
-  validate_array($acceptenv)
-  validate_array($ciphers)
-  if $compression != 'delayed' { validate_bool($compression) }
-  validate_bool($challengeresponseauthentication)
-  validate_bool($gssapiauthentication)
-  validate_bool($permitrootlogin)
-  validate_bool($printlastlog)
-  validate_bool($usepam)
-  validate_bool($useprivilegeseparation)
-  validate_bool($x11forwarding)
-  validate_port($port)
-  validate_array($macs)
-  validate_bool($use_iptables)
-  validate_bool($use_ldap)
-  validate_bool($use_tcpwrappers)
 }

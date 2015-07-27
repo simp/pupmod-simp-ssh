@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 8
+Release: 9
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -14,11 +14,19 @@ Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-ssh-test
 
-Prefix: /etc/puppet/environments/simp/modules
+Prefix: %{_sysconfdir}/puppet/environments/simp/modules
+
+%package augeas-lenses
+Summary: SSH Puppet Module Patched Augeas Lenses
+License: LGPLv2
+Requires: pupmod-ssh
 
 %description
 This Puppet module manages the configuration of the system-wide SSH server and
 client.
+
+%description augeas-lenses
+Provides patched Augeas lenses from the Augeas project to fix various bugs.
 
 %prep
 %setup -q
@@ -29,6 +37,11 @@ client.
 [ "%{buildroot}" != "/" ] && rm -rf %{buildroot}
 
 mkdir -p %{buildroot}/%{prefix}/ssh
+
+files='README.md LICENSE CONTRIBUTING.md'
+for file in $files; do
+  test -f $file && cp $file %{buildroot}/%{prefix}/ssh
+done
 
 dirs='files lib manifests templates'
 for dir in $dirs; do
@@ -45,6 +58,10 @@ mkdir -p %{buildroot}/%{prefix}/ssh
 %files
 %defattr(0640,root,puppet,0750)
 %{prefix}/ssh
+%exclude %{prefix}/ssh/files/augeas_lenses
+
+%files augeas-lenses
+%{prefix}/ssh/files/augeas_lenses
 
 %post
 #!/bin/sh
@@ -57,6 +74,14 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Wed Jul 29 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-9
+- Incorporated the updated SSH Augeas Lenses
+- Created a sub-rpm for the lenses to account for the modified license terms
+- Added support for default KexAlgorithms
+- Added sensible defaults for the SSH server in both FIPS and non-FIPS mode
+- Note: I have not yet tested these in FIPS enforcing mode so adjustments may
+        need to be made
+
 * Fri Feb 20 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-8
 - Added support for the new augeasproviders_ssh module
 - Migrated to the new 'simp' environment.
