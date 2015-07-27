@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 8
+Release: 9
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -57,6 +57,12 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Mon Jul 27 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-9
+- Added support for default KexAlgorithms
+- Added sensible defaults for the SSH server in both FIPS and non-FIPS mode.
+- Note: I have not yet tested these in FIPS enforcing mode so adjustments may
+        need to be made.
+
 * Fri Feb 20 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-8
 - Added support for the new augeasproviders_ssh module
 - Migrated to the new 'simp' environment.
