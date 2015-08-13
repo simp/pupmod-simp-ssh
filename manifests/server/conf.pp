@@ -189,7 +189,7 @@ class ssh::server::conf (
   }
 
   if $use_iptables {
-    include 'iptables'
+    include '::iptables'
     iptables::add_tcp_stateful_listen { 'allow_sshd':
       order       => '8',
       client_nets => $client_nets,
@@ -198,6 +198,7 @@ class ssh::server::conf (
   }
 
   if $use_tcpwrappers {
+    include '::tcpwrappers'
     tcpwrappers::allow { 'sshd':
       pattern => nets2ddq($client_nets),
       order   => '1'

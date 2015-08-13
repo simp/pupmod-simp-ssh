@@ -55,7 +55,8 @@ describe 'ssh::server' do
       :hardwaremodel => 'x86_64',
       :operatingsystem => 'RedHat',
       :lsbmajdistrelease => '6',
-      :operatingsystemmajrelease => '6'
+      :operatingsystemmajrelease => '6',
+      :interfaces => 'eth0,lo'
     }}
   end
 
@@ -69,7 +70,8 @@ describe 'ssh::server' do
       :hardwaremodel => 'x86_64',
       :operatingsystem => 'RedHat',
       :lsbmajdistrelease => '7',
-      :operatingsystemmajrelease => '7'
+      :operatingsystemmajrelease => '7',
+      :interfaces => 'eth0,lo'
     }}
   end
 end
