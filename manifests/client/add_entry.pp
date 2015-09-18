@@ -96,15 +96,7 @@ define ssh::client::add_entry (
   $challengeresponseauthentication = true,
   $checkhostip = true,
   $cipher = '3des',
-  $ciphers = [
-    'aes256-ctr',
-    'aes192-ctr',
-    'aes128-ctr',
-    'aes256-cbc',
-    'aes192-cbc',
-    'aes128-cbc',
-    '3des-cbc'
-  ],
+  $ciphers = 'nil',
   $clearallforwardings = false,
   $compression = true,
   $compressionlevel = '6',
@@ -137,10 +129,8 @@ define ssh::client::add_entry (
   $kbdinteractivedevices = 'nil',
   $localcommand = 'nil',
   $localforward = 'nil',
+  $macs = 'nil',
   $ssh_loglevel = 'INFO',
-  $macs = [
-    'hmac-sha1',
-  ],
   $nohostauthenticationforlocalhost = false,
   $numberofpasswordprompts = '3',
   $passwordauthentication = true,
@@ -189,16 +179,16 @@ define ssh::client::add_entry (
   $visualhostkey = false,
   $xauthlocation = '/usr/bin/xauth'
 ) {
+  include '::ssh::client::params'
   include 'ssh::client'
 
+  $l_macs = $macs ? { 'nil' => $::ssh::client::params::macs, default => $macs }
+  $l_ciphers = $macs ? { 'nil' => $::ssh::client::params::ciphers, default => $ciphers }
   $l_name = ssh_format_host_entry_for_sorting($name)
-  concat_fragment { "ssh_config+$l_name.conf":
-    content => template('ssh/ssh_config.erb')
-  }
 
   validate_absolute_path($xauthlocation)
-  validate_array($ciphers)
-  validate_array($macs)
+  validate_array($l_ciphers)
+  validate_array($l_macs)
   validate_array($sendenv)
   validate_array($preferredauthentications)
   validate_array_member($address_family, ['any','inet','inet6'])
@@ -216,7 +206,7 @@ define ssh::client::add_entry (
   ])
   validate_array_member($stricthostkeychecking, ['yes','no','ask'])
   validate_array_member($tunnel, ['yes','no','point-to-point','ethernet'])
-  validate_between($compressionlevel, 1, 9)
+  validate_between($compressionlevel, '1', '9')
   validate_bool($batchmode)
   validate_bool($challengeresponseauthentication)
   validate_bool($checkhostip)
@@ -253,4 +243,9 @@ define ssh::client::add_entry (
   validate_integer($serveralivecountmax)
   validate_integer($serveraliveinterval)
   validate_port($port)
+
+  concat_fragment { "ssh_config+$l_name.conf":
+    content => template('ssh/ssh_config.erb')
+  }
+
 }
