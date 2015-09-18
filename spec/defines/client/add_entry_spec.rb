@@ -1,11 +1,21 @@
 require 'spec_helper'
 
 describe 'ssh::client::add_entry' do
+  context 'supported operating systems' do
+    on_supported_os.each do |os, facts|
+      let(:facts) do
+        facts
+      end
 
-  let(:title) {'new_run'}
+      context "on #{os}" do
 
-  context 'base' do
-    it { should compile.with_all_deps }
-    it { should contain_concat_fragment('ssh_config+new_run.conf') }
+        let(:title) {'new_run'}
+
+        context 'base' do
+          it { should compile.with_all_deps }
+          it { should contain_concat_fragment('ssh_config+new_run.conf') }
+        end
+      end
+    end
   end
 end
