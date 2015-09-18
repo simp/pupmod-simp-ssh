@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae5cdf2_b0f18bcf",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 99,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T19:59:03Z",
+      "side": 1,
+      "message": "This should be an empty array",
+      "revId": "28aeece6c2b5dc2658edbb7eda2e38a623b918d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_f0ba33e0",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 185,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T19:59:03Z",
+      "side": 1,
+      "message": "If else here",
+      "revId": "28aeece6c2b5dc2658edbb7eda2e38a623b918d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_10c07f4f",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T19:59:03Z",
+      "side": 1,
+      "message": "Here too",
+      "revId": "28aeece6c2b5dc2658edbb7eda2e38a623b918d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1ae5cdf2_90e48f0e",
+        "filename": "spec/defines/client/add_entry_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 13,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T19:59:03Z",
+      "side": 1,
+      "message": "Oh NOES!",
+      "revId": "28aeece6c2b5dc2658edbb7eda2e38a623b918d3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
