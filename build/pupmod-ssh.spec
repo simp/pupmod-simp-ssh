@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 9
+Release: 10
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -74,6 +74,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Fri Sep 18 2015 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.0-10
+- Updated the ssh client ciphers to match the ssh server ciphers.
+
 * Wed Jul 29 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-9
 - Incorporated the updated SSH Augeas Lenses
 - Created a sub-rpm for the lenses to account for the modified license terms
