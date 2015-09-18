@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "1ae5cdf2_70d1c3fa",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 186,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-09-18T20:36:46Z",
+      "side": 1,
+      "message": "Need to change l_ to just _",
+      "revId": "a00f25ba05b2752726c21a7ba18e8bd2785f5c4c",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
