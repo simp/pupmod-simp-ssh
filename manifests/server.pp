@@ -88,8 +88,11 @@ class ssh::server (
   }
 
   package { 'openssh-server': ensure => 'latest' }
-  package { 'openssh-ldap': ensure => 'latest' }
 
+  if $::ssh::server::conf::use_ldap {
+    package { 'openssh-ldap': ensure => 'latest' }
+  }
+  
   user { 'sshd':
     ensure     => 'present',
     allowdupe  => false,
