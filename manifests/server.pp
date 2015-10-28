@@ -92,7 +92,7 @@ class ssh::server (
   if $::ssh::server::conf::use_ldap {
     package { 'openssh-ldap': ensure => 'latest' }
   }
-  
+
   user { 'sshd':
     ensure     => 'present',
     allowdupe  => false,

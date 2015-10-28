@@ -34,7 +34,7 @@ Puppet::Type.type(:sshkey_prune).provide(:prune) do
     ensure
       tmp_fh.close
     end
-       
+
   end
 
   def retrieve
