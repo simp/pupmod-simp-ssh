@@ -127,14 +127,14 @@ module Sshd =
      [ label "Condition" . condition_entry+ . eol ]
 
    let match_entry = indent . (entry | comment_noindent)
-                   | empty 
+                   | empty
 
    let match =
      [ key /Match/i . match_cond
         . [ label "Settings" .  match_entry+ ]
      ]
 
-  let lns = (entry | comment | empty)* . match* 
+  let lns = (entry | comment | empty)* . match*
 
   let xfm = transform lns (incl "/etc/ssh/sshd_config")
 

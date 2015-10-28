@@ -11,7 +11,7 @@ group :test do
   gem "rake"
   gem 'puppet', puppetversion
   gem "rspec", '< 3.2.0'
-  gem "rspec-puppet", :git => 'https://github.com/rodjek/rspec-puppet.git'
+  gem "rspec-puppet"
   gem "puppetlabs_spec_helper"
   gem "metadata-json-lint"
   gem "simp-rspec-puppet-facts"
@@ -41,3 +41,5 @@ group :system_tests do
   gem "beaker"
   gem "beaker-rspec"
 end
+
+gem 'fog-google', '~> 0.0.9' # 0.1.x rquires ruby 2.0+

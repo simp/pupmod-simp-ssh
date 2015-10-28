@@ -16,10 +16,10 @@ describe 'ssh' do
           it { should create_file('/etc/ssh/ssh_host_key') }
           it { should create_file('/etc/ssh/ssh_known_hosts') }
         end
-      
+
         describe "RHEL 6" do
           it_behaves_like "a fact set init"
-      
+
           let(:facts) {{
             :fqdn => 'spec.test',
             :uid_min => '500',
@@ -31,10 +31,10 @@ describe 'ssh' do
             :interfaces => 'eth0,lo'
           }}
         end
-      
+
         describe "RHEL 7" do
           it_behaves_like "a fact set init"
-      
+
           let(:facts) {{
             :fqdn => 'spec.test',
             :uid_min => '500',

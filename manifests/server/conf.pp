@@ -19,6 +19,19 @@
 # [*challengeresponseauthentication*]
 # [*compression*]
 # [*ciphers*]
+# [*fallback_ciphers*]
+# Type: Array
+# Default: $::ssh::server::params::fallback_ciphers
+#   The set of ciphers that should be used should no other cipher be declared.
+#   This is used when $::ssh::server::enable_fallback_ciphers is enabled.
+#
+# [*enable_fallback_ciphers*]
+# Type: Boolean
+# Default: true
+#   If true, add the fallback ciphers from ssh::server::params to the cipher
+#   list. This is intended to provide compatibility with non-SIMP systems in a
+#   way that properly supports FIPS 140-2.
+#
 # [*syslogfacility*]
 # [*gssapiauthentication*]
 # [*kex_algorithms*]
@@ -78,6 +91,8 @@ class ssh::server::conf (
   $banner = '/etc/issue.net',
   $challengeresponseauthentication = false,
   $ciphers = $::ssh::server::params::ciphers,
+  $fallback_ciphers = $::ssh::server::params::fallback_ciphers,
+  $enable_fallback_ciphers = true,
   $compression = false,
   $syslogfacility = 'AUTHPRIV',
   $gssapiauthentication = false,
@@ -109,6 +124,8 @@ class ssh::server::conf (
   }
   validate_array($acceptenv)
   validate_array($ciphers)
+  validate_array($fallback_ciphers)
+  validate_bool($enable_fallback_ciphers)
   if $compression != 'delayed' { validate_bool($compression) }
   validate_bool($challengeresponseauthentication)
   validate_bool($gssapiauthentication)
@@ -123,6 +140,13 @@ class ssh::server::conf (
   validate_bool($use_iptables)
   validate_bool($use_ldap)
   validate_bool($use_tcpwrappers)
+
+  if $enable_fallback_ciphers {
+    $_ciphers = unique(flatten([$ciphers,$fallback_ciphers]))
+  }
+  else {
+    $_ciphers = $ciphers
+  }
 
   file { '/etc/ssh/sshd_config':
     owner  => 'root',

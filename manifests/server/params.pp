@@ -7,14 +7,26 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server::params {
-  # These are all that are supported on RHEL6
-  $_fallback_kex_algorithms = [ 'diffie-hellman-group-exchange-sha256' ]
-  $_fallback_macs = [ 'hmac-sha1' ]
-  $_fallback_ciphers = [
+
+  ## Public Variables ##
+
+  # These should work with *everything*
+  $fallback_ciphers = [
     'aes256-cbc',
     'aes192-cbc',
     'aes128-cbc'
   ]
+
+  ## Private Variables ##
+
+  # These are all that are supported on RHEL6
+  $_fallback_kex_algorithms = [ 'diffie-hellman-group-exchange-sha256' ]
+  $_fallback_macs = [ 'hmac-sha1' ]
+  $_primary_ciphers = [
+    'aes256-gcm@openssh.com',
+    'aes128-gcm@openssh.com'
+  ]
+
   if $::fips_enabled {
     if $::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0 {
       $kex_algorithms = [
@@ -27,18 +39,14 @@ class ssh::server::params {
         'hmac-sha2-256',
         'hmac-sha1'
       ]
-      $ciphers = [
-        'aes256-gcm@openssh.com',
-        'aes128-gcm@openssh.com'
-      ]
+      $ciphers = $_primary_ciphers
     }
     else {
       # Don't know what OS this is so fall back to whatever should work with
       # FIPS 140-2 in all cases.
-
       $kex_algorithms = $_fallback_kex_algorithms
       $macs = $_fallback_macs
-      $ciphers = $_fallback_ciphers
+      $ciphers = $fallback_ciphers
     }
   }
   else {
@@ -57,18 +65,14 @@ class ssh::server::params {
         'hmac-sha2-512',
         'hmac-sha2-256'
       ]
-      $ciphers = [
-        'aes256-gcm@openssh.com',
-        'aes128-gcm@openssh.com'
-      ]
+      $ciphers = $_primary_ciphers
     }
     else {
       # Don't know what OS this is so fall back to whatever should work with
       # FIPS 140-2 in all cases.
-
       $kex_algorithms = $_fallback_kex_algorithms
       $macs = $_fallback_macs
-      $ciphers = $_fallback_ciphers
+      $ciphers = $fallback_ciphers
     }
   }
 }

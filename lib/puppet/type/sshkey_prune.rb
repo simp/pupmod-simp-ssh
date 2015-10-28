@@ -4,7 +4,7 @@ Puppet::Type.newtype(:sshkey_prune) do
   newparam(:name, :namevar => true) do
     desc "The file that you wish to prune"
   end
-    
+
   newproperty(:prune) do
     newvalues(:true,:false)
     defaultto(:true)
