@@ -8,8 +8,13 @@
 #
 class ssh::server::params {
   # These are all that are supported on RHEL6
+  $_use_strong_ciphers_only = hiera('ssh::server::use_strong_ciphers_only',false)
   $_fallback_kex_algorithms = [ 'diffie-hellman-group-exchange-sha256' ]
   $_fallback_macs = [ 'hmac-sha1' ]
+  $_strong_ciphers = [
+    'aes256-gcm@openssh.com',
+    'aes128-gcm@openssh.com'
+  ]
   $_fallback_ciphers = [
     'aes256-cbc',
     'aes192-cbc',
@@ -27,15 +32,16 @@ class ssh::server::params {
         'hmac-sha2-256',
         'hmac-sha1'
       ]
-      $ciphers = [
-        'aes256-gcm@openssh.com',
-        'aes128-gcm@openssh.com'
-      ]
+      if $_use_strong_ciphers_only {
+        $ciphers = $_strong_ciphers
+      }
+      else {
+        $ciphers = split(inline_template("<%=(_strong_ciphers+_fallback_ciphers).join(',') %>"),',')
+      }
     }
     else {
       # Don't know what OS this is so fall back to whatever should work with
       # FIPS 140-2 in all cases.
-
       $kex_algorithms = $_fallback_kex_algorithms
       $macs = $_fallback_macs
       $ciphers = $_fallback_ciphers
@@ -57,15 +63,16 @@ class ssh::server::params {
         'hmac-sha2-512',
         'hmac-sha2-256'
       ]
-      $ciphers = [
-        'aes256-gcm@openssh.com',
-        'aes128-gcm@openssh.com'
-      ]
+      if $_use_strong_ciphers_only {
+        $ciphers = $_strong_ciphers
+      }
+      else {
+        $ciphers = split(inline_template("<%=(_strong_ciphers+_fallback_ciphers).join(',') %>"),',')
+      }
     }
     else {
       # Don't know what OS this is so fall back to whatever should work with
       # FIPS 140-2 in all cases.
-
       $kex_algorithms = $_fallback_kex_algorithms
       $macs = $_fallback_macs
       $ciphers = $_fallback_ciphers
