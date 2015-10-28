@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab29df4_70762d40",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2015-10-28T17:50:24Z",
+      "side": 1,
+      "message": "whitespace.",
+      "revId": "3c52527af6b275e7bc64887e12a50104c1450a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_5079292e",
+        "filename": "manifests/server/params.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2015-10-28T17:50:24Z",
+      "side": 1,
+      "message": "I\u0027m assuming you meant to update params in this commit.",
+      "revId": "3c52527af6b275e7bc64887e12a50104c1450a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_307cb520",
+        "filename": "manifests/server/params.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 16,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2015-10-28T17:50:24Z",
+      "side": 1,
+      "message": "whitespace",
+      "revId": "3c52527af6b275e7bc64887e12a50104c1450a87",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
