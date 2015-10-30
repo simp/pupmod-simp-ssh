@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab29df4_b9c42941",
+        "filename": "manifests/server/params.pp",
+        "patchSetId": 7
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-10-30T20:43:35Z",
+      "side": 1,
+      "message": "This variable doesn\u0027t exist in the class and we really shouldn\u0027t be doing this.\n\nThis should be server::conf.",
+      "revId": "7f4fb18388d42eb5ae97895454ffb5aac74f1707",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_79ca9150",
+        "filename": "manifests/server/params.pp",
+        "patchSetId": 7
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-10-30T20:43:35Z",
+      "side": 1,
+      "message": "This should use the stdlib functions, not a template.\n\nThis should also be in server::conf.",
+      "revId": "7f4fb18388d42eb5ae97895454ffb5aac74f1707",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_99c76545",
+        "filename": "manifests/server/params.pp",
+        "patchSetId": 7
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2015-10-30T20:43:35Z",
+      "side": 1,
+      "message": "Should move to server::conf",
+      "revId": "7f4fb18388d42eb5ae97895454ffb5aac74f1707",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
