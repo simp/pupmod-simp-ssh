@@ -1,0 +1,73 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab29df4_79f9b1c7",
+        "filename": "/COMMIT_MSG",
+        "patchSetId": 3
+      },
+      "lineNbr": 9,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-30T19:33:54Z",
+      "side": 1,
+      "message": "Commit message lines must not exceed 72 characters",
+      "range": {
+        "startLine": 9,
+        "startChar": 72,
+        "endLine": 9,
+        "endChar": 79
+      },
+      "revId": "49f0739722d8472f64024812ce0b85b1192fadc6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_b90349b7",
+        "filename": "README.md",
+        "patchSetId": 3
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-30T19:33:54Z",
+      "side": 1,
+      "message": "Trailing whitespace!  Since you\u0027re using parts of my .vimrc, you can strip any whitespace while editing by hitting F4.",
+      "range": {
+        "startLine": 18,
+        "startChar": 64,
+        "endLine": 18,
+        "endChar": 66
+      },
+      "revId": "49f0739722d8472f64024812ce0b85b1192fadc6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9ab29df4_b91a6915",
+        "filename": "manifests/server/params.pp",
+        "patchSetId": 3
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-10-30T19:33:54Z",
+      "side": 1,
+      "message": "fancy.",
+      "range": {
+        "startLine": 39,
+        "startChar": 19,
+        "endLine": 39,
+        "endChar": 40
+      },
+      "revId": "49f0739722d8472f64024812ce0b85b1192fadc6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
