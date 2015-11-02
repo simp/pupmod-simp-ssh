@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "9ab29df4_b1f27d98",
+        "filename": "manifests/server/conf.pp",
+        "patchSetId": 8
+      },
+      "lineNbr": 170,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-11-02T20:12:37Z",
+      "side": 1,
+      "message": "This should be $_ciphers.",
+      "range": {
+        "startLine": 170,
+        "startChar": 35,
+        "endLine": 170,
+        "endChar": 43
+      },
+      "revId": "403db36dd397aace48889fd8bcf39eee267656c9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
