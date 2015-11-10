@@ -1,12 +1,12 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 10
+Release: 11
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
-Requires: pupmod-concat >= 4.0.0-0
+Requires: pupmod-simpcat >= 4.0.0-0
 Requires: pupmod-iptables >= 4.1.0-3
 Requires: puppet >= 3.3.0
 Requires: pupmod-augeasproviders_ssh
@@ -74,6 +74,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 4.1.0-11
+- migration to simplib and simpcat (lib/ only)
+
 * Fri Sep 18 2015 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.0-10
 - Updated the ssh client ciphers to match the ssh server ciphers.
 
