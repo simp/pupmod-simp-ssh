@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7ac7a964_030bdfd6",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 207,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2015-11-20T19:02:49Z",
+      "side": 1,
+      "message": "(ಠ_ಠ)",
+      "range": {
+        "startLine": 207,
+        "startChar": 0,
+        "endLine": 207,
+        "endChar": 4
+      },
+      "revId": "09381d54bdbd4a430d53e6b91a29e42db33821f0",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
