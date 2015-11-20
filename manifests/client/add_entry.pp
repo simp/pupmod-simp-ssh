@@ -92,7 +92,7 @@
 define ssh::client::add_entry (
   $address_family = 'any',
   $batchmode = false,
-  $bindaddress = 'nil',
+  $bindaddress = '',
   $challengeresponseauthentication = true,
   $checkhostip = true,
   $cipher = '3des',
@@ -103,8 +103,8 @@ define ssh::client::add_entry (
   $connectionattempts = '1',
   $connecttimeout = '0',
   $controlmaster = false,
-  $controlpath = 'nil',
-  $dynamicforward = 'nil',
+  $controlpath = '',
+  $dynamicforward = '',
   $enablesshkeysign = false,
   $escapechar = '~',
   $exitonforwardfailure = false,
@@ -112,7 +112,7 @@ define ssh::client::add_entry (
   $forwardx11 = false,
   $forwardx11trusted = false,
   $gatewayports = false,
-  $globalknownhostsfile = 'nil',
+  $globalknownhostsfile = '',
   $gssapiauthentication = false,
   $gssapikeyexchange = false,
   $gssapidelegatecredentials = false,
@@ -121,14 +121,14 @@ define ssh::client::add_entry (
   $hashknownhosts = true,
   $hostbasedauthentication = false,
   $hostkeyalgorithms = 'ssh-rsa,ssh-dss',
-  $hostkeyalias = 'nil',
-  $hostname = 'nil',
+  $hostkeyalias = '',
+  $hostname = '',
   $identitiesonly = false,
-  $identityfile = 'nil',
+  $identityfile = '',
   $kbdinteractiveauthentication = true,
-  $kbdinteractivedevices = 'nil',
-  $localcommand = 'nil',
-  $localforward = 'nil',
+  $kbdinteractivedevices = '',
+  $localcommand = '',
+  $localforward = '',
   $macs = [],
   $ssh_loglevel = 'INFO',
   $nohostauthenticationforlocalhost = false,
@@ -143,10 +143,10 @@ define ssh::client::add_entry (
     'password'
   ],
   $protocol = '2',
-  $proxycommand = 'nil',
+  $proxycommand = '',
   $pubkeyauthentication = true,
-  $rekeylimit = 'nil',
-  $remoteforward = 'nil',
+  $rekeylimit = '',
+  $remoteforward = '',
   $rhostsrsaauthentication = false,
   $rsaauthentication = true,
   $sendenv = [
@@ -167,20 +167,20 @@ define ssh::client::add_entry (
   ],
   $serveralivecountmax = '3',
   $serveraliveinterval = '0',
-  $smartcarddevice = 'nil',
+  $smartcarddevice = '',
   $stricthostkeychecking = 'ask',
   $tcpkeepalive = true,
   $tunnel = 'yes',
-  $tunneldevice = 'nil',
+  $tunneldevice = '',
   $useprivilegedport = false,
-  $user = 'nil',
-  $userknownhostsfile = 'nil',
+  $user = '',
+  $userknownhostsfile = '',
   $verifyhostkeydns = false,
   $visualhostkey = false,
   $xauthlocation = '/usr/bin/xauth'
 ) {
   include '::ssh::client::params'
-  include 'ssh::client'
+  include '::ssh::client'
 
   if !empty($macs) {
     $_macs = $macs
@@ -197,13 +197,29 @@ define ssh::client::add_entry (
 
   $_name = ssh_format_host_entry_for_sorting($name)
 
+  if $::ssh::client::use_fips {
+    $_protocol = '2'
+    $_cipher = ''
+  }
+  else {
+    $_protocol = $protocol
+    $_protocol_array = split($_protocol,',')
+    
+    if !('1' in $_protocol_array) {
+      $_cipher = ''
+    }
+    else {
+      $_cipher = $cipher
+    }
+  }
+
   validate_absolute_path($xauthlocation)
   validate_array($_ciphers)
   validate_array($_macs)
   validate_array($sendenv)
   validate_array($preferredauthentications)
   validate_array_member($address_family, ['any','inet','inet6'])
-  validate_array_member($cipher, ['blowfish','3des','des'])
+  unless empty($_cipher) { validate_array_member($_cipher, ['blowfish','3des','des']) }
   validate_array_member($ssh_loglevel, [
     'QUIET',
     'FATAL',
@@ -254,6 +270,12 @@ define ssh::client::add_entry (
   validate_integer($serveralivecountmax)
   validate_integer($serveraliveinterval)
   validate_port($port)
+  validate_array_member($_protocol,['1','2','1,2','2,1'])
+
+  $_use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
+
+  if $::fips_enabled or $::enable_fips {
+  }
 
   concat_fragment { "ssh_config+$_name.conf":
     content => template('ssh/ssh_config.erb')
