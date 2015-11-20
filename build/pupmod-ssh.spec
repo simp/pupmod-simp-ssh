@@ -74,6 +74,10 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Fri Nov 20 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-11
+- Updated the code to work around a bug in the OpenSSH client where FIPS mode
+  fails if the 'Cipher' parameter is present in /etc/ssh/ssh_config
+
 * Mon Nov 09 2015 Chris Tessmer <chris.tessmer@onypoint.com> - 4.1.0-11
 - migration to simplib and simpcat (lib/ only)
 
