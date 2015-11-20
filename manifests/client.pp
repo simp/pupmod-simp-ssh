@@ -10,12 +10,19 @@
 #   Set this if you wish to automatically have the '*' Host entry set up with
 #   some sane defaults.
 #
+# [*use_fips*]
+# Type: Boolean
+# Default: false
+#   If set, adjust for FIPS mode. If FIPS is already enabled, this will be
+#   ignored.
+#
 # == Authors
 #
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::client (
-  $add_default_entry = true
+  $add_default_entry = true,
+  $use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 ){
 
   if $add_default_entry {

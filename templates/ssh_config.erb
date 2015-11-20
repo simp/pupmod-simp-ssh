@@ -6,10 +6,13 @@
 -%>
 Host <%= @name %>
     AddressFamily <%= @address_family %>
+    Protocol <%= @_protocol %>
     BatchMode <%= bool_translate[@batchmode] %>
     ChallengeResponseAuthentication <%= bool_translate[@challengeresponseauthentication] %>
     CheckHostIP <%= bool_translate[@checkhostip] %>
-    Cipher <%= @cipher %>
+<% unless @_cipher.empty? -%>
+    Cipher <%= @_cipher %>
+<% end -%>
     Ciphers <%= @_ciphers.join(',') %>
     ClearAllForwardings <%= bool_translate[@clearallforwardings] %>
     Compression <%= bool_translate[@compression] %>
@@ -42,7 +45,6 @@ Host <%= @name %>
     PermitLocalCommand <%= bool_translate[@permitlocalcommand] %>
     Port <%= @port %>
     PreferredAuthentications <%= @preferredauthentications.join(',') %>
-    Protocol <%= @protocol %>
     PubkeyAuthentication <%= bool_translate[@pubkeyauthentication] %>
     RhostsRSAAuthentication <%= bool_translate[@rhostsrsaauthentication] %>
     RSAAuthentication <%= bool_translate[@rsaauthentication] %>
@@ -56,54 +58,54 @@ Host <%= @name %>
     VerifyHostKeyDNS <%= bool_translate[@verifyhostkeydns] %>
     VisualHostKey <%= bool_translate[@visualhostkey] %>
     XAuthLocation <%= @xauthlocation %>
-<% if !@bindaddress.eql?("nil") then -%>
+<% unless @bindaddress.empty? -%>
     BindAddress <%= @bindaddress %>
 <% end -%>
-<% if !@controlpath.eql?("nil") then -%>
+<% unless @controlpath.empty? -%>
     ControlPath <%= @controlpath %>
 <% end -%>
-<% if !@dynamicforward.eql?("nil") then -%>
+<% unless @dynamicforward.empty? -%>
     DynamicForward <%= @dynamicforward %>
 <% end -%>
-<% if !@globalknownhostsfile.eql?("nil") then -%>
+<% unless @globalknownhostsfile.empty? -%>
     GlobalKnownHostsFile <%= @globalknownhostsfile %>
 <% end -%>
-<% if !@hostkeyalias.eql?("nil") then -%>
+<% unless @hostkeyalias.empty? -%>
     HostKeyAlias <%= @hostkeyalias %>
 <% end -%>
-<% if !@hostname.eql?("nil") then -%>
+<% unless @hostname.empty? -%>
     HostName <%= @hostname %>
 <% end -%>
-<% if !@identityfile.eql?("nil") then -%>
+<% unless @identityfile.empty? -%>
     IdentityFile <%= @identityfile %>
 <% end -%>
-<% if !@kbdinteractivedevices.eql?("nil") then -%>
+<% unless @kbdinteractivedevices.empty? -%>
     KbdInteractiveDevices <%= @kbdinteractivedevices %>
 <% end -%>
-<% if !@localcommand.eql?("nil") then -%>
+<% unless @localcommand.empty? -%>
     LocalCommand <%= @localcommand %>
 <% end -%>
-<% if !@localforward.eql?("nil") then -%>
+<% unless @localforward.empty? -%>
     LocalForward <%= @localforward %>
 <% end -%>
-<% if !@proxycommand.eql?("nil") then -%>
+<% unless @proxycommand.empty? -%>
     ProxyCommand <%= @proxycommand %>
 <% end -%>
-<% if !@rekeylimit.eql?("nil") then -%>
+<% unless @rekeylimit.empty? -%>
     RekeyLimit <%= @rekeylimit %>
 <% end -%>
-<% if !@remoteforward.eql?("nil") then -%>
+<% unless @remoteforward.empty? -%>
     RemoteForward <%= @remoteforward %>
 <% end -%>
-<% if !@smartcarddevice.eql?("nil") then -%>
+<% unless @smartcarddevice.empty? -%>
     SmartcardDevice <%= @smartcarddevice %>
 <% end -%>
-<% if !@tunneldevice.eql?("nil") then -%>
+<% unless @tunneldevice.empty? -%>
     TunnelDevice <%= @tunneldevice %>
 <% end -%>
-<% if !@user.eql?("nil") then -%>
+<% unless @user.empty? -%>
     User <%= @user %>
 <% end -%>
-<% if !@userknownhostsfile.eql?("nil") then -%>
+<% unless @userknownhostsfile.empty? -%>
     UserKnownHostsFile <%= @userknownhostsfile %>
 <% end -%>
