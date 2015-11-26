@@ -75,4 +75,22 @@ class ssh::server::params {
       $ciphers = $fallback_ciphers
     }
   }
+
+  # This should be removed once we move over to SSSD for everything.
+  if $::operatingsystem in ['RedHat','CentOS'] {
+    if versioncmp($::operatingsystemmajrelease,'7') < 0 {
+      $_use_sssd = false
+    }
+    else {
+      $_use_sssd = true
+    }
+
+    $use_sssd = defined('$::use_sssd') ? {
+      true => $::use_sssd,
+      default => hiera('use_sssd',$_use_sssd)
+    }
+  }
+  else {
+    fail("${::operatingsystem} not yet supported by ${module_name}")
+  }
 }

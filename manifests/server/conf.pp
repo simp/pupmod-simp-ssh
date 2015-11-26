@@ -109,9 +109,22 @@ class ssh::server::conf (
   $client_nets = 'any',
   $use_iptables = hiera('use_iptables',true),
   $use_ldap = hiera('use_ldap',true),
+  $use_sssd = $::ssh::server::params::use_sssd,
   $use_tcpwrappers = true
 ) inherits ::ssh::server::params {
   include 'ssh::server'
+
+  if $use_ldap {
+    if $use_sssd {
+      $_use_ldap = false
+    }
+    else {
+      $_use_ldap = $use_ldap
+    }
+  }
+  else {
+    $_use_ldap = $use_ldap
+  }
 
   if !empty($authorizedkeyscommand) {
     if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
@@ -139,6 +152,7 @@ class ssh::server::conf (
   validate_array($macs)
   validate_bool($use_iptables)
   validate_bool($use_ldap)
+  validate_bool($use_sssd)
   validate_bool($use_tcpwrappers)
 
   if $enable_fallback_ciphers {
@@ -187,7 +201,15 @@ class ssh::server::conf (
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
-  elsif $use_ldap {
+  elsif $use_sssd{
+    include '::sssd::install'
+
+    sshd_config { 'AuthorizedKeysCommand': value => '/bin/sss_ssh_authorizedkeys' }
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
+      sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
+    }
+  }
+  elsif $_use_ldap {
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
     if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
