@@ -17,6 +17,8 @@
 class ssh::server (
   $use_system_pki = true
 ){
+  validate_bool($use_system_pki)
+
   include 'ssh'
   include 'ssh::server::conf'
 
@@ -151,6 +153,4 @@ class ssh::server (
       mode  => '0644'
     }
   }
-
-  validate_bool($use_system_pki)
 }

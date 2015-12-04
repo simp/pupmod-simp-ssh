@@ -22,6 +22,8 @@ class ssh (
   $enable_client = true,
   $enable_server = true
 ){
+  validate_bool($enable_client)
+  validate_bool($enable_server)
 
   if $enable_client { include 'ssh::client' }
   if $enable_server { include 'ssh::server' }
@@ -31,7 +33,4 @@ class ssh (
     group => 'root',
     mode  => '0755'
   }
-
-  validate_bool($enable_client)
-  validate_bool($enable_server)
 }

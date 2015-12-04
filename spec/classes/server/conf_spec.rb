@@ -10,10 +10,10 @@ describe 'ssh::server::conf' do
 
       context "on #{os}" do
         shared_examples_for "a fact set conf" do
-          it { should create_class('ssh::server::conf') }
-          it { should compile.with_all_deps }
-          it { should create_file('/etc/ssh/sshd_config') }
-          it { should create_file('/etc/ssh/local_keys') }
+          it { is_expected.to create_class('ssh::server::conf') }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to create_file('/etc/ssh/sshd_config') }
+          it { is_expected.to create_file('/etc/ssh/local_keys') }
         end
 
         describe "RHEL 6" do
@@ -25,7 +25,7 @@ describe 'ssh::server::conf' do
             :grub_version => '0.97',
             :hardwaremodel => 'x86_64',
             :operatingsystem => 'RedHat',
-            :lsbmajdistrelease => '6',
+            :operatingsystemmajrelease => '6',
             :operatingsystemmajrelease => '6',
             :interfaces => 'eth0,lo'
           }}
@@ -40,7 +40,7 @@ describe 'ssh::server::conf' do
             :grub_version => '2.0.2~beta2',
             :hardwaremodel => 'x86_64',
             :operatingsystem => 'RedHat',
-            :lsbmajdistrelease => '7',
+            :operatingsystemmajrelease => '7',
             :operatingsystemmajrelease => '7',
             :interfaces => 'eth0,lo'
           }}
