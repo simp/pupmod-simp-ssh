@@ -10,12 +10,12 @@ describe 'ssh::client::add_entry' do
       context "on #{os}" do
         let(:title) {'new_run'}
         context 'base' do
-          it { should compile.with_all_deps }
+          it { is_expected.to compile.with_all_deps }
           it {
-            should contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
               %r(Protocol 2$)
             )
-            should contain_concat_fragment('ssh_config+new_run.conf').without_content(
+            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').without_content(
               %r(Cipher )
             )
           }
@@ -24,12 +24,12 @@ describe 'ssh::client::add_entry' do
         context 'with protocol == 1' do
           let(:params){{ :protocol => '1' }}
 
-          it { should compile.with_all_deps }
+          it { is_expected.to compile.with_all_deps }
           it {
-            should contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
               %r(Protocol 1$)
             )
-            should contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
               %r(Cipher )
             )
           }
@@ -37,12 +37,12 @@ describe 'ssh::client::add_entry' do
         context 'with protocol == 2,1' do
           let(:params){{ :protocol => '2,1' }}
 
-          it { should compile.with_all_deps }
+          it { is_expected.to compile.with_all_deps }
           it {
-            should contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
               %r(Protocol 2,1$)
             )
-            should contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
               %r(Cipher )
             )
           }
@@ -62,12 +62,12 @@ describe 'ssh::client::add_entry' do
             _facts[:fips_enabled] = true
             let(:facts){ _facts }
 
-            it { should compile.with_all_deps }
+            it { is_expected.to compile.with_all_deps }
             it {
-              should contain_concat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
                 %r(Protocol 2$)
               )
-              should contain_concat_fragment('ssh_config+new_run.conf').without_content(
+              is_expected.to contain_concat_fragment('ssh_config+new_run.conf').without_content(
                 %r(Cipher )
               )
             }

@@ -277,7 +277,7 @@ define ssh::client::add_entry (
   if $::fips_enabled or $::enable_fips {
   }
 
-  concat_fragment { "ssh_config+$_name.conf":
+  concat_fragment { "ssh_config+${_name}.conf":
     content => template('ssh/ssh_config.erb')
   }
 

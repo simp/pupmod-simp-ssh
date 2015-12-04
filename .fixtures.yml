@@ -1,16 +1,16 @@
 ---
 fixtures:
   repositories:
-    auditd: "git://github.com/simp/pupmod-simp-auditd"
-    augeasproviders_core: "git://github.com/simp/augeasproviders_core"
-    augeasproviders_grub: "git://github.com/simp/augeasproviders_grub"
-    augeasproviders_ssh: "git://github.com/simp/augeasproviders_ssh"
-    common: "git://github.com/simp/pupmod-simp-common"
-    simplib: "git://github.com/simp/pupmod-simp-simplib"
-    simpcat: "git://github.com/simp/pupmod-simp-concat"
-    iptables: "git://github.com/simp/pupmod-simp-iptables"
-    pki: "git://github.com/simp/pupmod-simp-pki"
-    stdlib: "git://github.com/simp/puppetlabs-stdlib"
-    tcpwrappers: "git://github.com/simp/pupmod-simp-tcpwrappers"
+    auditd:                "git://github.com/simp/pupmod-simp-auditd"
+    augeasproviders_core:  "git://github.com/simp/augeasproviders_core"
+    augeasproviders_grub:  "git://github.com/simp/augeasproviders_grub"
+    augeasproviders_ssh:   "git://github.com/simp/augeasproviders_ssh"
+    iptables:              "git://github.com/simp/pupmod-simp-iptables"
+    pki:                   "git://github.com/simp/pupmod-simp-pki"
+    simpcat:               "git://github.com/simp/pupmod-simp-concat"
+    simplib:               "git://github.com/simp/pupmod-simp-simplib"
+    sssd:                  "git://github.com/simp/pupmod-simp-sssd"
+    stdlib:                "git://github.com/simp/puppetlabs-stdlib"
+    tcpwrappers:           "git://github.com/simp/pupmod-simp-tcpwrappers"
   symlinks:
     ssh: "#{source_dir}"

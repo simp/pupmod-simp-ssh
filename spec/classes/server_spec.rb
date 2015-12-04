@@ -1,34 +1,34 @@
 require 'spec_helper'
 
 shared_examples_for "an ssh server" do
-  it { should create_class('ssh::server') }
-  it { should compile.with_all_deps }
-  it { should contain_class('ssh') }
+  it { is_expected.to create_class('ssh::server') }
+  it { is_expected.to compile.with_all_deps }
+  it { is_expected.to contain_class('ssh') }
 
-  it { should create_file('/var/empty/sshd').with({
+  it { is_expected.to create_file('/var/empty/sshd').with({
       :ensure  => 'directory',
       :require => 'Package[openssh-server]'
     })
   }
 
-  it { should create_file('/var/empty/sshd/etc').with({
+  it { is_expected.to create_file('/var/empty/sshd/etc').with({
       :ensure  => 'directory',
       :require => 'Package[openssh-server]'
     })
   }
 
-  it { should create_file('/var/empty/sshd/etc/localtime').with({
+  it { is_expected.to create_file('/var/empty/sshd/etc/localtime').with({
       :source  => '/etc/localtime',
       :require => 'Package[openssh-server]'
     })
   }
 
-  it { should contain_group('sshd') }
+  it { is_expected.to contain_group('sshd') }
 
-  it { should contain_package('openssh-server').with_ensure('latest') }
-  it { should contain_package('openssh-ldap').with_ensure('latest') }
+  it { is_expected.to contain_package('openssh-server').with_ensure('latest') }
+  it { is_expected.to contain_package('openssh-ldap').with_ensure('latest') }
 
-  it { should contain_user('sshd').with({
+  it { is_expected.to contain_user('sshd').with({
       :ensure    => 'present',
       :allowdupe => false,
       :gid       => '74',
@@ -36,7 +36,7 @@ shared_examples_for "an ssh server" do
     })
   }
 
-  it { should contain_service('sshd').with({
+  it { is_expected.to contain_service('sshd').with({
       :ensure  => 'running',
       :require => 'Package[openssh-server]'
     })

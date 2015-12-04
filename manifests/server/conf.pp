@@ -127,7 +127,7 @@ class ssh::server::conf (
   }
 
   if !empty($authorizedkeyscommand) {
-    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease > '6' ) {
       if empty($authorizedkeyscommanduser) {
         fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
       }
@@ -197,7 +197,7 @@ class ssh::server::conf (
 
   if !empty($authorizedkeyscommand) {
     sshd_config { 'AuthorizedKeysCommand': value => $authorizedkeyscommand }
-    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease > '6' ) {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
@@ -205,13 +205,13 @@ class ssh::server::conf (
     include '::sssd::install'
 
     sshd_config { 'AuthorizedKeysCommand': value => '/bin/sss_ssh_authorizedkeys' }
-    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease > '6' ) {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
   elsif $_use_ldap {
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
-    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::lsbmajdistrelease > '6' ) {
+    if ( $::operatingsystem in ['RedHat','CentOS'] ) and ( $::operatingsystemmajrelease > '6' ) {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
     file { '/etc/ssh/ldap.conf':

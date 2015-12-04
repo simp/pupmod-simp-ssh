@@ -24,6 +24,7 @@ class ssh::client (
   $add_default_entry = true,
   $use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 ){
+  validate_bool($add_default_entry)
 
   if $add_default_entry {
     ssh::client::add_entry { '*': }
@@ -51,6 +52,4 @@ class ssh::client (
   }
 
   package { 'openssh-clients': ensure => 'latest' }
-
-  validate_bool($add_default_entry)
 }

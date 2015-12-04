@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 11
+Release: 12
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -74,6 +74,11 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Fri Dec 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 4.1.0-12
+- Replaced all 'lsb*' facts with their (package-independent)
+  'operatingsystem*' counterparts.
+- Moved parameter validation to the top of each class.
+
 * Fri Nov 20 2015 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.0-11
 - Updated the code to work around a bug in the OpenSSH client where FIPS mode
   fails if the 'Cipher' parameter is present in /etc/ssh/ssh_config

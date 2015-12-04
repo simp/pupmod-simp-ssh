@@ -10,11 +10,11 @@ describe 'ssh' do
       context "on #{os}" do
 
         describe "a fact set init" do
-          it { should create_class('ssh') }
-          it { should compile.with_all_deps }
-          it { should create_file('/etc/ssh') }
-          it { should create_file('/etc/ssh/ssh_host_key') }
-          it { should create_file('/etc/ssh/ssh_known_hosts') }
+          it { is_expected.to create_class('ssh') }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to create_file('/etc/ssh') }
+          it { is_expected.to create_file('/etc/ssh/ssh_host_key') }
+          it { is_expected.to create_file('/etc/ssh/ssh_known_hosts') }
         end
 
       end
