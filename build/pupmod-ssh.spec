@@ -74,6 +74,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Wed Dec 09 2015 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.0-12
+- CCE-3660-8 compliance.  Do not allow empty ssh passwords.
+
 * Fri Dec 04 2015 Chris Tessmer <chris.tessmer@onyxpoint.com> - 4.1.0-12
 - Replaced all 'lsb*' facts with their (package-independent)
   'operatingsystem*' counterparts.

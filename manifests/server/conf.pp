@@ -39,6 +39,7 @@
 # [*port*]
 # [*macs*]
 # [*permitrootlogin*]
+# [*permitemptypasswords*]
 # [*printlastlog*]
 # [*subsystem*]
 # [*usepam*]
@@ -100,6 +101,7 @@ class ssh::server::conf (
   $listenaddress = '0.0.0.0',
   $port = '22',
   $macs = $::ssh::server::params::macs,
+  $permitemptypasswords = false,
   $permitrootlogin = false,
   $printlastlog = false,
   $subsystem = 'sftp /usr/libexec/openssh/sftp-server',
@@ -143,6 +145,7 @@ class ssh::server::conf (
   validate_bool($challengeresponseauthentication)
   validate_bool($gssapiauthentication)
   validate_array($kex_algorithms)
+  validate_bool($permitemptypasswords)
   validate_bool($permitrootlogin)
   validate_bool($printlastlog)
   validate_bool($usepam)
@@ -189,6 +192,7 @@ class ssh::server::conf (
   sshd_config{ 'ListenAddress': value => $listenaddress }
   sshd_config{ 'Port': value => $port }
   sshd_config{ 'MACs': value => $macs }
+  sshd_config{ 'PermitEmptyPasswords': value => ssh_config_bool_translate($permitemptypasswords) }
   sshd_config{ 'PermitRootLogin': value => ssh_config_bool_translate($permitrootlogin) }
   sshd_config{ 'PrintLastLog': value => ssh_config_bool_translate($printlastlog) }
   sshd_config{ 'UsePAM': value => ssh_config_bool_translate($usepam) }
