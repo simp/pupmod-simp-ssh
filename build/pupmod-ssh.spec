@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 12
+Release: 13
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -74,6 +74,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Mon Jan 18 2016 Carl Caum <carl@puppetlabs.com> - 4.1.0-13
+- Removed empty logic block that was causing compilation errors in Puppet 4.
+
 * Wed Dec 09 2015 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.0-12
 - CCE-3660-8 compliance.  Do not allow empty ssh passwords.
 
