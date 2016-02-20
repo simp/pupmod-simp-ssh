@@ -5,6 +5,7 @@ fixtures:
     augeasproviders_core:  "git://github.com/simp/augeasproviders_core"
     augeasproviders_grub:  "git://github.com/simp/augeasproviders_grub"
     augeasproviders_ssh:   "git://github.com/simp/augeasproviders_ssh"
+    compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
     iptables:              "git://github.com/simp/pupmod-simp-iptables"
     pki:                   "git://github.com/simp/pupmod-simp-pki"
     simpcat:               "git://github.com/simp/pupmod-simp-concat"
