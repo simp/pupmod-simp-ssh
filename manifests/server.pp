@@ -19,6 +19,8 @@ class ssh::server (
 ){
   validate_bool($use_system_pki)
 
+  compliance_map()
+
   include 'ssh'
   include 'ssh::server::conf'
 

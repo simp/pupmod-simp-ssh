@@ -26,6 +26,8 @@ class ssh::client (
 ){
   validate_bool($add_default_entry)
 
+  compliance_map()
+
   if $add_default_entry {
     ssh::client::add_entry { '*': }
   }

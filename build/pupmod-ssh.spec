@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 13
+Release: 14
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -13,6 +13,8 @@ Requires: pupmod-augeasproviders_ssh
 Buildarch: noarch
 Requires: simp-bootstrap >= 4.2.0
 Obsoletes: pupmod-ssh-test
+Requires: pupmod-onyxpoint-compliance_markup
+
 
 Prefix: %{_sysconfdir}/puppet/environments/simp/modules
 
@@ -74,6 +76,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Thu Feb 25 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 4.1.0-14
+- Added compliance function support
+
 * Mon Jan 18 2016 Carl Caum <carl@puppetlabs.com> - 4.1.0-13
 - Removed empty logic block that was causing compilation errors in Puppet 4.
 

@@ -25,6 +25,8 @@ class ssh (
   validate_bool($enable_client)
   validate_bool($enable_server)
 
+  compliance_map()
+
   if $enable_client { include 'ssh::client' }
   if $enable_server { include 'ssh::server' }
 
