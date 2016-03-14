@@ -17,6 +17,9 @@
 # [*authorizedkeyscommanduser*]
 # [*banner*]
 # [*challengeresponseauthentication*]
+# Default: true
+#   Specify if challenge-auth is allowed.  Defaults to true since usepam
+#   defaults to true.
 # [*compression*]
 # [*ciphers*]
 # [*fallback_ciphers*]
@@ -90,7 +93,7 @@ class ssh::server::conf (
   $authorizedkeyscommand = '',
   $authorizedkeyscommanduser = 'nobody',
   $banner = '/etc/issue.net',
-  $challengeresponseauthentication = false,
+  $challengeresponseauthentication = true,
   $ciphers = $::ssh::server::params::ciphers,
   $fallback_ciphers = $::ssh::server::params::fallback_ciphers,
   $enable_fallback_ciphers = true,
