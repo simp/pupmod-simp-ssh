@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.0
-Release: 14
+Release: 15
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -76,6 +76,12 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Mon Mar 14 2016 Nick Markowski <nmarkowski@keywcorp.com. - 4.1.0-15
+- Ensure that EL6.7+ uses SSSD over NSCD
+- Set challengeauthresponse to true despite compliance mapping.
+  We use PAM by default, which requires challengeauthresponse=true
+  to interract with sshd.
+
 * Thu Feb 25 2016 Ralph Wright <ralph.wright@onyxpoint.com> - 4.1.0-14
 - Added compliance function support
 
