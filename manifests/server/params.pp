@@ -78,7 +78,7 @@ class ssh::server::params {
 
   # This should be removed once we move over to SSSD for everything.
   if $::operatingsystem in ['RedHat','CentOS'] {
-    if versioncmp($::operatingsystemmajrelease,'7') < 0 {
+    if (versioncmp($::operatingsystemmajrelease,'6.7') < 0) {
       $_use_sssd = false
     }
     else {
