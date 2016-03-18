@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
-Version: 4.1.0
-Release: 15
+Version: 4.2.0
+Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
@@ -76,6 +76,10 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Fri Mar 18 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.2.0-0
+- Fact fix in params logic from previous commit.  Switch SSSD/NSCD
+  on operatingsystemrelease, not the major release.
+
 * Mon Mar 14 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.0-15
 - Ensure that EL6.7+ uses SSSD over NSCD
 
