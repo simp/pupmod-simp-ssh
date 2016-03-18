@@ -2,9 +2,15 @@
 fixtures:
   repositories:
     auditd:                "git://github.com/simp/pupmod-simp-auditd"
-    augeasproviders_core:  "git://github.com/simp/augeasproviders_core"
-    augeasproviders_grub:  "git://github.com/simp/augeasproviders_grub"
-    augeasproviders_ssh:   "git://github.com/simp/augeasproviders_ssh"
+    augeasproviders_core:
+      repo : "git://github.com/simp/augeasproviders_core"
+      branch : "simp-master"
+    augeasproviders_grub:
+      repo: "git://github.com/simp/augeasproviders_grub"
+      branch : "simp-master"
+    augeasproviders_ssh:
+      repo : "git://github.com/simp/augeasproviders_ssh"
+      branch : "simp-master"
     compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
     iptables:              "git://github.com/simp/pupmod-simp-iptables"
     pki:                   "git://github.com/simp/pupmod-simp-pki"
