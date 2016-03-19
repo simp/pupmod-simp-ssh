@@ -4,7 +4,7 @@
 #
 # == Parameters
 #
-# [*use_system_pki*]
+# [*use_simp_pki*]
 # Type: Boolean
 # Default: true
 #   If true, will include 'pki' and then use the certificates that are
@@ -15,9 +15,9 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server (
-  $use_system_pki = true
+  $use_simp_pki = defined('$::use_simp_pki') ? { true => $::use_simp_pki, default => hiera('use_simp_pki', true) }
 ){
-  validate_bool($use_system_pki)
+  validate_bool($use_simp_pki)
 
   compliance_map()
 
@@ -117,8 +117,8 @@ class ssh::server (
     subscribe  => Class['::ssh::server::conf']
   }
 
-  if $use_system_pki {
-    include 'pki'
+  if $use_simp_pki {
+    include '::pki'
 
     file { '/etc/ssh/ssh_host_rsa_key':
       owner     => 'root',
