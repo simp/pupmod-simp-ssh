@@ -26,7 +26,6 @@ shared_examples_for "an ssh server" do
   it { is_expected.to contain_group('sshd') }
 
   it { is_expected.to contain_package('openssh-server').with_ensure('latest') }
-  it { is_expected.to contain_package('openssh-ldap').with_ensure('latest') }
 
   it { is_expected.to contain_user('sshd').with({
       :ensure    => 'present',
@@ -44,33 +43,58 @@ shared_examples_for "an ssh server" do
 end
 
 describe 'ssh::server' do
-  on_supported_os.each do |os, facts|
-    let(:facts) do
-      facts
-    end
-
-    context "on #{os}" do
-      context "with default parameters" do
-        it_behaves_like "an ssh server"
-        it {
-          is_expected.to contain_sshd_config('Ciphers').with_value(
-            ['aes256-gcm@openssh.com',
-             'aes128-gcm@openssh.com',
-             'aes256-cbc',
-             'aes192-cbc',
-             'aes128-cbc']
-        )}
-      end
-
-      context "with enable_fallback_ciphers=false" do
-        let(:pre_condition){
-          "class{'ssh::server::conf': enable_fallback_ciphers => false }"
-        }
-        it_behaves_like "an ssh server"
-        it {
-          is_expected.to contain_sshd_config('Ciphers').with_value(
-            ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com']
-        )}
+  context 'supported operating systems' do
+    on_supported_os.each do |os, facts|
+      context "on #{os}" do
+        let(:facts) do
+          facts
+        end
+        context "with default parameters" do
+          it_behaves_like "an ssh server"
+  
+          if (['RedHat', 'CentOS'].include?(facts[:operatingsystem]))
+            if (facts[:operatingsystemmajrelease].to_s >= '7')
+              it { is_expected.to contain_sshd_config('Ciphers').with_value(
+                   ['aes256-gcm@openssh.com',
+                   'aes128-gcm@openssh.com',
+                   'aes256-cbc',
+                   'aes192-cbc',
+                   'aes128-cbc'])
+              }
+            else
+              it { is_expected.to contain_sshd_config('Ciphers').with_value(
+                   ['aes256-cbc',
+                   'aes192-cbc',
+                   'aes128-cbc'])
+              }
+            end
+            if (facts[:operatingsystemrelease].to_s < '6.7')
+              it { is_expected.to contain_package('openssh-ldap').with_ensure('latest') }
+            else
+              it { is_expected.to_not contain_package('openssh-ldap').with_ensure('latest') }
+            end
+          end
+        end
+  
+        context "with enable_fallback_ciphers=false" do
+          let(:pre_condition){
+            "class{'ssh::server::conf': enable_fallback_ciphers => false }"
+          }
+          it_behaves_like "an ssh server"
+          if (['RedHat', 'CentOS'].include?(facts[:operatingsystem]))
+            if (facts[:operatingsystemmajrelease].to_s >= '7')
+              it { is_expected.to contain_sshd_config('Ciphers').with_value(
+                   ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com'])
+              }
+            else
+              it { is_expected.to contain_sshd_config('Ciphers').with_value(
+                   ['aes256-cbc',
+                   'aes192-cbc',
+                   'aes128-cbc'])
+              }
+            end
+          end
+        end
       end
     end
   end

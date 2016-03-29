@@ -93,7 +93,7 @@ class ssh::server (
 
   package { 'openssh-server': ensure => 'latest' }
 
-  if $::ssh::server::conf::use_ldap {
+  if $::ssh::server::conf::_use_ldap {
     package { 'openssh-ldap': ensure => 'latest' }
   }
 
