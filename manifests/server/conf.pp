@@ -190,7 +190,8 @@ class ssh::server::conf (
   sshd_config{ 'Compression': value => ssh_config_bool_translate($compression) }
   sshd_config{ 'SyslogFacility': value => $syslogfacility}
   sshd_config{ 'GSSAPIAuthentication': value => ssh_config_bool_translate($gssapiauthentication) }
-  sshd_config{ 'KexAlgorithms': value => $kex_algorithms }
+  # Kex should be empty openssl < 5.7, they are not supported.
+  if !empty($kex_algorithms) { sshd_config{ 'KexAlgorithms': value => $kex_algorithms } }
   sshd_config{ 'ListenAddress': value => $listenaddress }
   sshd_config{ 'Port': value => $port }
   sshd_config{ 'MACs': value => $macs }

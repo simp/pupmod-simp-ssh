@@ -10,6 +10,7 @@ describe 'ssh' do
       context "on #{os}" do
 
         describe "a fact set init" do
+          let(:facts) { facts.merge( { :openssh_version => '6.6' } ) }
           it { is_expected.to create_class('ssh') }
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to create_file('/etc/ssh') }
