@@ -15,6 +15,7 @@ group :test do
   gem "puppetlabs_spec_helper"
   gem "metadata-json-lint"
   gem "simp-rspec-puppet-facts"
+  gem "hiera-puppet-helper"
 
   # dependency hacks:
   gem "fog-google", '~> 0.0.9' # 0.1 dropped support for ruby 1.9
@@ -36,6 +37,8 @@ group :development do
   gem "guard-rake"
   gem 'pry'
   gem 'pry-doc'
+  # Listen >= 3.1.X requires ruby 2.2, freeze at 3.0.6
+  gem 'listen', '3.0.6'
 end
 
 group :system_tests do

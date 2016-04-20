@@ -1,6 +1,6 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
-Version: 4.1.2
+Version: 4.1.3
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -76,6 +76,12 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Wed Apr 20 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.3-0
+- Created an openssh_version fact.
+- Modified kex algorithm set:
+  - No longer set kex prior to openssh v 5.7
+  - Curve25519 kex only set in openssh v 6.5+
+
 * Tue Mar 23 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.2-0
 - Openssh-ldap is no longer installed when use_sssd is true.
 

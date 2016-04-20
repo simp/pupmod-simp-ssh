@@ -27,8 +27,8 @@ class ssh (
 
   compliance_map()
 
-  if $enable_client { include 'ssh::client' }
-  if $enable_server { include 'ssh::server' }
+  if $enable_client { include '::ssh::client' }
+  if $enable_server { include '::ssh::server' }
 
   file { '/etc/ssh':
     owner => 'root',
