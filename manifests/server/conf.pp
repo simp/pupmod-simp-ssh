@@ -144,7 +144,7 @@ class ssh::server::conf (
   if $compression != 'delayed' { validate_bool($compression) }
   validate_bool($challengeresponseauthentication)
   validate_bool($gssapiauthentication)
-  validate_array($kex_algorithms)
+  if !empty($kex_algorithms) { validate_array($kex_algorithms) }
   validate_bool($permitemptypasswords)
   validate_bool($permitrootlogin)
   validate_bool($printlastlog)
@@ -190,7 +190,7 @@ class ssh::server::conf (
   sshd_config{ 'Compression': value => ssh_config_bool_translate($compression) }
   sshd_config{ 'SyslogFacility': value => $syslogfacility}
   sshd_config{ 'GSSAPIAuthentication': value => ssh_config_bool_translate($gssapiauthentication) }
-  sshd_config{ 'KexAlgorithms': value => $kex_algorithms }
+  if !empty($kex_algorithms) { sshd_config{ 'KexAlgorithms': value => $kex_algorithms } }
   sshd_config{ 'ListenAddress': value => $listenaddress }
   sshd_config{ 'Port': value => $port }
   sshd_config{ 'MACs': value => $macs }
