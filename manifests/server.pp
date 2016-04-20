@@ -21,8 +21,8 @@ class ssh::server (
 
   compliance_map()
 
-  include 'ssh'
-  include 'ssh::server::conf'
+  include '::ssh'
+  include '::ssh::server::conf'
 
   # A hack to work around broken Augeas Lenses
   file { '/usr/share/augeas/lenses/sshd.aug':
