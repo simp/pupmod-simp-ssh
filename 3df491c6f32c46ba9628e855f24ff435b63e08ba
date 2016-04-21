@@ -1,0 +1,44 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_b96e61c7",
+        "filename": "manifests/server/conf.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 147,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-04-21T18:29:33Z",
+      "side": 1,
+      "message": "`$ssh::server::kex_algorithms` should always be an array.",
+      "revId": "3df491c6f32c46ba9628e855f24ff435b63e08ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_1e2bf395",
+        "filename": "spec/classes/server_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 119,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-04-21T18:29:33Z",
+      "side": 1,
+      "message": "Trailing whitespace is the bane of civilization.",
+      "range": {
+        "startLine": 119,
+        "startChar": 19,
+        "endLine": 119,
+        "endChar": 35
+      },
+      "revId": "3df491c6f32c46ba9628e855f24ff435b63e08ba",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
