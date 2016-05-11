@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_496d0430",
+        "filename": "build/pupmod-ssh.spec",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-05-11T20:48:14Z",
+      "side": 1,
+      "message": "This is a backwards-compatible bugfix, so this should be version 4.1.3.",
+      "revId": "20c866fa0cd19b50d7e1262838a5bd915f1b5211",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_29764006",
+        "filename": "lib/facter/openssh_version.rb",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-05-11T20:48:14Z",
+      "side": 1,
+      "message": "What happens if sshd_out is \u0027nil\u0027?",
+      "revId": "20c866fa0cd19b50d7e1262838a5bd915f1b5211",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_09737c16",
+        "filename": "metadata.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 3,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-05-11T20:48:14Z",
+      "side": 1,
+      "message": "Should be 4.1.3",
+      "revId": "20c866fa0cd19b50d7e1262838a5bd915f1b5211",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
