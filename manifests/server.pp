@@ -117,6 +117,28 @@ class ssh::server (
     subscribe  => Class['::ssh::server::conf']
   }
 
+  if to_string($::ssh::server::conf::port) != '22' and defined('$::selinux_enforced') and str2bool(getvar('::selinux_enforced')) {
+    if ! defined(Package['policycoreutils-python']) {
+      package { 'policycoreutils-python':
+        ensure => 'latest',
+        before => Exec["SELinux Allow SSH Port ${::ssh::server::conf::port}"]
+      }
+    }
+
+    # This should really be a custom type...
+    exec { "SELinux Allow SSH Port ${::ssh::server::conf::port}":
+      command => "semanage port -a -t ssh_port_t -p tcp ${::ssh::server::conf::port}",
+      unless  => "semanage port -C -l | grep -qe 'ssh_port_t[[:space:]]*tcp[[:space:]]*${::ssh::server::conf::port}'",
+      path    => [
+        '/usr/local/sbin',
+        '/usr/local/bin',
+        '/usr/sbin',
+        '/usr/bin'
+      ],
+      notify  => Service['sshd'],
+    }
+  }
+
   if $use_simp_pki {
     include '::pki'
 
