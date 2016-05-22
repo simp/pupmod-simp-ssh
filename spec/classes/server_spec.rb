@@ -40,6 +40,8 @@ shared_examples_for "an ssh server" do
       :require => 'Package[openssh-server]'
     })
   }
+
+  it { is_expected.to_not contain_exec('SELinux Allow SSH Port 22') }
 end
 
 describe 'ssh::server' do
@@ -167,6 +169,15 @@ describe 'ssh::server' do
               }
             end
           end
+        end
+
+        context "with a non-standard ssh port" do
+          let(:pre_condition){
+            "class{'ssh::server::conf': port => 22000 }"
+          }
+          it { is_expected.to contain_exec('SELinux Allow SSH Port 22000').that_requires(
+            'Package[policycoreutils-python]')
+          }
         end
       end
     end
