@@ -1,6 +1,6 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
-Version: 4.1.3
+Version: 4.1.4
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -76,6 +76,10 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Sat May 21 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.4-0
+- Ensure that we set the proper SELinux port connection options for sshd if
+  using a non-standard port.
+
 * Wed Apr 20 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.3-0
 - Created an openssh_version fact.
 - Modified kex algorithm set:
