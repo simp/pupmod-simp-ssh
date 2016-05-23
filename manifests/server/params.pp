@@ -31,7 +31,10 @@ class ssh::server::params {
   ]
 
   if $::fips_enabled {
-    if $::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0 {
+    if (
+      ($::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0) or
+      ($::operatingsystem in ['Fedora'] and versioncmp($::operatingsystemmajrelease,'22') >= 0)
+    ) {
 
       if versioncmp($::openssh_version, '5.7') >= 0 {
         $kex_algorithms = [
@@ -64,7 +67,10 @@ class ssh::server::params {
     }
   }
   else {
-    if $::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0 {
+    if (
+      ($::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0) or
+      ($::operatingsystem in ['Fedora'] and versioncmp($::operatingsystemmajrelease,'22') >= 0)
+    ) {
       # FIPS mode not enabled, stay within the bounds but expand the options
 
       if versioncmp($::openssh_version, '5.7') >= 0 {
@@ -108,7 +114,7 @@ class ssh::server::params {
   }
 
   # This should be removed once we move over to SSSD for everything.
-  if $::operatingsystem in ['RedHat','CentOS'] {
+  if $::operatingsystem in ['RedHat','CentOS','Fedora'] {
     if (versioncmp($::operatingsystemrelease,'6.7') < 0) {
       $_use_sssd = false
     }
