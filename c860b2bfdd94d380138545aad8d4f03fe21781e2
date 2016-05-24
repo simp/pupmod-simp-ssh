@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_3240b533",
+        "filename": "manifests/server.pp",
+        "patchSetId": 4
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-05-24T21:45:28Z",
+      "side": 1,
+      "message": "Nooooooooo",
+      "revId": "c860b2bfdd94d380138545aad8d4f03fe21781e2",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
