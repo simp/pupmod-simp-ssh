@@ -1,6 +1,6 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
-Version: 4.1.3
+Version: 4.1.4
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -76,6 +76,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Tue Jun 07 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.4-0
+- The openssh_version fact is now compatible with ruby 1.8.7.
+
 * Wed Apr 20 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.3-0
 - Created an openssh_version fact.
 - Modified kex algorithm set:
