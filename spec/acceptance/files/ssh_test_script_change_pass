@@ -1,0 +1,41 @@
+#!/usr/bin/expect -f
+
+set force_conservative 1  ;# set to 1 to force conservative mode even if
+                          ;# script wasn't run conservatively originally
+if {$force_conservative} {
+        set send_slow {1 .1}
+        proc send {ignore arg} {
+                sleep .1
+                exp_send -s -- $arg
+        }
+}
+
+set user [lindex $argv 0]
+set host [lindex $argv 1]
+set pass [lindex $argv 2]
+set newpass [lindex $argv 3]
+set timeout 5
+
+set timeout -1
+spawn ssh -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=1 $host -l $user
+match_max 100000
+expect -exact "\\S\r
+Kernel \\r on an \\m\r
+$user@$host's password: "
+send -- "$pass\r"
+expect -exact "\r
+channel 0: open failed: administratively prohibited: open failed\r
+You are required to change your password immediately (root enforced)\r
+WARNING: Your password has expired.\r
+You must change your password now and login again!\r
+Changing password for user $user.\r
+Changing password for $user.\r
+(current) UNIX password: "
+send -- "$pass\r"
+expect -exact "\r
+New password: "
+send -- "$newpass\r"
+expect -exact "\r
+Retype new password: "
+send -- "$newpass\r"
+expect eof

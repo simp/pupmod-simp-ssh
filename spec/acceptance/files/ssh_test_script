@@ -1,0 +1,13 @@
+#!/usr/bin/expect -f
+
+set user [lindex $argv 0]
+set host [lindex $argv 1]
+set pass [lindex $argv 2]
+set timeout 5
+
+spawn ssh -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=1 $host -l $user ssh -V
+expect "*password:" {
+  send "$pass\r"
+}
+catch wait result
+exit [lindex $result 3]
