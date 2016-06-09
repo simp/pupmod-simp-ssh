@@ -76,6 +76,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Tue Jun 07 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.4-0
+- The openssh_version fact is now compatible with ruby 1.8.7.
+
 * Sat May 21 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.4-0
 - Ensure that we set the proper SELinux port connection options for sshd if
   using a non-standard port.
