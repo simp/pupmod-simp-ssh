@@ -1,7 +1,7 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
 Version: 4.1.4
-Release: 0
+Release: 1
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz

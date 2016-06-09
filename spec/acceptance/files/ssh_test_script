@@ -1,0 +1,26 @@
+#!/usr/bin/env ruby
+require 'pty'
+require 'expect'
+user = ARGV[0]
+host = ARGV[1]
+pass = ARGV[2]
+PTY.spawn('ssh','-o StrictHostKeyChecking=no',host,'-l',user) do |read,write,pid|
+  begin
+    while !read.eof? do
+      # if the line is a password prompt:
+      read.expect(/password:*/i, timeout=5) do |text|
+        write.puts(pass)
+        sleep(1)
+        write.puts('exit')
+        puts "Logged in successfully."
+      end
+      # if the line says denied
+      read.expect(/.*denied.*/i, timeout=5) do |text|
+        write.puts('^C')
+        exit 1
+        puts "Failed to log in."
+      end
+    end
+  rescue Errno::EIO
+  end
+end
