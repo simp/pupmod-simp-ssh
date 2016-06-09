@@ -5,12 +5,12 @@ fixtures:
     augeasproviders_core:
       repo : "git://github.com/simp/augeasproviders_core"
       branch : 'simp-master'
-    augeasproviders_grub:
-      repo : "git://github.com/simp/augeasproviders_grub"
-      branch : 'simp-master'
     augeasproviders_ssh:
       repo : "git://github.com/simp/augeasproviders_ssh"
       branch : 'simp-master'
+    augeasproviders_ssh:
+        repo : "git://github.com/simp/augeasproviders_ssh"
+        branch : 'simp-master'
     compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
     iptables:              "git://github.com/simp/pupmod-simp-iptables"
     pki:                   "git://github.com/simp/pupmod-simp-pki"
@@ -19,6 +19,5 @@ fixtures:
     sssd:                  "git://github.com/simp/pupmod-simp-sssd"
     stdlib:                "git://github.com/simp/puppetlabs-stdlib"
     tcpwrappers:           "git://github.com/simp/pupmod-simp-tcpwrappers"
-    compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
   symlinks:
     ssh: "#{source_dir}"
