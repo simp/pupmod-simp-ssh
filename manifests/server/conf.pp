@@ -27,7 +27,7 @@
 #
 # [*enable_fallback_ciphers*]
 # Type: Boolean
-# Default: true
+# Default: false
 #   If true, add the fallback ciphers from ssh::server::params to the cipher
 #   list. This is intended to provide compatibility with non-SIMP systems in a
 #   way that properly supports FIPS 140-2.
@@ -50,19 +50,19 @@
 #
 # [*use_iptables*]
 # Type: Boolean
-# Default: hiera('use_iptables',true)
+# Default: defined('$::use_iptables') ? { true => getvar('::use_iptables'), default => hiera('use_iptables', true) }
 #   If true, use the SIMP iptables class.
 #
 # [*use_ldap*]
 # Type: Boolean
-# Default: hiera('use_ldap',true)
+# Default: defined('$::use_ldap') ? { true => getvar('::use_ldap'), default => hiera('use_ldap', true) },
 #   If true, enable LDAP support on the system.
 #   If authorizedkeyscommand is empty, this will set the authorizedkeyscommand
 #   to ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
 #
 # [*use_tcpwrappers]
 # Type: Boolean
-# Default: true
+# Default: false
 #   If true, allow sshd tcpwrapper.
 #
 # [*use_haveged*]
@@ -98,7 +98,7 @@ class ssh::server::conf (
   $challengeresponseauthentication = false,
   $ciphers = $::ssh::server::params::ciphers,
   $fallback_ciphers = $::ssh::server::params::fallback_ciphers,
-  $enable_fallback_ciphers = true,
+  $enable_fallback_ciphers = false,
   $compression = false,
   $syslogfacility = 'AUTHPRIV',
   $gssapiauthentication = false,
@@ -114,11 +114,11 @@ class ssh::server::conf (
   $useprivilegeseparation = true,
   $x11forwarding = false,
   $client_nets = 'any',
-  $use_iptables = hiera('use_iptables',true),
-  $use_ldap = hiera('use_ldap',true),
+  $use_iptables = defined('$::use_iptables') ? { true => getvar('::use_iptables'), default => hiera('use_iptables', true) },
+  $use_ldap = defined('$::use_ldap') ? { true => getvar('::use_ldap'), default => hiera('use_ldap', true) },
   $use_sssd = $::ssh::server::params::use_sssd,
   $use_haveged = true,
-  $use_tcpwrappers = true
+  $use_tcpwrappers = false
 ) inherits ::ssh::server::params {
   assert_private()
 
