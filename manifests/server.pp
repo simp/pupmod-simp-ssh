@@ -6,7 +6,7 @@
 #
 # [*use_simp_pki*]
 # Type: Boolean
-# Default: true
+# Default: false
 #   If true, will include 'pki' and then use the certificates that are
 #   transferred to generate the system SSH certificates for consistency.
 #
@@ -15,7 +15,7 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server (
-  $use_simp_pki = defined('$::use_simp_pki') ? { true => $::use_simp_pki, default => hiera('use_simp_pki', true) }
+  $use_simp_pki = defined('$::use_simp_pki') ? { true => getvar('::use_simp_pki'), default => hiera('use_simp_pki', false) }
 ){
   validate_bool($use_simp_pki)
 
