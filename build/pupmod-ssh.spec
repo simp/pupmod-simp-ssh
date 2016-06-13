@@ -77,6 +77,10 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Wed Jun 29 2016 Nick Miller <nick.miller@onyxpoint.com> - 4.1.6-0
+- The defaults for use_iptables and use_ldap will now follow the global
+  catalysts. Updated acceptance tests.
+
 * Thu Jun 30 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.6-0
 - Use_haveged is now a global catalyst.
 
@@ -96,7 +100,7 @@ fi
   - No longer set kex prior to openssh v 5.7
   - Curve25519 kex only set in openssh v 6.5+
 
-* Tue Mar 23 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.2-0
+* Tue Mar 22 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.2-0
 - Openssh-ldap is no longer installed when use_sssd is true.
 
 * Sat Mar 19 2016 Trevor Vaughan <tvaughan@onyxpoint.comm> - 4.1.1-0

@@ -1,18 +1,40 @@
 HOSTS:
-  server:
+  el7-server:
     roles:
       - default
       - server
+      - el7
+      - el7-server
     platform:   el-7-x86_64
     box:        puppetlabs/centos-7.0-64-nocm
     box_url:    https://vagrantcloud.com/puppetlabs/boxes/centos-7.0-64-nocm
     hypervisor: vagrant
-  client:
+  el7-client:
     roles:
       - client
+      - el7
+      - el7-client
     platform:   el-7-x86_64
     box:        puppetlabs/centos-7.0-64-nocm
     box_url:    https://vagrantcloud.com/puppetlabs/boxes/centos-7.0-64-nocm
+    hypervisor: vagrant
+  el6-server:
+    roles:
+      - server
+      - el6
+      - el6-server
+    platform:   el-6-x86_64
+    box:        puppetlabs/centos-6.6-64-nocm
+    box_url:    https://vagrantcloud.com/puppetlabs/boxes/centos-6.6-64-nocm
+    hypervisor: vagrant
+  el6-client:
+    roles:
+      - client
+      - el6
+      - el6-client
+    platform:   el-6-x86_64
+    box:        puppetlabs/centos-6.6-64-nocm
+    box_url:    https://vagrantcloud.com/puppetlabs/boxes/centos-6.6-64-nocm
     hypervisor: vagrant
 CONFIG:
   log_level:       verbose
