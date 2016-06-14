@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_c71f3e08",
+        "filename": "spec/acceptance/ssh_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 159,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2016-06-14T21:31:20Z",
+      "side": 1,
+      "message": "ws",
+      "range": {
+        "startLine": 159,
+        "startChar": 0,
+        "endLine": 159,
+        "endChar": 6
+      },
+      "revId": "4d0d6c0e3f8e4ebd28e19dcf1412bd9dac54b1d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
