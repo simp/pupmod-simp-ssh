@@ -1,0 +1,96 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_928f2fcc",
+        "filename": "spec/acceptance/nodesets/centos-66-x64.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 5,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-06-15T20:24:11Z",
+      "side": 1,
+      "message": "`master` is unnecessary for `type: foss` SUTs",
+      "range": {
+        "startLine": 5,
+        "startChar": 8,
+        "endLine": 5,
+        "endChar": 14
+      },
+      "revId": "d8952db19dd431433eea99c6943ae774b0ed201f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_52c087e0",
+        "filename": "spec/acceptance/nodesets/centos-66-x64.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 7,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-06-15T20:24:11Z",
+      "side": 1,
+      "message": "This duplicate entry makes centos-6.6 SUTs fail on the `only_host_with_role( hosts, \u0027client\u0027 )`  invocation in `spec/acceptance/ssh_spec.rb`.",
+      "range": {
+        "startLine": 7,
+        "startChar": 8,
+        "endLine": 7,
+        "endChar": 14
+      },
+      "revId": "d8952db19dd431433eea99c6943ae774b0ed201f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_b29233f5",
+        "filename": "spec/acceptance/nodesets/centos-7-x64.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-06-15T20:24:11Z",
+      "side": 1,
+      "message": "This should have two hosts with the same roles as `default.yml`",
+      "range": {
+        "startLine": 1,
+        "startChar": 0,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "d8952db19dd431433eea99c6943ae774b0ed201f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f288bbc8",
+        "filename": "spec/acceptance/nodesets/fedora-20-x64.yml",
+        "patchSetId": 2
+      },
+      "lineNbr": 2,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-06-15T20:24:11Z",
+      "side": 1,
+      "message": "We can get rid of this",
+      "range": {
+        "startLine": 2,
+        "startChar": 2,
+        "endLine": 2,
+        "endChar": 15
+      },
+      "revId": "d8952db19dd431433eea99c6943ae774b0ed201f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
