@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_4d510c0e",
+        "filename": "spec/acceptance/ssh_spec.rb",
+        "patchSetId": 3
+      },
+      "lineNbr": 70,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-06-15T20:49:41Z",
+      "side": 1,
+      "message": "I agree that these should be moved into files.  They should  also be inside `let(:xxx){}` blocks.",
+      "revId": "597b158a8a48a419c5b9a515119774e349ea6a88",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
