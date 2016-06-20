@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_375ba330",
+        "filename": "manifests/server.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 18,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-06-20T14:25:17Z",
+      "side": 1,
+      "message": "Needs to use \u0027getvar\u0027 in the \u0027true\u0027 section.",
+      "revId": "f4dc4618eeded2ee415d0a4fe920aafb9b3ef02f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_f73d3bbc",
+        "filename": "manifests/server/conf.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 53,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-06-20T14:25:17Z",
+      "side": 1,
+      "message": "These need to switch out to the new format.",
+      "revId": "f4dc4618eeded2ee415d0a4fe920aafb9b3ef02f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
