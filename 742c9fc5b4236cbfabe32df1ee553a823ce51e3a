@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_c286f064",
+        "filename": "spec/acceptance/ssh_spec.rb",
+        "patchSetId": 9
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2016-06-21T19:30:29Z",
+      "side": 1,
+      "message": "Need EOS tags?",
+      "range": {
+        "startLine": 15,
+        "startChar": 3,
+        "endLine": 15,
+        "endChar": 5
+      },
+      "revId": "742c9fc5b4236cbfabe32df1ee553a823ce51e3a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
