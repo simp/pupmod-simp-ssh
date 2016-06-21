@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "baa041b7_87193625",
+        "filename": "spec/acceptance/ssh_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 23,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2016-06-21T19:30:29Z",
+      "side": 1,
+      "message": "remove",
+      "range": {
+        "startLine": 23,
+        "startChar": 5,
+        "endLine": 23,
+        "endChar": 54
+      },
+      "revId": "4d0d6c0e3f8e4ebd28e19dcf1412bd9dac54b1d6",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "baa041b7_c71f3e08",
         "filename": "spec/acceptance/ssh_spec.rb",
         "patchSetId": 1
