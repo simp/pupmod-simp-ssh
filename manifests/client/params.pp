@@ -7,6 +7,7 @@
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::client::params {
+
   # These are all that are supported on RHEL6
   $_fallback_macs = [ 'hmac-sha1' ]
   $_fallback_ciphers = [
