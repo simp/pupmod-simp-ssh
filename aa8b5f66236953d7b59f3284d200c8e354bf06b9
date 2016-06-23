@@ -1,0 +1,72 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_7fb5727c",
+        "filename": "manifests/client/params.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T21:49:51Z",
+      "side": 1,
+      "message": "You forgot to remove this one.",
+      "revId": "aa8b5f66236953d7b59f3284d200c8e354bf06b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_7f6c5208",
+        "filename": "manifests/server/conf.pp",
+        "patchSetId": 2
+      },
+      "lineNbr": 121,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T21:49:51Z",
+      "side": 1,
+      "message": "Trailing comma?  This could be a one-line diff instead of two.  Same thing in `client.pp`.",
+      "revId": "aa8b5f66236953d7b59f3284d200c8e354bf06b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_9f671625",
+        "filename": "metadata.json",
+        "patchSetId": 2
+      },
+      "lineNbr": 38,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T21:49:51Z",
+      "side": 1,
+      "message": "`version_requirement` should be bounded with an upper limit.  I see that\u0027s pretty much universally not the case in the existing code base, but it makes dependency resolution much easier and far less error prone.  It would look something like this:\n\n    \"version_requirement\": \"\u003e\u003d 0.3.0 \u003c 1.0.0\"",
+      "revId": "aa8b5f66236953d7b59f3284d200c8e354bf06b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_9fc036e2",
+        "filename": "spec/classes/client_spec.rb",
+        "patchSetId": 2
+      },
+      "lineNbr": 27,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T21:49:51Z",
+      "side": 1,
+      "message": "`it` should include a title when used in block form.",
+      "revId": "aa8b5f66236953d7b59f3284d200c8e354bf06b9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
