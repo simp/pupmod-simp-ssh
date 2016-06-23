@@ -13,6 +13,8 @@ class ssh::server::params {
 
   ## Public Variables ##
 
+  $use_haveged = true
+
   # These should work with *everything*
   $fallback_ciphers = [
     'aes256-cbc',
