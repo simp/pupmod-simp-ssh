@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_24f6c1d7",
+        "filename": "manifests/client.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 31,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T14:53:11Z",
+      "side": 1,
+      "message": "There\u0027s no need for the params class here.  The params class is for logic, not static values.\n\nAlso, equals sign alignment.",
+      "revId": "dedd3457e8e397cc72793ff30b527a3dca7b0c38",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_0403bdb9",
+        "filename": "metadata.json",
+        "patchSetId": 1
+      },
+      "lineNbr": 11,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T14:53:11Z",
+      "side": 1,
+      "message": "There should be a dependency here.",
+      "revId": "dedd3457e8e397cc72793ff30b527a3dca7b0c38",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_e4ffb9a8",
+        "filename": "spec/classes/client_spec.rb",
+        "patchSetId": 1
+      },
+      "lineNbr": 24,
+      "author": {
+        "id": 1008615
+      },
+      "writtenOn": "2016-06-23T14:53:11Z",
+      "side": 1,
+      "message": "There should be at least one invalid input test.",
+      "revId": "dedd3457e8e397cc72793ff30b527a3dca7b0c38",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
