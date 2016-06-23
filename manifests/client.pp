@@ -16,15 +16,23 @@
 #   If set, adjust for FIPS mode. If FIPS is already enabled, this will be
 #   ignored.
 #
+# [*use_haveged*]
+# Type: Boolean
+# Default: true
+#   If true, include the haveged module to assist with entropy generation.
+#
 # == Authors
 #
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::client (
   $add_default_entry = true,
-  $use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
-){
+  $use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) },
+  $use_haveged = true
+) {
+
   validate_bool($add_default_entry)
+  validate_bool($use_haveged)
 
   compliance_map()
 
@@ -54,4 +62,8 @@ class ssh::client (
   }
 
   package { 'openssh-clients': ensure => 'latest' }
+
+  if $use_haveged {
+    include '::haveged'
+  }
 }

@@ -65,6 +65,11 @@
 # Default: true
 #   If true, allow sshd tcpwrapper.
 #
+# [*use_haveged*]
+# Type: Boolean
+# Default: true
+#   If true, include the haveged module to assist with entropy generation.
+#
 # == Authors
 #
 # * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
@@ -112,7 +117,8 @@ class ssh::server::conf (
   $use_iptables = hiera('use_iptables',true),
   $use_ldap = hiera('use_ldap',true),
   $use_sssd = $::ssh::server::params::use_sssd,
-  $use_tcpwrappers = true
+  $use_tcpwrappers = true,
+  $use_haveged = true
 ) inherits ::ssh::server::params {
   assert_private()
 
@@ -159,6 +165,7 @@ class ssh::server::conf (
   validate_bool($use_ldap)
   validate_bool($use_sssd)
   validate_bool($use_tcpwrappers)
+  validate_bool($use_haveged)
 
   compliance_map()
 
@@ -264,5 +271,9 @@ class ssh::server::conf (
       pattern => nets2ddq($client_nets),
       order   => '1'
     }
+  }
+
+  if $use_haveged {
+    include '::haveged'
   }
 }
