@@ -42,6 +42,7 @@ shared_examples_for "an ssh server" do
   }
 
   it { is_expected.to_not contain_exec('SELinux Allow SSH Port 22') }
+
 end
 
 describe 'ssh::server' do
@@ -52,6 +53,7 @@ describe 'ssh::server' do
           facts
         end
         let(:facts) { facts.merge( { :openssh_version => '6.6' } ) }
+
         context "with default parameters" do
           it_behaves_like "an ssh server"
 
