@@ -1,6 +1,6 @@
 {
   "name":    "pupmod-simp-ssh",
-  "version": "4.1.4-1",
+  "version": "4.1.5",
   "author":  "simp",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
@@ -32,6 +32,10 @@
     {
       "name": "herculesteam/augeasproviders_ssh",
       "version_requirement": ">= 2.5.0"
+    },
+    {
+      "name": "simp/haveged",
+      "version_requirement": ">= 0.3.0 < 1.0.0"
     },
     {
       "name": "simp/pki",

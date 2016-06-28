@@ -15,6 +15,9 @@ fixtures:
         repo : "git://github.com/simp/augeasproviders_ssh"
         branch : 'simp-master'
     compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
+    haveged:
+      repo : "git://github.com/simp/puppet-haveged"
+      branch : 'simp-master'
     iptables:              "git://github.com/simp/pupmod-simp-iptables"
     pki:                   "git://github.com/simp/pupmod-simp-pki"
     simpcat:               "git://github.com/simp/pupmod-simp-concat"
