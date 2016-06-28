@@ -1,13 +1,14 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
-Version: 4.1.4
-Release: 1
+Version: 4.1.5
+Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
 Source: %{name}-%{version}-%{release}.tar.gz
 Buildroot: %{_tmppath}/%{name}-%{version}-%{release}-buildroot
 Requires: pupmod-simpcat >= 4.0.0-0
 Requires: pupmod-iptables >= 4.1.0-3
+Requires: pupmod-haveged >= 0.3.0-0
 Requires: puppet >= 3.3.0
 Requires: pupmod-augeasproviders_ssh
 Buildarch: noarch
@@ -76,6 +77,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Wed Jun 22 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.5-0
+- Pupmod-haveged now included by default to assist with entropy generation.
+
 * Tue Jun 07 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.4-0
 - The openssh_version fact is now compatible with ruby 1.8.7.
 
