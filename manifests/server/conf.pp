@@ -117,7 +117,7 @@ class ssh::server::conf (
   $use_iptables = hiera('use_iptables',true),
   $use_ldap = hiera('use_ldap',true),
   $use_sssd = $::ssh::server::params::use_sssd,
-  $use_haveged = true,
+  $use_haveged = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
   $use_tcpwrappers = true
 ) inherits ::ssh::server::params {
   assert_private()

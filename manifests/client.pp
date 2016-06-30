@@ -27,7 +27,7 @@
 #
 class ssh::client (
   $add_default_entry = true,
-  $use_haveged = true,
+    $use_haveged = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
   $use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 ) {
 

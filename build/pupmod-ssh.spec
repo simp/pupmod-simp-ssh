@@ -1,6 +1,6 @@
 Summary: SSH Puppet Module
 Name: pupmod-ssh
-Version: 4.1.5
+Version: 4.1.6
 Release: 0
 License: Apache License, Version 2.0
 Group: Applications/System
@@ -77,6 +77,9 @@ fi
 # Post uninitall stuff
 
 %changelog
+* Thu Jun 30 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.6-0
+- Use_haveged is now a global catalyst.
+
 * Wed Jun 22 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.5-0
 - Pupmod-haveged now included by default to assist with entropy generation.
 
