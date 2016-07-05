@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_afd39e5e",
+        "filename": "build/pupmod-ssh.spec",
+        "patchSetId": 12
+      },
+      "lineNbr": 81,
+      "author": {
+        "id": 1005194
+      },
+      "writtenOn": "2016-07-05T14:25:49Z",
+      "side": 1,
+      "message": "Not anymore.",
+      "range": {
+        "startLine": 81,
+        "startChar": 2,
+        "endLine": 81,
+        "endChar": 57
+      },
+      "revId": "333fb69cd0be4868945daea0e20e8c5ee7e07ec7",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
