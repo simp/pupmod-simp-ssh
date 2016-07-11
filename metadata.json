@@ -1,6 +1,6 @@
 {
-  "name":    "pupmod-simp-ssh",
-  "version": "4.1.7",
+  "name":    "simp-ssh",
+  "version": "4.1.8",
   "author":  "simp",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
