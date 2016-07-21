@@ -1,14 +1,17 @@
----
-fixtures:
-  symlinks:
-    ssh: "#{source_dir}"
-    auditd: "#{source_dir}/../auditd"
-    augeasproviders_core: "#{source_dir}/../augeasproviders_core"
-    augeasproviders_ssh: "#{source_dir}/../augeasproviders_ssh"
-    augeasproviders_grub: "#{source_dir}/../augeasproviders_grub"
-    common: "#{source_dir}/../common"
-    concat: "#{source_dir}/../concat"
-    iptables: "#{source_dir}/../iptables"
-    pki: "#{source_dir}/../pki"
-    stdlib: "#{source_dir}/../stdlib"
-    tcpwrappers: "#{source_dir}/../tcpwrappers"
+--- 
+  fixtures: 
+    symlinks: 
+      auditd: "#{source_dir}/../auditd"
+      augeasproviders_core: "#{source_dir}/../augeasproviders_core"
+      augeasproviders_grub: "#{source_dir}/../augeasproviders_grub"
+      augeasproviders_ssh: "#{source_dir}/../augeasproviders_ssh"
+      compliance_markup: "#{source_dir}/../compliance_markup"
+      haveged: "#{source_dir}/../haveged"
+      iptables: "#{source_dir}/../iptables"
+      pki: "#{source_dir}/../pki"
+      simpcat: "#{source_dir}/../simpcat"
+      simplib: "#{source_dir}/../simplib"
+      ssh: "#{source_dir}"
+      sssd: "#{source_dir}/../sssd"
+      stdlib: "#{source_dir}/../stdlib"
+      tcpwrappers: "#{source_dir}/../tcpwrappers"

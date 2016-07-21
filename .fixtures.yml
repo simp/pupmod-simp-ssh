@@ -1,26 +1,28 @@
 ---
 fixtures:
   repositories:
-    auditd:                "git://github.com/simp/pupmod-simp-auditd"
+    auditd:                "https://github.com/simp/pupmod-simp-auditd"
     augeasproviders_core:
-      repo : "git://github.com/simp/augeasproviders_core"
-      branch : 'simp-master'
+      repo:   "https://github.com/simp/augeasproviders_core"
+      branch: 'simp-master'
     augeasproviders_grub:
-      repo : "git://github.com/simp/augeasproviders_grub"
-      branch : 'simp-master'
+      repo:   "https://github.com/simp/augeasproviders_grub"
+      branch: 'simp-master'
     augeasproviders_ssh:
-      repo : "git://github.com/simp/augeasproviders_ssh"
-      branch : 'simp-master'
-    compliance: "https://github.com/trevor-vaughan/pupmod-compliance"
+      repo:   "https://github.com/simp/augeasproviders_ssh"
+      branch: 'simp-master'
+    compliance_markup: "https://github.com/simp/pupmod-simp-compliance_markup"
     haveged:
-      repo : "git://github.com/simp/puppet-haveged"
-      branch : 'simp-master'
-    iptables:              "git://github.com/simp/pupmod-simp-iptables"
-    pki:                   "git://github.com/simp/pupmod-simp-pki"
-    simpcat:               "git://github.com/simp/pupmod-simp-concat"
-    simplib:               "git://github.com/simp/pupmod-simp-simplib"
-    sssd:                  "git://github.com/simp/pupmod-simp-sssd"
-    stdlib:                "git://github.com/simp/puppetlabs-stdlib"
-    tcpwrappers:           "git://github.com/simp/pupmod-simp-tcpwrappers"
+      repo:   "https://github.com/simp/puppet-haveged"
+      branch: 'simp-master'
+    iptables:              "https://github.com/simp/pupmod-simp-iptables"
+    pki:                   "https://github.com/simp/pupmod-simp-pki"
+    simpcat:               "https://github.com/simp/pupmod-simp-simpcat"
+    simplib:               "https://github.com/simp/pupmod-simp-simplib"
+    sssd:                  "https://github.com/simp/pupmod-simp-sssd"
+    stdlib:
+      repo:   "https://github.com/simp/puppetlabs-stdlib"
+      branch: 'simp-master'
+    tcpwrappers:           "https://github.com/simp/pupmod-simp-tcpwrappers"
   symlinks:
     ssh: "#{source_dir}"
