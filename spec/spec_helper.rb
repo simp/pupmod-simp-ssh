@@ -46,7 +46,7 @@ EOM
 # end
 #
 def set_environment(environment = :production)
-    RSpec.configure { |c| c.default_facts['environment'] = environment.to_s }
+  RSpec.configure { |c| c.default_facts['environment'] = environment.to_s }
 end
 
 # This can be used from inside your spec tests to load custom hieradata within
