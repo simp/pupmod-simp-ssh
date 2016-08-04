@@ -1,6 +1,6 @@
 {
   "name":    "simp-ssh",
-  "version": "4.1.8",
+  "version": "4.1.9",
   "author":  "simp",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
