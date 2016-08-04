@@ -3,4 +3,6 @@ Requires: pupmod-simp-compliance_markup
 Requires: pupmod-simp-iptables >= 4.1.0-3
 Requires: pupmod-simp-haveged >= 0.3.0-0
 Requires: pupmod-simp-simpcat >= 4.0.0-0
+Provides: pupmod-ssh-augeas-lenses >= 4.1.2-0
+Obsoletes: pupmod-ssh-augeas-lenses <= 4.1.2-0
 Obsoletes: pupmod-ssh-test >= 0.0.1
