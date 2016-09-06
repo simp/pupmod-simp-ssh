@@ -222,7 +222,7 @@ class ssh::server::conf (
   elsif $use_sssd{
     include '::sssd::install'
 
-    sshd_config { 'AuthorizedKeysCommand': value => '/bin/sss_ssh_authorizedkeys' }
+    sshd_config { 'AuthorizedKeysCommand': value => '/usr/bin/sss_ssh_authorizedkeys' }
     if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
       and ( versioncmp($::operatingsystemmajrelease,'6') > 0 )
     {

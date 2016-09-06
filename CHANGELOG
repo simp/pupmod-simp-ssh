@@ -1,4 +1,8 @@
-* Thu Aug 4 2016 Nick Miller <nick.miller@onyxpoint.com> - 4.1.9-0
+* Tue Sep 06 2016 Nick Markowski <nmarkowski@keywcorp.com> - 4.1.10-0
+- Modified AuthorizedKeysCommand to be /usr/bin/sss_ssh_authorizedkeys
+  if sssd is enabled.
+
+* Thu Aug 04 2016 Nick Miller <nick.miller@onyxpoint.com> - 4.1.9-0
 - Updated rpm requires to propery expire old versions
 
 * Mon Jul 11 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.8-0
