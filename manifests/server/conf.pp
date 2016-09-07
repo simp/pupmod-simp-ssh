@@ -6,69 +6,93 @@
 #   This variable can be set using Augeas in addition to this location
 #   with no adverse effects.
 #
-# [*acceptenv*]
-# [*authorizedkeysfile*]
-# Type: String
-# Default: /etc/ssh/local_keys/%u
-#   This is set to a non-standard location to provide for increased control
-#   over who can log in as a given user.
-#
-# [*authorizedkeyscommand*]
-# [*authorizedkeyscommanduser*]
-# [*banner*]
-# [*challengeresponseauthentication*]
-# [*compression*]
-# [*ciphers*]
-# [*fallback_ciphers*]
-# Type: Array
-# Default: $::ssh::server::params::fallback_ciphers
-#   The set of ciphers that should be used should no other cipher be declared.
-#   This is used when $::ssh::server::enable_fallback_ciphers is enabled.
-#
-# [*enable_fallback_ciphers*]
-# Type: Boolean
-# Default: true
-#   If true, add the fallback ciphers from ssh::server::params to the cipher
-#   list. This is intended to provide compatibility with non-SIMP systems in a
-#   way that properly supports FIPS 140-2.
-#
-# [*syslogfacility*]
-# [*gssapiauthentication*]
-# [*kex_algorithms*]
-# [*listenaddress*]
-# [*port*]
-# [*macs*]
-# [*permitrootlogin*]
-# [*permitemptypasswords*]
-# [*printlastlog*]
-# [*subsystem*]
-# [*usepam*]
-# [*useprivilegeseparation*]
-# [*x11forwarding*]
-# [*client_nets*]
-#   The networks to allow to connect to SSH. Defaults to 'any'
-#
-# [*use_iptables*]
-# Type: Boolean
-# Default: defined('$::use_iptables') ? { true => getvar('::use_iptables'), default => hiera('use_iptables', true) }
-#   If true, use the SIMP iptables class.
-#
-# [*use_ldap*]
-# Type: Boolean
-# Default: defined('$::use_ldap') ? { true => getvar('::use_ldap'), default => hiera('use_ldap', true) },
-#   If true, enable LDAP support on the system.
-#   If authorizedkeyscommand is empty, this will set the authorizedkeyscommand
-#   to ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
-#
-# [*use_tcpwrappers]
-# Type: Boolean
-# Default: true
-#   If true, allow sshd tcpwrapper.
-#
-# [*use_haveged*]
-# Type: Boolean
-# Default: true
-#   If true, include the haveged module to assist with entropy generation.
+# @param acceptenv [Array] Specifies what environment variables sent by the
+#   client will be copied into the sessions enviornment.
+#   Default:
+#   $acceptenv = [
+#     'LANG',
+#     'LC_CTYPE',
+#     'LC_NUMERIC',
+#     'LC_TIME',
+#     'LC_COLLATE',
+#     'LC_MONETARY',
+#     'LC_MESSAGES',
+#     'LC_PAPER',
+#     'LC_NAME',
+#     'LC_ADDRESS',
+#     'LC_TELEPHONE',
+#     'LC_MEASUREMENT',
+#     'LC_IDENTIFICATION',
+#     'LC_ALL'
+#   ],
+# @param authorizedkeysfile [String] This is set to a non-standard location to
+#   provide for increased control over who can log in as a given user. Default:
+#   /etc/ssh/local_keys/%u
+# @param authorizedkeyscommand [String] Specifies a program to be used for
+#   lookup of the user's public keys. Default: None
+# @param authorizedkeyscommanduser [String] Specifies the user under whose
+#   account the AuthorizedKeysCommand is run. Default: 'Nobody'
+# @param banner [String] The contents of the specified file are sent to the
+#   remote user before authentication is allowed. Default: '/etc/issue.net'
+# @param challengeresponseauthentication [Boolean] Specifies whether
+#   challenge-response authentication is allowed. Default: False
+# @param ciphers [Array] Specifies the ciphers allowed for protocol version 2.
+#   Default: See ssh::server::params
+# @param compression [String] Specifies whether compression is allowed, or
+#   delayed until the user has authenticated successfully. Default: False
+# @param fallback_ciphers [Array] The set of ciphers that should be used should
+#   no other cipher be declared. This is used when
+#   $::ssh::server::enable_fallback_ciphers is enabled. Default:
+#   $::ssh::server::params::fallback_ciphers
+# @param enable_fallback_ciphers [Boolean] If true, add the fallback ciphers
+#from ssh::server::params to the cipher list. This is intended to provide
+#   compatibility with non-SIMP systems in a way that properly supports FIPS
+#   140-2. Default: true
+# @param syslogfacility [String] Gives the facility code that is used when
+#   logging messages. Valid Options: 'DAEMON', 'USER', 'AUTH', 'AUTHPRIV',
+#   'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6',
+#   'LOCAL7'. Default: 'AUTHPRIV'
+# @param gssapiauthentication [Boolean] Specifies whether user authentication
+#   based on GSSAPI is allowed. Default: False
+# @param kex_algorithms [Array]
+# @param listenaddress [String] Specifies the local addresses sshd should listen
+#   on. Default: '0.0.0.0'
+# @param port [Boolean] Specifies the port number SSHD listens on. Default:
+#   '22'.
+# @param macs [Array] Specifies the available MAC algorithms. Default: See
+#   $::ssh::server::params::macs
+# @param permitemptypasswords [Boolean] When password authentication is allowed,
+#   it specifies whether the server allows login to accounts with empty password
+#   strings. Default: False
+# @param permitrootlogin [Boolean] Specifies whether root can log in using SSH.
+#   Default: False
+# @param printlastlog [Boolean] Specifies whether SSHD should print the date and
+#   time of the last user login when a user logs in interactively. Default: False
+# @param subsystem [String] Configures and external subsystem for file
+#   transfers. Default: 'sftp /usr/libexec/openssh/sftp-server'.
+# @param usepam [Boolean] Enables the Pluggable Authentication Module interface.
+#   Default: True
+# @param useprivilegeseparation [Boolean] Specifies whether sshd separates
+#   privileges by creating an unprivileged child process to deal with incoming
+#   network traffic. Default: True
+# @param x11forwarding [Boolean] Specifies whether X11 forwarding is permitted.
+#   Default: False
+# @param client_nets [Array] The networks to allow to connect to SSH.
+#   Default: 'any'
+# @param use_iptables [Boolean] If true, use the SIMP iptables class. Default:
+#   defined('$::use_iptables') ? { true => getvar('::use_iptables'),
+#   default => hiera('use_iptables', true) }
+# @param use_ldap [Boolean] If true, enable LDAP support on the system. If
+#   authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
+#   ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
+#   Default: defined('$::use_ldap') ? { true => getvar('::use_ldap'),
+#   default => hiera('use_ldap', true) },
+# @param use_tcpwrappers [Boolean] If true, allow sshd tcpwrapper. Default:
+#   true
+# @param use_haveged [Boolean] If true, include the haveged module to assist
+#   with entropy generation. Default: true
+# @param use_sssd [Boolean] If true, use sssd. Default: See
+#   $::ssh::server::params::use_sssd
 #
 # == Authors
 #
