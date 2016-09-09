@@ -1,0 +1,89 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_c9203efb",
+        "filename": "README.md",
+        "patchSetId": 1
+      },
+      "lineNbr": 135,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-09T10:09:51Z",
+      "side": 1,
+      "message": "I thought we weren\u0027t going to include the parameters in the README files?",
+      "revId": "a18deee6610033000628eeffde59797f76b33959",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_a91f3ab6",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 15,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-09T10:09:51Z",
+      "side": 1,
+      "message": "This doesn\u0027t make sense here",
+      "revId": "a18deee6610033000628eeffde59797f76b33959",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_891a36c5",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 20,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-09T10:09:51Z",
+      "side": 1,
+      "message": "Add a whitespace after each @param or @option for readability",
+      "revId": "a18deee6610033000628eeffde59797f76b33959",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_697812f9",
+        "filename": "manifests/client/add_entry.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 194,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-09T10:09:51Z",
+      "side": 1,
+      "message": "The \u0027Default\u0027 items should be removed as they are automatically picked up by Strings (also, it keeps us from having to update things in two spots)",
+      "revId": "a18deee6610033000628eeffde59797f76b33959",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_497b0ef5",
+        "filename": "manifests/server/conf.pp",
+        "patchSetId": 1
+      },
+      "lineNbr": 0,
+      "author": {
+        "id": 1004834
+      },
+      "writtenOn": "2016-09-09T10:09:51Z",
+      "side": 1,
+      "message": "See changes for the client file",
+      "revId": "a18deee6610033000628eeffde59797f76b33959",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
