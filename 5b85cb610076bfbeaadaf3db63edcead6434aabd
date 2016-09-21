@@ -1,0 +1,67 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "baa041b7_af039775",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 14,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-21T05:18:24Z",
+      "side": 1,
+      "message": "Should these include subsection links like section 2 has?",
+      "range": {
+        "startLine": 13,
+        "startChar": 0,
+        "endLine": 14,
+        "endChar": 26
+      },
+      "revId": "5b85cb610076bfbeaadaf3db63edcead6434aabd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_2fd1c7fb",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-21T05:18:24Z",
+      "side": 1,
+      "message": "This is not the same header level as the other classes.",
+      "revId": "5b85cb610076bfbeaadaf3db63edcead6434aabd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "baa041b7_8fdfb30b",
+        "filename": "README.md",
+        "patchSetId": 2
+      },
+      "lineNbr": 538,
+      "author": {
+        "id": 1005143
+      },
+      "writtenOn": "2016-09-21T05:18:24Z",
+      "side": 1,
+      "message": "This level of documentation for each parameter is pretty overwhelming in a project README, and is unlikely to stay in sync with the source code comments (where `puppet strings` will find it).\n\nDo we really need to do this in both places?",
+      "range": {
+        "startLine": 103,
+        "startChar": 1,
+        "endLine": 538,
+        "endChar": 42
+      },
+      "revId": "5b85cb610076bfbeaadaf3db63edcead6434aabd",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
