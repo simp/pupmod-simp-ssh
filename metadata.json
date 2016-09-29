@@ -1,13 +1,16 @@
 {
-  "name":    "simp-ssh",
-  "version": "4.1.10",
-  "author":  "simp",
+  "name": "simp-ssh",
+  "version": "4.1.11",
+  "author": "simp",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
-  "source":  "https://github.com/simp/pupmod-simp-ssh",
+  "source": "https://github.com/simp/pupmod-simp-ssh",
   "project_page": "https://github.com/simp/pupmod-simp-ssh",
-  "issues_url":   "https://simp-project.atlassian.net",
-  "tags": [ "simp", "ssh" ],
+  "issues_url": "https://simp-project.atlassian.net",
+  "tags": [
+    "simp",
+    "ssh"
+  ],
   "dependencies": [
     {
       "name": "simp/common",
@@ -34,7 +37,7 @@
       "version_requirement": ">= 2.5.0"
     },
     {
-      "name": "simp/puppet-haveged",
+      "name": "simp/haveged",
       "version_requirement": ">= 0.3.0 < 1.0.0"
     },
     {
