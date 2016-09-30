@@ -274,7 +274,7 @@ define ssh::client::add_entry (
 
   $_use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
 
-  concat_fragment { "ssh_config+${_name}.conf":
+  simpcat_fragment { "ssh_config+${_name}.conf":
     content => template('ssh/ssh_config.erb')
   }
 

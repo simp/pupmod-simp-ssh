@@ -3,7 +3,7 @@ module Puppet::Parser::Functions
     A method to sensibly format sort SSH 'host' entries which contain wildcards
     and question marks.
 
-    The output is intended for use with the concat_fragment type and is *not*
+    The output is intended for use with the simpcat_fragment type and is *not*
     meant for use as a host entry itself.
 
     The general idea is that it places all items at the bottom of the list
