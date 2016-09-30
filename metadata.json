@@ -1,6 +1,6 @@
 {
   "name": "simp-ssh",
-  "version": "4.1.11",
+  "version": "5.0.0",
   "author": "simp",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
@@ -17,8 +17,8 @@
       "version_requirement": ">= 4.2.0"
     },
     {
-      "name": "simp/concat",
-      "version_requirement": ">= 4.0.0"
+      "name": "simp/simpcat",
+      "version_requirement": ">= 6.0.0"
     },
     {
       "name": "simp/auditd",
