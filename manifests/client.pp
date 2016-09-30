@@ -40,7 +40,7 @@ class ssh::client (
     ssh::client::add_entry { '*': }
   }
 
-  concat_build { 'ssh_config':
+  simpcat_build { 'ssh_config':
     order   => ['*.conf'],
     target  => '/etc/ssh/ssh_config',
     require => Package['openssh-clients']
@@ -56,7 +56,7 @@ class ssh::client (
     owner     => 'root',
     group     => 'root',
     mode      => '0644',
-    subscribe => Concat_build['ssh_config'],
+    subscribe => Simpcat_build['ssh_config'],
     require   => Package['openssh-clients'],
     audit     => content
   }

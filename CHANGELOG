@@ -1,3 +1,7 @@
+* Wed Oct 12 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 5.0.0-0
+- Updated to use the version of 'simpcat' that does not conflict with
+  'puppetlabs/concat'.
+
 * Fri Sep 30 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 4.1.12-0
 - Fixed dependencies in `metadata.json` prior to a Forge push.
 

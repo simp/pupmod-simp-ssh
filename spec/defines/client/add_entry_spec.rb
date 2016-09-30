@@ -12,10 +12,10 @@ describe 'ssh::client::add_entry' do
         context 'base' do
           it { is_expected.to compile.with_all_deps }
           it {
-            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
               %r(Protocol 2$)
             )
-            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').without_content(
+            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').without_content(
               %r(Cipher )
             )
           }
@@ -26,10 +26,10 @@ describe 'ssh::client::add_entry' do
 
           it { is_expected.to compile.with_all_deps }
           it {
-            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
               %r(Protocol 1$)
             )
-            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
               %r(Cipher )
             )
           }
@@ -39,10 +39,10 @@ describe 'ssh::client::add_entry' do
 
           it { is_expected.to compile.with_all_deps }
           it {
-            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
               %r(Protocol 2,1$)
             )
-            is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
+            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
               %r(Cipher )
             )
           }
@@ -64,10 +64,10 @@ describe 'ssh::client::add_entry' do
 
             it { is_expected.to compile.with_all_deps }
             it {
-              is_expected.to contain_concat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
                 %r(Protocol 2$)
               )
-              is_expected.to contain_concat_fragment('ssh_config+new_run.conf').without_content(
+              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').without_content(
                 %r(Cipher )
               )
             }
