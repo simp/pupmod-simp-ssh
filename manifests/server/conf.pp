@@ -189,7 +189,6 @@ class ssh::server::conf (
   validate_bool($use_tcpwrappers)
   validate_bool($use_haveged)
 
-  compliance_map()
 
   if $enable_fallback_ciphers {
     $_ciphers = unique(flatten([$ciphers,$fallback_ciphers]))
