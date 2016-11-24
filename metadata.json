@@ -18,7 +18,7 @@
     },
     {
       "name": "simp/auditd",
-      "version_requirement": ">= 5.1.1 < 6.0.0"
+      "version_requirement": ">= 6.0.0 < 7.0.0"
     },
     {
       "name": "herculesteam/augeasproviders_core",
@@ -38,7 +38,7 @@
     },
     {
       "name": "simp/pki",
-      "version_requirement": ">= 4.2.5 < 5.0.0"
+      "version_requirement": ">= 5.0.0 < 6.0.0"
     },
     {
       "name": "simp/stunnel",
