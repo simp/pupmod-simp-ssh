@@ -1,0 +1,2 @@
+---
+ssh::server::conf::authorizedkeyscommand: '/some/command'

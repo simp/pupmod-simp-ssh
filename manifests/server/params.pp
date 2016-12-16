@@ -1,13 +1,11 @@
-# == Class: ssh::server::params
+# class ssh::server::params
 #
 # Default parameters for the SSH Server
 #
-# KexAlgorithm configuration was not added until 5.7
-# Curve exchange was not fully supported until 6.5
+# KexAlgorithm configuration was not added until openssh 5.7
+# Curve exchange was not fully supported until openssh 6.5
 #
-# == Authors
-#
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server::params {
 
@@ -30,104 +28,83 @@ class ssh::server::params {
     'aes128-gcm@openssh.com'
   ]
 
-  if $::fips_enabled {
-    if (
-      ($::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0) or
-      ($::operatingsystem in ['Fedora'] and versioncmp($::operatingsystemmajrelease,'22') >= 0)
-    ) {
+  if (
+    ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
+    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
+  ) {
 
-      if versioncmp($::openssh_version, '5.7') >= 0 {
-        $kex_algorithms = [
-          'ecdh-sha2-nistp521',
-          'ecdh-sha2-nistp384',
-          'ecdh-sha2-nistp256',
-          'diffie-hellman-group-exchange-sha256'
-        ]
-      }
-      else {
-        $kex_algorithms = []
-      }
-      $macs = [
-        'hmac-sha2-256',
-        'hmac-sha1'
+    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
+      $fips_kex_algorithms = [
+        'ecdh-sha2-nistp521',
+        'ecdh-sha2-nistp384',
+        'ecdh-sha2-nistp256',
+        'diffie-hellman-group-exchange-sha256'
       ]
-      $ciphers = $_primary_ciphers
     }
     else {
-      # Don't know what OS this is so fall back to whatever should work with
-      # FIPS 140-2 in all cases.
-      if versioncmp($::openssh_version, '5.7') >= 0 {
-        $kex_algorithms = $_fallback_kex_algorithms
-      }
-      else {
-        $kex_algorithms = []
-      }
-      $macs = $_fallback_macs
-      $ciphers = $fallback_ciphers
+      $fips_kex_algorithms = []
     }
+    $fips_macs = [
+      'hmac-sha2-256',
+      'hmac-sha1'
+    ]
+    $fips_ciphers = $_primary_ciphers
   }
   else {
-    if (
-      ($::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0) or
-      ($::operatingsystem in ['Fedora'] and versioncmp($::operatingsystemmajrelease,'22') >= 0)
-    ) {
-      # FIPS mode not enabled, stay within the bounds but expand the options
-
-      if versioncmp($::openssh_version, '5.7') >= 0 {
-        $base_kex_algorithms = [
-          'ecdh-sha2-nistp521',
-          'ecdh-sha2-nistp384',
-          'ecdh-sha2-nistp256',
-          'diffie-hellman-group-exchange-sha256'
-        ]
-        if versioncmp($::openssh_version, '6.5') >= 0 {
-          $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
-        }
-        else {
-          $additional_kex_algorithms = []
-        }
-        $kex_algorithms = concat($additional_kex_algorithms,$base_kex_algorithms)
-      }
-      else {
-        $kex_algorithms = []
-      }
-      $macs = [
-        'hmac-sha2-512-etm@openssh.com',
-        'hmac-sha2-256-etm@openssh.com',
-        'hmac-sha2-512',
-        'hmac-sha2-256'
-      ]
-      $ciphers = $_primary_ciphers
+    # Don't know what OS this is so fall back to whatever should work with
+    # FIPS 140-2 in all cases.
+    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
+      $fips_kex_algorithms = $_fallback_kex_algorithms
     }
     else {
-      # Don't know what OS this is so fall back to whatever should work with
-      # FIPS 140-2 in all cases.
-      if versioncmp($::openssh_version, '5.7') >= 0 {
-        $kex_algorithms = $_fallback_kex_algorithms
-      }
-      else {
-        $kex_algorithms = []
-      }
-      $macs = $_fallback_macs
-      $ciphers = $fallback_ciphers
+      $fips_kex_algorithms = []
     }
+    $fips_macs = $_fallback_macs
+    $fips_ciphers = $fallback_ciphers
   }
 
-  # This should be removed once we move over to SSSD for everything.
-  if $::operatingsystem in ['RedHat','CentOS','Fedora'] {
-    if (versioncmp($::operatingsystemrelease,'6.7') < 0) {
-      $_use_sssd = false
+  if (
+    ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
+    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
+  ) {
+    # FIPS mode not enabled, stay within the bounds but expand the options
+
+    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
+      $base_kex_algorithms = [
+        'ecdh-sha2-nistp521',
+        'ecdh-sha2-nistp384',
+        'ecdh-sha2-nistp256',
+        'diffie-hellman-group-exchange-sha256'
+      ]
+      if versioncmp($facts['openssh_version'], '6.5') >= 0 {
+        $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
+      }
+      else {
+        $additional_kex_algorithms = []
+      }
+      $kex_algorithms = concat($additional_kex_algorithms,$base_kex_algorithms)
     }
     else {
-      $_use_sssd = true
+      $kex_algorithms = []
     }
-
-    $use_sssd = defined('$::use_sssd') ? {
-      true => $::use_sssd,
-      default => hiera('use_sssd',$_use_sssd)
-    }
+    $macs = [
+      'hmac-sha2-512-etm@openssh.com',
+      'hmac-sha2-256-etm@openssh.com',
+      'hmac-sha2-512',
+      'hmac-sha2-256'
+    ]
+    $ciphers = $_primary_ciphers
   }
   else {
-    fail("${::operatingsystem} not yet supported by ${module_name}")
+    # Don't know what OS this is so fall back to whatever should work with
+    # FIPS 140-2 in all cases.
+    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
+      $kex_algorithms = $_fallback_kex_algorithms
+    }
+    else {
+      $kex_algorithms = []
+    }
+    $macs = $_fallback_macs
+    $ciphers = $fallback_ciphers
   }
 }

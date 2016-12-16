@@ -21,14 +21,7 @@ spawn ssh -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=1 $host -l $use
 match_max 100000
 expect -exact "$user@$host's password: "
 send -- "$pass\r"
-expect -exact "\r
-channel 0: open failed: administratively prohibited: open failed\r
-You are required to change your password immediately (root enforced)\r
-WARNING: Your password has expired.\r
-You must change your password now and login again!\r
-Changing password for user $user.\r
-Changing password for $user.\r
-(current) UNIX password: "
+expect -re "UNIX password: "
 send -- "$pass\r"
 expect -exact "\r
 New password: "

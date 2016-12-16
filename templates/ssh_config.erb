@@ -19,7 +19,7 @@ Host <%= @name %>
     CompressionLevel <%= @compressionlevel %>
     ConnectionAttempts <%= @connectionattempts %>
     ConnectTimeout <%= @connecttimeout %>
-    ControlMaster <%= bool_translate[@controlmaster] %>
+    ControlMaster <%= @controlmaster %>
     EnableSSHKeysign <%= bool_translate[@enablesshkeysign] %>
     EscapeChar <%= @escapechar %>
     ExitOnForwardFailure <%= bool_translate[@exitonforwardfailure] %>
@@ -34,7 +34,7 @@ Host <%= @name %>
     GSSAPITrustDns <%= bool_translate[@gssapitrustdns] %>
     HashKnownHosts <%= bool_translate[@hashknownhosts] %>
     HostbasedAuthentication <%= bool_translate[@hostbasedauthentication] %>
-    HostKeyAlgorithms <%= @hostkeyalgorithms %>
+    HostKeyAlgorithms <%= @hostkeyalgorithms.join(',') %>
     IdentitiesOnly <%= bool_translate[@identitiesonly] %>
     KbdInteractiveAuthentication <%= bool_translate[@kbdinteractiveauthentication] %>
     LogLevel <%= @ssh_loglevel %>
@@ -55,57 +55,57 @@ Host <%= @name %>
     TCPKeepAlive <%= bool_translate[@tcpkeepalive] %>
     Tunnel <%= @tunnel %>
     UsePrivilegedPort <%= bool_translate[@useprivilegedport] %>
-    VerifyHostKeyDNS <%= bool_translate[@verifyhostkeydns] %>
+    VerifyHostKeyDNS <%= @verifyhostkeydns %>
     VisualHostKey <%= bool_translate[@visualhostkey] %>
     XAuthLocation <%= @xauthlocation %>
-<% unless @bindaddress.empty? -%>
+<% if @bindaddress -%>
     BindAddress <%= @bindaddress %>
 <% end -%>
-<% unless @controlpath.empty? -%>
+<% if @controlpath -%>
     ControlPath <%= @controlpath %>
 <% end -%>
-<% unless @dynamicforward.empty? -%>
+<% if @dynamicforward -%>
     DynamicForward <%= @dynamicforward %>
 <% end -%>
-<% unless @globalknownhostsfile.empty? -%>
-    GlobalKnownHostsFile <%= @globalknownhostsfile %>
+<% if @globalknownhostsfile -%>
+    GlobalKnownHostsFile <%= @globalknownhostsfile.join(' ') %>
 <% end -%>
-<% unless @hostkeyalias.empty? -%>
+<% if @hostkeyalias -%>
     HostKeyAlias <%= @hostkeyalias %>
 <% end -%>
-<% unless @hostname.empty? -%>
+<% if @hostname -%>
     HostName <%= @hostname %>
 <% end -%>
-<% unless @identityfile.empty? -%>
+<% if @identityfile -%>
     IdentityFile <%= @identityfile %>
 <% end -%>
-<% unless @kbdinteractivedevices.empty? -%>
-    KbdInteractiveDevices <%= @kbdinteractivedevices %>
+<% if @kbdinteractivedevices -%>
+    KbdInteractiveDevices <%= @kbdinteractivedevices.join(',') %>
 <% end -%>
-<% unless @localcommand.empty? -%>
+<% if @localcommand -%>
     LocalCommand <%= @localcommand %>
 <% end -%>
-<% unless @localforward.empty? -%>
+<% if @localforward -%>
     LocalForward <%= @localforward %>
 <% end -%>
-<% unless @proxycommand.empty? -%>
+<% if @proxycommand -%>
     ProxyCommand <%= @proxycommand %>
 <% end -%>
-<% unless @rekeylimit.empty? -%>
+<% if @rekeylimit -%>
     RekeyLimit <%= @rekeylimit %>
 <% end -%>
-<% unless @remoteforward.empty? -%>
+<% if @remoteforward -%>
     RemoteForward <%= @remoteforward %>
 <% end -%>
-<% unless @smartcarddevice.empty? -%>
+<% if @smartcarddevice -%>
     SmartcardDevice <%= @smartcarddevice %>
 <% end -%>
-<% unless @tunneldevice.empty? -%>
+<% if @tunneldevice -%>
     TunnelDevice <%= @tunneldevice %>
 <% end -%>
-<% unless @user.empty? -%>
+<% if @user -%>
     User <%= @user %>
 <% end -%>
-<% unless @userknownhostsfile.empty? -%>
-    UserKnownHostsFile <%= @userknownhostsfile %>
+<% if @userknownhostsfile -%>
+    UserKnownHostsFile <%= @userknownhostsfile.join(' ') %>
 <% end -%>

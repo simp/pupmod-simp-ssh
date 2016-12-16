@@ -1,24 +1,11 @@
-# == Class: ssh::server
+# class ssh::server
 #
 # Sets up a ssh server and starts sshd.
 #
-# == Parameters
-#
-# [*use_simp_pki*]
-# Type: Boolean
-# Default: true
-#   If true, will include 'pki' and then use the certificates that are
-#   transferred to generate the system SSH certificates for consistency.
-#
-# == Authors
-#
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server (
-  $use_simp_pki = defined('$::use_simp_pki') ? { true => getvar('::use_simp_pki'), default => hiera('use_simp_pki', true) }
 ){
-  validate_bool($use_simp_pki)
-
 
   include '::ssh'
   include '::ssh::server::conf'
@@ -116,7 +103,7 @@ class ssh::server (
     subscribe  => Class['::ssh::server::conf']
   }
 
-  if to_string($::ssh::server::conf::port) != '22' and defined('$::selinux_enforced') and str2bool(getvar('::selinux_enforced')) {
+  if $::ssh::server::conf::port != 22 and $facts['selinux_enforced'] {
     if ! defined(Package['policycoreutils-python']) {
       package { 'policycoreutils-python':
         ensure => 'latest',
@@ -124,6 +111,7 @@ class ssh::server (
       }
     }
 
+# Can this be done with augeas provider
     # This should really be a custom type...
     exec { "SELinux Allow SSH Port ${::ssh::server::conf::port}":
       command => "semanage port -a -t ssh_port_t -p tcp ${::ssh::server::conf::port}",
@@ -138,15 +126,16 @@ class ssh::server (
     }
   }
 
-  if $use_simp_pki {
+  if $::ssh::server::conf::pki {
     include '::pki'
 
+    $_host_key_source = "${::ssh::server::conf::external_pki_source}/private/${::fqdn}.pem"
     file { '/etc/ssh/ssh_host_rsa_key':
       owner     => 'root',
       group     => 'root',
       mode      => '0600',
-      source    => "file:///etc/pki/private/${::fqdn}.pem",
-      subscribe => File["/etc/pki/private/${::fqdn}.pem"],
+      source    => "file://${_host_key_source}",
+      subscribe => File[$_host_key_source],
       notify    => [ Exec['gensshpub'], Service['sshd'] ],
     }
 

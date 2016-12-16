@@ -1,0 +1,5 @@
+---
+simp_options::firewall : true
+simp_options::haveged : true
+simp_options::pam : true
+simp_options::tcpwrappers : true

@@ -1,10 +1,8 @@
-# == Class: ssh::client::params
+# class ssh::client::params
 #
 # Default parameters for the SSH client
 #
-# == Authors
-#
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::client::params {
 
@@ -15,51 +13,49 @@ class ssh::client::params {
     'aes192-cbc',
     'aes128-cbc'
   ]
-  if $::fips_enabled {
-    if (
-      ($::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0) or
-      ($::operatingsystem in ['Fedora'] and versioncmp($::operatingsystemmajrelease,'22') >= 0)
-    ) {
-      $macs = [
-        'hmac-sha2-256',
-        'hmac-sha1'
-      ]
-      $ciphers = [
-        'aes256-gcm@openssh.com',
-        'aes128-gcm@openssh.com'
-      ]
-    }
-    else {
-      # Don't know what OS this is so fall back to whatever should work with
-      # FIPS 140-2 in all cases.
 
-      $macs = $_fallback_macs
-      $ciphers = $_fallback_ciphers
-    }
+  if (
+    ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
+    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
+  ) {
+    $fips_macs = [
+      'hmac-sha2-256',
+      'hmac-sha1'
+    ]
+    $fips_ciphers = [
+      'aes256-gcm@openssh.com',
+      'aes128-gcm@openssh.com'
+    ]
   }
   else {
-    if (
-      ($::operatingsystem in ['RedHat','CentOS'] and versioncmp($::operatingsystemmajrelease,'7') >= 0) or
-      ($::operatingsystem in ['Fedora'] and versioncmp($::operatingsystemmajrelease,'22') >= 0)
-    ) {
-      # FIPS mode not enabled, stay within the bounds but expand the options
-      $macs = [
-        'hmac-sha2-512-etm@openssh.com',
-        'hmac-sha2-256-etm@openssh.com',
-        'hmac-sha2-512',
-        'hmac-sha2-256'
-      ]
-      $ciphers = [
-        'aes256-gcm@openssh.com',
-        'aes128-gcm@openssh.com'
-      ]
-    }
-    else {
-      # Don't know what OS this is so fall back to whatever should work with
-      # FIPS 140-2 in all cases.
+    # Don't know what OS this is so fall back to whatever should work with
+    # FIPS 140-2 in all cases.
 
-      $macs = $_fallback_macs
-      $ciphers = $_fallback_ciphers
-    }
+    $fips_macs = $_fallback_macs
+    $fips_ciphers = $_fallback_ciphers
+  }
+
+  if (
+  ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
+    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
+  ) {
+    # FIPS mode not enabled, stay within the bounds but expand the options
+    $macs = [
+      'hmac-sha2-512-etm@openssh.com',
+      'hmac-sha2-256-etm@openssh.com',
+      'hmac-sha2-512',
+      'hmac-sha2-256'
+    ]
+    $ciphers = [
+      'aes256-gcm@openssh.com',
+      'aes128-gcm@openssh.com'
+    ]
+  }
+  else {
+    # Don't know what OS this is so fall back to whatever should work with
+    # FIPS 140-2 in all cases.
+
+    $macs = $_fallback_macs
+    $ciphers = $_fallback_ciphers
   }
 }
