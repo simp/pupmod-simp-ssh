@@ -98,7 +98,7 @@ This will result in a server that accepts the following ciphers:
 
 ### Defined Types
 
-* [ssh::client::add_entry](https://github.com/simp/pupmod-simp-ssh/blob/master/manifests/client/add_entry.pp)
+* [ssh::client::host_config_entry](https://github.com/simp/pupmod-simp-ssh/blob/master/manifests/client/host_config_entry.pp)
 
 ## Limitations
 

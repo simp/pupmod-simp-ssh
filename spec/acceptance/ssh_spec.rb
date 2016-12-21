@@ -5,25 +5,24 @@ test_name 'ssh class'
 describe 'ssh class' do
   let(:server_manifest) {
     <<-EOS
-      class { 'ssh::server':
-         use_simp_pki => false,
-      }
+      include '::ssh::server'
     EOS
   }
   let(:server_hieradata) {{
-    'client_nets'                        => ['ALL'],
-    'use_fips'                           => false,
-    'use_ldap'                           => false,
-    'use_sssd'                           => false,
-    'use_tcpwrappers'                    => false,
-    'use_iptables'                       => false,
+    'simp_options::trusted_nets'         => ['ALL'],
+    'simp_options::fips'                 => false,
+    'simp_options::ldap'                 => false,
+    'simp_options::sssd'                 => false,
+    'simp_options::tcpwrappers'          => false,
+    'simp_options::firewall'             => false,
+    'simp_options::pki'                  => false,
     'ssh::server::conf::banner'          => '/dev/null',
     'ssh::server::conf::permitrootlogin' => true,
   }}
 
   let(:client_manifest) {
     <<-EOS
-      include 'ssh::client'
+      include '::ssh::client'
     EOS
   }
 

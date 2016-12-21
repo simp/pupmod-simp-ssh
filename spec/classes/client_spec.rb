@@ -12,23 +12,24 @@ describe 'ssh::client' do
         context 'with default parameters' do
           it { is_expected.to create_class('ssh::client') }
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to create_ssh__client__add_entry('*') }
+          it { is_expected.to create_ssh__client__host_config_entry('*') }
           it { is_expected.to create_simpcat_build('ssh_config').with_target('/etc/ssh/ssh_config') }
           it { is_expected.to create_file('/etc/ssh/ssh_config') }
           it { is_expected.to contain_package('openssh-clients').with_ensure('latest') }
-          it { is_expected.to contain_class('haveged') }
-        end
-        context 'with include_haveged = false' do
-          let(:params) {{:use_haveged => false }}
           it { is_expected.to_not contain_class('haveged') }
         end
-        context 'with invalid input' do
-          let(:params) {{:use_haveged => 'invalid_input'}}
-          it 'with use_haveged as a string' do
-            expect {
-              is_expected.to compile
-            }.to raise_error(RSpec::Expectations::ExpectationNotMetError,/invalid_input" is not a boolean/)
-          end
+
+        context 'with add_default_entry = false ' do
+          let(:params) {{:add_default_entry => false }}
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to_not create_ssh__client__host_config_entry('*') }
+          it { is_expected.to create_simpcat_build('ssh_config').with_target('/etc/ssh/ssh_config') }
+          it { is_expected.to create_file('/etc/ssh/ssh_config') }
+        end
+
+        context 'with haveged enabled' do
+          let(:params) {{:haveged => true }}
+          it { is_expected.to contain_class('haveged') }
         end
       end
     end

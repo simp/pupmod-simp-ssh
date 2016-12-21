@@ -1,5 +1,5 @@
 module Puppet::Parser::Functions
-  newfunction(:ssh_config_bool_translate, :type => :rvalue, :doc => "Translates true|false to yes|no, respetively." ) do |args|
+  newfunction(:ssh_config_bool_translate, :type => :rvalue, :doc => "Translates true|false to yes|no, respectively." ) do |args|
     to_translate = args[0]
 
     bool_translation = {

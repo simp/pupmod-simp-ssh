@@ -1,42 +1,24 @@
-# == Class: ssh::client
+# class ssh::client
 #
 # Sets up a ssh client and creates /etc/ssh/ssh_config.
 #
-# == Parameters
+# @param add_default_entry Set this if you wish to automatically
+#   have the '*' Host entry set up with some sane defaults.
 #
-# [*add_default_entry*]
-# Type: Boolean
-# Default: true
-#   Set this if you wish to automatically have the '*' Host entry set up with
-#   some sane defaults.
+# @param fips If set or FIPS is already enabled, adjust for FIPS mode.
 #
-# [*use_fips*]
-# Type: Boolean
-# Default: false
-#   If set, adjust for FIPS mode. If FIPS is already enabled, this will be
-#   ignored.
+# @param haveged If true, include the haveged module to assist with entropy generation.
 #
-# [*use_haveged*]
-# Type: Boolean
-# Default: true
-#   If true, include the haveged module to assist with entropy generation.
-#
-# == Authors
-#
-# * Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::client (
-  $add_default_entry = true,
-    $use_haveged = defined('$::use_haveged') ? { true => getvar('::use_haveged'), default => hiera('use_haveged', true) },
-  $use_fips = defined('$::fips_enabled') ? { true => str2bool($::fips_enabled), default => hiera('use_fips', false) }
+  Boolean $add_default_entry = true,
+  Boolean $haveged           = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean $fips              = simplib::lookup('simp_options::fips', { 'default_value' => false })
 ) {
 
-  validate_bool($add_default_entry)
-  validate_bool($use_haveged)
-
-
   if $add_default_entry {
-    ssh::client::add_entry { '*': }
+    ssh::client::host_config_entry { '*': }
   }
 
   simpcat_build { 'ssh_config':
@@ -62,7 +44,7 @@ class ssh::client (
 
   package { 'openssh-clients': ensure => 'latest' }
 
-  if $use_haveged {
+  if $haveged {
     include '::haveged'
   }
 }

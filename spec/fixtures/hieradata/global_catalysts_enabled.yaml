@@ -1,0 +1,11 @@
+---
+simp_options::trusted_nets :
+ - '192.168.122.0/24'
+simp_options::fips : true
+simp_options::firewall : true
+simp_options::haveged : true
+simp_options::ldap : true
+simp_options::pam : true
+simp_options::pki : true
+simp_options::sssd : true
+simp_options::tcpwrappers : true

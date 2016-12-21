@@ -1,0 +1,3 @@
+---
+simp_options::ldap : true
+simp_options::sssd : true

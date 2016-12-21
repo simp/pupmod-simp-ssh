@@ -23,7 +23,7 @@ fixtures:
     sssd: https://github.com/simp/pupmod-simp-sssd
     stdlib:
       repo: https://github.com/simp/puppetlabs-stdlib
-      branch: simp-master
+      branch: master
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     ssh: "#{source_dir}"
