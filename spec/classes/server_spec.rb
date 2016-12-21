@@ -82,7 +82,7 @@ describe 'ssh::server' do
         end
 
         context "with pki => true" do
-          let(:external_pki_source) { File.join(File.dirname(__FILE__), 'files') }
+          let(:app_pki_external_source) { File.join(File.dirname(__FILE__), 'files') }
           let(:pre_condition){
             "class{'ssh::server::conf': pki => true }"
           }

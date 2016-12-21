@@ -129,7 +129,7 @@ class ssh::server (
   if $::ssh::server::conf::pki {
     include '::pki'
 
-    $_host_key_source = "${::ssh::server::conf::external_pki_source}/private/${::fqdn}.pem"
+    $_host_key_source = "${::ssh::server::conf::app_pki_external_source}/private/${::fqdn}.pem"
     file { '/etc/ssh/ssh_host_rsa_key':
       owner     => 'root',
       group     => 'root',

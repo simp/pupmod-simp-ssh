@@ -99,10 +99,10 @@
 # @param pki  If true, will include 'pki' and then use the certificates that
 #   are transferred to generate the system SSH certificates for consistency.
 #
-# @param external_pki_source The pki root directory.  When @p pki is true, the
-#   host pki certificate, $external_pki_source/private/<host>.pem, is used to
+# @param app_pki_external_source The pki root directory.  When @p pki is true, the
+#   host pki certificate, $app_pki_external_source/private/<host>.pem, is used to
 #   generate /etc/ssh/ssh_host_rsa_key.pub.
-#   
+#
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server::conf (
@@ -151,9 +151,11 @@ class ssh::server::conf (
   Boolean                           $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
   Boolean                           $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                           $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
-  Stdlib::Absolutepath              $external_pki_source             = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp' })
+  Stdlib::Absolutepath              $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp' })
 ) inherits ::ssh::server::params {
   assert_private()
+
+  validate_net_list($trusted_nets)
 
   if $authorizedkeyscommand {
     if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
