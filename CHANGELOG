@@ -1,3 +1,6 @@
+* Tue Jan 10 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-0
+- Updated to use CTR ciphers instead of CBC as a fallback
+
 * Tue Dec 20 2016 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.0-0
 - Use simp_options module for global catalysts
 - Use strongly typed parameters

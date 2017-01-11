@@ -23,10 +23,10 @@ describe 'ssh::client::host_config_entry' do
               expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com' ]
             else
               expected_macs = [ 'hmac-sha1' ]
-              expected_ciphers = [ 'aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
             end
 
-            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(<<EOM
+            is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(<<EOM
 Host new_run
     AddressFamily any
     Protocol 2
@@ -110,7 +110,7 @@ EOM
           }}
           it { is_expected.to compile.with_all_deps }
           it {
-            is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(<<EOM
+            is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(<<EOM
 Host new_run
     AddressFamily any
     Protocol 2
@@ -186,8 +186,7 @@ EOM
         end
 
         _protocol_sets = [
-          '1',
-          '1,2',
+          1,
           '2,1'
         ]
         _protocol_sets.each do |_protocol_set|
@@ -199,10 +198,10 @@ EOM
 
             it { is_expected.to compile.with_all_deps }
             it {
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(Protocol #{_protocol_set}$)
               )
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(Cipher 3des$)
               )
             }
@@ -210,9 +209,8 @@ EOM
         end
 
         _protocol_sets = [
-          '1',
-          '2',
-          '1,2',
+          1,
+          2,
           '2,1'
         ]
         _protocol_sets.each do |_protocol_set|
@@ -227,20 +225,20 @@ EOM
                 expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com' ]
               else
                 expected_macs = [ 'hmac-sha1' ]
-                expected_ciphers = [ 'aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+                expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               end
 
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(Protocol 2$)
               )
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').without_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').without_content(
                 %r(Cipher )
               )
 
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(MACs #{expected_macs.join(',')}$)
               )
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(Ciphers #{expected_ciphers.join(',')}$)
               )
             }
@@ -261,20 +259,20 @@ EOM
                 expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com' ]
               else
                 expected_macs = [ 'hmac-sha1' ]
-                expected_ciphers = [ 'aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+                expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               end
 
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(Protocol 2$)
               )
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').without_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').without_content(
                 %r(Cipher )
               )
 
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(MACs #{expected_macs.join(',')}$)
               )
-              is_expected.to contain_simpcat_fragment('ssh_config+new_run.conf').with_content(
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
                 %r(Ciphers #{expected_ciphers.join(',')}$)
               )
             }

@@ -13,9 +13,9 @@ class ssh::server::params {
 
   # These should work with *everything*
   $fallback_ciphers = [
-    'aes256-cbc',
-    'aes192-cbc',
-    'aes128-cbc'
+    'aes256-ctr',
+    'aes192-ctr',
+    'aes128-ctr'
   ]
 
   ## Private Variables ##

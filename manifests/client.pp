@@ -21,25 +21,19 @@ class ssh::client (
     ssh::client::host_config_entry { '*': }
   }
 
-  simpcat_build { 'ssh_config':
-    order   => ['*.conf'],
-    target  => '/etc/ssh/ssh_config',
-    require => Package['openssh-clients']
+  concat { '/etc/ssh/ssh_config':
+    owner          => 'root',
+    group          => 'root',
+    mode           => '0644',
+    ensure_newline => true,
+    warn           => true,
+    require        => Package['openssh-clients']
   }
 
   file { '/etc/ssh/ssh_known_hosts':
     owner => 'root',
     group => 'root',
     mode  => '0644'
-  }
-
-  file { '/etc/ssh/ssh_config':
-    owner     => 'root',
-    group     => 'root',
-    mode      => '0644',
-    subscribe => Simpcat_build['ssh_config'],
-    require   => Package['openssh-clients'],
-    audit     => content
   }
 
   package { 'openssh-clients': ensure => 'latest' }

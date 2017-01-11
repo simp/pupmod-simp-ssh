@@ -99,7 +99,7 @@
 # @param pki  If true, will include 'pki' and then use the certificates that
 #   are transferred to generate the system SSH certificates for consistency.
 #
-# @param app_pki_external_source The pki root directory.  When @p pki is true, the
+# @param app_pki_external_source The pki root directory.  When pki is true, the
 #   host pki certificate, $app_pki_external_source/private/<host>.pem, is used to
 #   generate /etc/ssh/ssh_host_rsa_key.pub.
 #
@@ -143,7 +143,7 @@ class ssh::server::conf (
   Boolean                           $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => false }),
   Boolean                           $useprivilegeseparation          = true,
   Boolean                           $x11forwarding                   = false,
-  Array[String]                     $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'] }),
+  Simplib::Netlist                  $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'] }),
   Boolean                           $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Boolean                           $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
   Boolean                           $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
@@ -155,7 +155,9 @@ class ssh::server::conf (
 ) inherits ::ssh::server::params {
   assert_private()
 
-  validate_net_list($trusted_nets)
+  if $haveged {
+    include '::haveged'
+  }
 
   if $authorizedkeyscommand {
     if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
@@ -297,8 +299,9 @@ class ssh::server::conf (
 
   if $firewall {
     include '::iptables'
-    iptables::add_tcp_stateful_listen { 'allow_sshd':
-      order        => '8',
+
+    iptables::listen::tcp_stateful { 'allow_sshd':
+      order        => 8,
       trusted_nets => $trusted_nets,
       dports       => $port
     }
@@ -308,11 +311,7 @@ class ssh::server::conf (
     include '::tcpwrappers'
     tcpwrappers::allow { 'sshd':
       pattern => nets2ddq($trusted_nets),
-      order   => '1'
+      order   => 1
     }
-  }
-
-  if $haveged {
-    include '::haveged'
   }
 }
