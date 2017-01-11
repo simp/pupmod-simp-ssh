@@ -9,9 +9,9 @@ class ssh::client::params {
   # These are all that are supported on RHEL6
   $_fallback_macs = [ 'hmac-sha1' ]
   $_fallback_ciphers = [
-    'aes256-cbc',
-    'aes192-cbc',
-    'aes128-cbc'
+    'aes256-ctr',
+    'aes192-ctr',
+    'aes128-ctr'
   ]
 
   if (

@@ -11,6 +11,7 @@ fixtures:
     augeasproviders_ssh:
       repo: https://github.com/simp/augeasproviders_ssh
       branch: simp-master
+    concat: https://github.com/simp/puppetlabs-concat
     haveged:
       repo: https://github.com/simp/puppet-haveged
       branch: simp-master
@@ -18,12 +19,9 @@ fixtures:
     logrotate: https://github.com/simp/pupmod-simp-logrotate
     pki: https://github.com/simp/pupmod-simp-pki
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
-    simpcat: https://github.com/simp/pupmod-simp-simpcat
     simplib: https://github.com/simp/pupmod-simp-simplib
     sssd: https://github.com/simp/pupmod-simp-sssd
-    stdlib:
-      repo: https://github.com/simp/puppetlabs-stdlib
-      branch: master
+    stdlib: https://github.com/simp/puppetlabs-stdlib
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
   symlinks:
     ssh: "#{source_dir}"

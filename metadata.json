@@ -13,10 +13,6 @@
   ],
   "dependencies": [
     {
-      "name": "simp/simpcat",
-      "version_requirement": ">= 6.0.0 < 7.0.0"
-    },
-    {
       "name": "simp/auditd",
       "version_requirement": ">= 6.0.0 < 7.0.0"
     },
@@ -47,6 +43,10 @@
     {
       "name": "simp/tcpwrappers",
       "version_requirement": ">= 5.0.0 < 6.0.0"
+    },
+    {
+      "name": "puppetlabs/concat",
+      "version_requirement": ">= 2.2.0 < 3.0.0"
     },
     {
       "name": "puppetlabs/stdlib",

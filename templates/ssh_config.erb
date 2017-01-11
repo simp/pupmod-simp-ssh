@@ -10,7 +10,7 @@ Host <%= @name %>
     BatchMode <%= bool_translate[@batchmode] %>
     ChallengeResponseAuthentication <%= bool_translate[@challengeresponseauthentication] %>
     CheckHostIP <%= bool_translate[@checkhostip] %>
-<% unless @_cipher.empty? -%>
+<% if @_cipher -%>
     Cipher <%= @_cipher %>
 <% end -%>
     Ciphers <%= @_ciphers.join(',') %>

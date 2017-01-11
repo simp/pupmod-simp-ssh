@@ -173,8 +173,7 @@
 #   the start of the array to the end of the array. Default:
 #   ['publickey','hostbased','keyboard-interactive','password']
 #
-# @param protocol Specifies the protocol versions SSH should support. String
-#   contains a comma-separated list.
+# @param protocol Specifies the protocol versions SSH should support.
 #
 # @param proxycommand  Specifies the command to use to connect to the
 #   server.
@@ -246,96 +245,91 @@
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 define ssh::client::host_config_entry (
-  Enum['any', 'inet', 'inet6']          $address_family                   = 'any',
-  Boolean                               $batchmode                        = false,
-  Optional[Simplib::Host]               $bindaddress                      = undef,
-  Boolean                               $challengeresponseauthentication  = true,
-  Boolean                               $checkhostip                      = true,
-  Enum['blowfish', '3des', 'des']       $cipher                           = '3des',
-  Optional[Array[String]]               $ciphers                          = undef,
-  Boolean                               $clearallforwardings              = false,
-  Boolean                               $compression                      = true,
-  Integer[1,9]                          $compressionlevel                 = 6,
-  Integer                               $connectionattempts               = 1,
-  Integer                               $connecttimeout                   = 0,
-  Enum['yes','no','ask']                $controlmaster                    = 'no',
-  Optional[String]                      $controlpath                      = undef,
-  Optional[String]                      $dynamicforward                   = undef,
-  Boolean                               $enablesshkeysign                 = false,
-  Pattern[/^[[:graph:]]$/,
-    /^\^[[:alpha:]]$/, /^none$/]        $escapechar                       = '~',
-  Boolean                               $exitonforwardfailure             = false,
-  Boolean                               $forwardagent                     = false,
-  Boolean                               $forwardx11                       = false,
-  Boolean                               $forwardx11trusted                = false,
-  Boolean                               $gatewayports                     = false,
-  Optional[Array[Stdlib::Absolutepath]] $globalknownhostsfile             = undef,
-  Boolean                               $gssapiauthentication             = false,
-  Boolean                               $gssapikeyexchange                = false,
-  Boolean                               $gssapidelegatecredentials        = false,
-  Boolean                               $gssapirenewalforcesrekey         = false,
-  Boolean                               $gssapitrustdns                   = false,
-  Boolean                               $hashknownhosts                   = true,
-  Boolean                               $hostbasedauthentication          = false,
-  Array[String]                         $hostkeyalgorithms                = ['ssh-rsa','ssh-dss'],
-  Optional[String]                      $hostkeyalias                     = undef,
-  Optional[Simplib::Host]               $hostname                         = undef,
-  Boolean                               $identitiesonly                   = false,
-  Optional[String]                      $identityfile                     = undef,
-  Boolean                               $kbdinteractiveauthentication     = true,
-  Optional[Array[String]]               $kbdinteractivedevices            = undef,
-  Optional[String]                      $localcommand                     = undef,
-  Optional[String]                      $localforward                     = undef,
-  Optional[Array[String]]               $macs                             = undef,
-  Ssh::Sysloglevel                      $ssh_loglevel                     = 'INFO',
-  Boolean                               $nohostauthenticationforlocalhost = false,
-  Integer                               $numberofpasswordprompts          = 3,
-  Boolean                               $passwordauthentication           = true,
-  Boolean                               $permitlocalcommand               = false,
-  Simplib::Port                         $port                             = 22,
-  Array[Ssh::Authentications]           $preferredauthentications         = [ 'publickey',
-                                                                              'hostbased',
-                                                                              'keyboard-interactive',
-                                                                              'password' ],
-  Enum['1','2','1,2','2,1']             $protocol                         = '2',
-  Optional[String]                      $proxycommand                     = undef,
-  Boolean                               $pubkeyauthentication             = true,
-  Optional[String]                      $rekeylimit                       = undef,
-  Optional[String]                      $remoteforward                    = undef,
-  Boolean                               $rhostsrsaauthentication          = false,
-  Boolean                               $rsaauthentication                = true,
-  Array[String]                         $sendenv                          = [ 'LANG',
-                                                                              'LC_CTYPE',
-                                                                              'LC_NUMERIC',
-                                                                              'LC_TIME',
-                                                                              'LC_COLLATE',
-                                                                              'LC_MONETARY',
-                                                                              'LC_MESSAGES',
-                                                                              'LC_PAPER',
-                                                                              'LC_NAME',
-                                                                              'LC_ADDRESS',
-                                                                              'LC_TELEPHONE',
-                                                                              'LC_MEASUREMENT',
-                                                                              'LC_IDENTIFICATION',
-                                                                              'LC_ALL' ],
-  Integer                               $serveralivecountmax              = 3,
-  Integer                               $serveraliveinterval              = 0,
-  Optional[String]                      $smartcarddevice                  = undef,
-  Enum['yes','no','ask']                $stricthostkeychecking            = 'ask',
-  Boolean                               $tcpkeepalive                     = true,
-  Enum['yes','no','point-to-point',
-    'ethernet']                         $tunnel                           = 'yes',
-  Optional[String]                      $tunneldevice                     = undef,
-  Boolean                               $useprivilegedport                = false,
-  Optional[String]                      $user                             = undef,
-  Optional[Array[Stdlib::Absolutepath]] $userknownhostsfile               = undef,
-  Enum['yes','no','ask']                $verifyhostkeydns                 = 'no',
-  Boolean                               $visualhostkey                    = false,
-  Stdlib::Absolutepath                  $xauthlocation                    = '/usr/bin/xauth'
+  Enum['any', 'inet', 'inet6']                          $address_family                   = 'any',
+  Boolean                                               $batchmode                        = false,
+  Optional[Simplib::Host]                               $bindaddress                      = undef,
+  Boolean                                               $challengeresponseauthentication  = true,
+  Boolean                                               $checkhostip                      = true,
+  Enum['blowfish', '3des', 'des']                       $cipher                           = '3des',
+  Optional[Array[String]]                               $ciphers                          = undef,
+  Boolean                                               $clearallforwardings              = false,
+  Boolean                                               $compression                      = true,
+  Integer[1,9]                                          $compressionlevel                 = 6,
+  Integer[1]                                            $connectionattempts               = 1,
+  Integer[0]                                            $connecttimeout                   = 0,
+  Enum['yes','no','ask']                                $controlmaster                    = 'no',
+  Optional[Variant[Stdlib::Absolutepath, Enum['none']]] $controlpath                      = undef,
+  Optional[Variant[Simplib::Port, Simplib::Host::Port]] $dynamicforward                   = undef,
+  Boolean                                               $enablesshkeysign                 = false,
+  Pattern[/^[[:graph:]]$/, /^\^[[:alpha:]]$/, /^none$/] $escapechar                       = '~',
+  Boolean                                               $exitonforwardfailure             = false,
+  Boolean                                               $forwardagent                     = false,
+  Boolean                                               $forwardx11                       = false,
+  Boolean                                               $forwardx11trusted                = false,
+  Boolean                                               $gatewayports                     = false,
+  Optional[Array[Stdlib::Absolutepath]]                 $globalknownhostsfile             = undef,
+  Boolean                                               $gssapiauthentication             = false,
+  Boolean                                               $gssapikeyexchange                = false,
+  Boolean                                               $gssapidelegatecredentials        = false,
+  Boolean                                               $gssapirenewalforcesrekey         = false,
+  Boolean                                               $gssapitrustdns                   = false,
+  Boolean                                               $hashknownhosts                   = true,
+  Boolean                                               $hostbasedauthentication          = false,
+  Array[String]                                         $hostkeyalgorithms                = ['ssh-rsa','ssh-dss'],
+  Optional[String]                                      $hostkeyalias                     = undef,
+  Optional[Simplib::Host]                               $hostname                         = undef,
+  Boolean                                               $identitiesonly                   = false,
+  Optional[String]                                      $identityfile                     = undef,
+  Boolean                                               $kbdinteractiveauthentication     = true,
+  Optional[Array[String]]                               $kbdinteractivedevices            = undef,
+  Optional[String]                                      $localcommand                     = undef,
+  Optional[String]                                      $localforward                     = undef,
+  Optional[Array[String]]                               $macs                             = undef,
+  Ssh::Sysloglevel                                      $ssh_loglevel                     = 'INFO',
+  Boolean                                               $nohostauthenticationforlocalhost = false,
+  Integer[1]                                            $numberofpasswordprompts          = 3,
+  Boolean                                               $passwordauthentication           = true,
+  Boolean                                               $permitlocalcommand               = false,
+  Simplib::Port                                         $port                             = 22,
+  Array[Ssh::Authentications]                           $preferredauthentications         = [ 'publickey',
+                                                                                              'hostbased',
+                                                                                              'keyboard-interactive',
+                                                                                              'password' ],
+  Variant[Integer[1,2], Enum['2,1']]                    $protocol                         = 2,
+  Optional[String]                                      $proxycommand                     = undef,
+  Boolean                                               $pubkeyauthentication             = true,
+  Optional[String]                                      $rekeylimit                       = undef,
+  Optional[String]                                      $remoteforward                    = undef,
+  Boolean                                               $rhostsrsaauthentication          = false,
+  Boolean                                               $rsaauthentication                = true,
+  Array[String]                                         $sendenv                          = [ 'LANG',
+                                                                                              'LC_CTYPE',
+                                                                                              'LC_NUMERIC',
+                                                                                              'LC_TIME',
+                                                                                              'LC_COLLATE',
+                                                                                              'LC_MONETARY',
+                                                                                              'LC_MESSAGES',
+                                                                                              'LC_PAPER',
+                                                                                              'LC_NAME',
+                                                                                              'LC_ADDRESS',
+                                                                                              'LC_TELEPHONE',
+                                                                                              'LC_MEASUREMENT',
+                                                                                              'LC_IDENTIFICATION',
+                                                                                              'LC_ALL' ],
+  Integer[1]                                            $serveralivecountmax              = 3,
+  Integer[0]                                            $serveraliveinterval              = 0,
+  Optional[String]                                      $smartcarddevice                  = undef,
+  Enum['yes','no','ask']                                $stricthostkeychecking            = 'ask',
+  Boolean                                               $tcpkeepalive                     = true,
+  Enum['yes','no','point-to-point','ethernet']          $tunnel                           = 'yes',
+  Optional[String]                                      $tunneldevice                     = undef,
+  Boolean                                               $useprivilegedport                = false,
+  Optional[String]                                      $user                             = undef,
+  Optional[Array[Stdlib::Absolutepath]]                 $userknownhostsfile               = undef,
+  Enum['yes','no','ask']                                $verifyhostkeydns                 = 'no',
+  Boolean                                               $visualhostkey                    = false,
+  Stdlib::Absolutepath                                  $xauthlocation                    = '/usr/bin/xauth'
 ) {
-  if ($bindaddress) { validate_net_list($bindaddress) }
-  if ($dynamicforward) { validate_net_list($dynamicforward) }
-
   include '::ssh::client::params'
   include '::ssh::client'
 
@@ -363,25 +357,22 @@ define ssh::client::host_config_entry (
   }
 
   if $::ssh::client::fips or $facts['fips_enabled'] {
-    $_protocol = '2'
-    $_cipher = ''
+    $_protocol = 2
+    $_cipher = undef
+  }
+  elsif $protocol == 2 {
+    $_protocol = $protocol
+    $_cipher = undef
   }
   else {
     $_protocol = $protocol
-    $_protocol_array = split($_protocol,',')
-
-    if !('1' in $_protocol_array) {
-      $_cipher = ''
-    }
-    else {
-      $_cipher = $cipher
-    }
+    $_cipher = $cipher
   }
 
   $_name = ssh_format_host_entry_for_sorting($name)
 
-  simpcat_fragment { "ssh_config+${_name}.conf":
-    content => template('ssh/ssh_config.erb')
+  concat::fragment { "ssh_config_${_name}":
+    target  => '/etc/ssh/ssh_config',
+    content => template("${module_name}/ssh_config.erb")
   }
-
 }

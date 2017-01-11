@@ -29,12 +29,12 @@ describe 'ssh::server::conf' do
           it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-cbc',
-               'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
+               'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
                'hmac-sha2-512', 'hmac-sha2-256' ]
             else
-              expected_ciphers = ['aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha1' ]
             end
 
@@ -69,8 +69,8 @@ describe 'ssh::server::conf' do
           it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-cbc',
-               'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
+               'aes192-ctr', 'aes128-ctr' ]
 
               expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
                'hmac-sha2-512', 'hmac-sha2-256' ]
@@ -78,7 +78,7 @@ describe 'ssh::server::conf' do
               expected_kex_algorithms = [ 'curve25519-sha256@libssh.org', 'ecdh-sha2-nistp521',
                 'ecdh-sha2-nistp384', 'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
             else
-              expected_ciphers = ['aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha1' ]
               expected_kex_algorithms = ['diffie-hellman-group-exchange-sha256']
             end
@@ -98,12 +98,12 @@ describe 'ssh::server::conf' do
           it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-cbc',
-               'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
+               'aes192-ctr', 'aes128-ctr' ]
 
               expected_macs = [ 'hmac-sha2-256', 'hmac-sha1' ]
             else
-              expected_ciphers = ['aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha1' ]
             end
 
@@ -121,15 +121,15 @@ describe 'ssh::server::conf' do
           it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-cbc',
-               'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
+               'aes192-ctr', 'aes128-ctr' ]
 
               expected_macs = [ 'hmac-sha2-256', 'hmac-sha1' ]
 
               expected_kex_algorithms = [ 'ecdh-sha2-nistp521', 'ecdh-sha2-nistp384',
                 'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
             else
-              expected_ciphers = ['aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha1' ]
               expected_kex_algorithms = ['diffie-hellman-group-exchange-sha256']
             end
@@ -151,7 +151,7 @@ describe 'ssh::server::conf' do
               (facts[:os][:release][:major].to_s >= '7')
               expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com']
             else
-              expected_ciphers = ['aes256-cbc', 'aes192-cbc', 'aes128-cbc' ]
+              expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
             end
             is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
           }
