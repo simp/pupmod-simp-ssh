@@ -96,12 +96,28 @@
 #
 # @param fips If set or FIPS is already enabled, adjust for FIPS mode.
 #
-# @param pki  If true, will include 'pki' and then use the certificates that
-#   are transferred to generate the system SSH certificates for consistency.
+# @param pki
+#   * If 'simp', include SIMP's pki module and use pki::copy to manage
+#     application certs in /etc/pki/simp_apps/sshd/x509
+#   * If true, do *not* include SIMP's pki module, but still use pki::copy
+#     to manage certs in /etc/pki/simp_apps/sshd/x509
+#   * If false, do not include SIMP's pki module and do not use pki::copy
+#     to manage certs.  You will need to appropriately assign a subset of:
+#     * app_pki_dir
+#     * app_pki_key
+#     * app_pki_cert
+#     * app_pki_ca
+#     * app_pki_ca_dir
 #
-# @param app_pki_external_source The pki root directory.  When pki is true, the
-#   host pki certificate, $app_pki_external_source/private/<host>.pem, is used to
-#   generate /etc/ssh/ssh_host_rsa_key.pub.
+# @param app_pki_external_source
+#   * If pki = 'simp' or true, this is the directory from which certs will be
+#     copied, via pki::copy.  Defaults to /etc/pki/simp/x509.
+#
+#   * If pki = false, this variable has no effect.
+#
+# @param app_pki_key
+#   Path and name of the private SSL key file. This key file is used to generate
+#   the system SSH certificates for consistency.
 #
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
@@ -151,7 +167,8 @@ class ssh::server::conf (
   Boolean                           $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
   Boolean                           $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   Boolean                           $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
-  Stdlib::Absolutepath              $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp' })
+  Stdlib::Absolutepath              $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  Stdlib::Absolutepath              $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
 ) inherits ::ssh::server::params {
   assert_private()
 
@@ -166,6 +183,13 @@ class ssh::server::conf (
       if empty($authorizedkeyscommanduser) {
         fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
       }
+    }
+  }
+
+  if $pki {
+    pki::copy { 'sshd':
+      source => $app_pki_external_source,
+      pki    => $pki
     }
   }
 
