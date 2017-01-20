@@ -111,7 +111,6 @@ class ssh::server (
       }
     }
 
-# Can this be done with augeas provider
     # This should really be a custom type...
     exec { "SELinux Allow SSH Port ${::ssh::server::conf::port}":
       command => "semanage port -a -t ssh_port_t -p tcp ${::ssh::server::conf::port}",
@@ -127,15 +126,13 @@ class ssh::server (
   }
 
   if $::ssh::server::conf::pki {
-    include '::pki'
 
-    $_host_key_source = "${::ssh::server::conf::app_pki_external_source}/private/${::fqdn}.pem"
     file { '/etc/ssh/ssh_host_rsa_key':
       owner     => 'root',
       group     => 'root',
       mode      => '0600',
-      source    => "file://${_host_key_source}",
-      subscribe => File[$_host_key_source],
+      source    => "file://${::ssh::server::conf::app_pki_key}",
+      subscribe => File[$::ssh::server::conf::app_pki_key],
       notify    => [ Exec['gensshpub'], Service['sshd'] ],
     }
 
@@ -149,7 +146,7 @@ class ssh::server (
     exec { 'gensshpub':
       command     => '/usr/bin/ssh-keygen -y -f /etc/ssh/ssh_host_rsa_key > /etc/ssh/ssh_host_rsa_key.pub',
       refreshonly => true,
-      require     => Package['openssh-server']
+      require     => [Package['openssh-server'],File['/etc/ssh/ssh_host_rsa_key']]
     }
   }
   else {

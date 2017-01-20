@@ -82,15 +82,16 @@ describe 'ssh::server' do
         end
 
         context "with pki => true" do
-          let(:app_pki_external_source) { File.join(File.dirname(__FILE__), 'files') }
           let(:pre_condition){
             "class{'ssh::server::conf': pki => true }"
           }
-          it { is_expected.to contain_class('pki') }
+          it { is_expected.to_not contain_class('pki') }
+          it { is_expected.to create_pki__copy('sshd')}
+          it { is_expected.to create_file('/etc/pki/simp_apps/sshd/x509')}
           it { is_expected.to create_file('/etc/ssh/ssh_host_rsa_key').with({
-              :mode => '0600',
-              :source    => "file:///etc/pki/simp/private/foo.example.com.pem",
-              :subscribe => "File[/etc/pki/simp/private/foo.example.com.pem]",
+              :mode      => '0600',
+              :source    => "file:///etc/pki/simp_apps/sshd/x509/private/foo.example.com.pem",
+              :subscribe => "File[/etc/pki/simp_apps/sshd/x509/private/foo.example.com.pem]",
               :notify    => ['Exec[gensshpub]', 'Service[sshd]']
             })
           }
@@ -101,7 +102,7 @@ describe 'ssh::server' do
           }
           it { is_expected.to create_exec('gensshpub').with({
               :refreshonly => true,
-              :require => 'Package[openssh-server]'
+              :require => ['Package[openssh-server]','File[/etc/ssh/ssh_host_rsa_key]']
             })
           }
         end
