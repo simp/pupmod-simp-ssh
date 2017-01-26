@@ -91,7 +91,7 @@ describe 'ssh::server' do
           it { is_expected.to create_file('/etc/ssh/ssh_host_rsa_key').with({
               :mode      => '0600',
               :source    => "file:///etc/pki/simp_apps/sshd/x509/private/foo.example.com.pem",
-              :subscribe => "File[/etc/pki/simp_apps/sshd/x509/private/foo.example.com.pem]",
+              :subscribe => "Pki::Copy[sshd]",
               :notify    => ['Exec[gensshpub]', 'Service[sshd]']
             })
           }
