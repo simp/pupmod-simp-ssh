@@ -132,7 +132,7 @@ class ssh::server (
       group     => 'root',
       mode      => '0600',
       source    => "file://${::ssh::server::conf::app_pki_key}",
-      subscribe => File[$::ssh::server::conf::app_pki_key],
+      subscribe => Pki::Copy['sshd'],
       notify    => [ Exec['gensshpub'], Service['sshd'] ],
     }
 
