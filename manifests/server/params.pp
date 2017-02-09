@@ -25,7 +25,10 @@ class ssh::server::params {
   $_fallback_macs = [ 'hmac-sha1' ]
   $_primary_ciphers = [
     'aes256-gcm@openssh.com',
-    'aes128-gcm@openssh.com'
+    'aes128-gcm@openssh.com',
+    'aes256-ctr',
+    'aes192-ctr',
+    'aes128-ctr'
   ]
 
   if (
@@ -48,7 +51,11 @@ class ssh::server::params {
       'hmac-sha2-256',
       'hmac-sha1'
     ]
-    $fips_ciphers = $_primary_ciphers
+    $fips_ciphers = [
+      'aes256-ctr',
+      'aes192-ctr',
+      'aes128-ctr'
+    ]
   }
   else {
     # Don't know what OS this is so fall back to whatever should work with
