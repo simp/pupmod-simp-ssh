@@ -311,7 +311,7 @@ class ssh::server::conf (
   }
 
   $subsystem_array = split($subsystem, ' +')
-  sshd_config_subsystem{ $subsystem_array[0]: command => $subsystem_array[1] }
+  sshd_config_subsystem{ $subsystem_array[0]: command => join(delete_at($subsytem_array,0),' ') }
 
   file { '/etc/ssh/local_keys':
     ensure  => 'directory',
