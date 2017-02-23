@@ -33,9 +33,11 @@ describe 'ssh::server::conf' do
                                   'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
                'hmac-sha2-512', 'hmac-sha2-256' ]
+              is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox')
             else
               expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha1' ]
+              is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('yes')
             end
 
             is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
@@ -51,7 +53,6 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
           it { is_expected.to contain_sshd_config('PrintLastLog').with_value('no') }
           it { is_expected.to contain_sshd_config('UsePAM').with_value('no') }
-          it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox') }
           it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommand') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser') }

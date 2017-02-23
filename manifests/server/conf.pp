@@ -136,12 +136,13 @@ class ssh::server::conf (
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Simplib::Port                    $port                            = 22,
   Optional[Array[String]]          $macs                            = undef,
+  Optional[Boolean]                $passwordauthentication          = undef,
   Boolean                          $permitemptypasswords            = false,
   Boolean                          $permitrootlogin                 = false,
   Boolean                          $printlastlog                    = false,
   String                           $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
-  Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => false }),
-  Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = 'sandbox',
+  Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => true }),
+  Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = $::ssh::server::params::useprivilegeseparation,
   Boolean                          $x11forwarding                   = false,
   Simplib::Netlist                 $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'] }),
   Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
@@ -257,6 +258,7 @@ class ssh::server::conf (
   sshd_config { 'UsePAM'                          : value => ssh_config_bool_translate($pam) }
   sshd_config { 'UsePrivilegeSeparation'          : value => ssh_config_bool_translate($useprivilegeseparation) }
   sshd_config { 'X11Forwarding'                   : value => ssh_config_bool_translate($x11forwarding) }
+  if $passwordauthentication { sshd_config { 'PasswordAuthentication' : value => ssh_config_bool_translate($passwordauthentication) } }
   # Kex should be empty openssl < 5.7, they are not supported.
   if !empty($_kex_algorithms) { sshd_config { 'KexAlgorithms': value => $_kex_algorithms } }
 

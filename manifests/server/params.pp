@@ -128,4 +128,12 @@ class ssh::server::params {
     $macs = $_fallback_macs
     $ciphers = $fallback_ciphers
   }
+
+  # This setting should only be set to true on EL6
+  if $facts['os']['release']['major'] == '6' {
+    $useprivilegeseparation = true
+  }
+  else {
+    $useprivilegeseparation = 'sandbox'
+  }
 }
