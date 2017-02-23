@@ -1,5 +1,3 @@
-# class ssh::server::conf
-#
 # Sets up sshd_config and adds an iptables rule if iptables is being used.
 #
 # sshd configuration variables can be set using Augeas outside of this class
@@ -122,53 +120,39 @@
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
 class ssh::server::conf (
-  Array[String]                     $acceptenv                       = [
-    'LANG',
-    'LC_CTYPE',
-    'LC_NUMERIC',
-    'LC_TIME',
-    'LC_COLLATE',
-    'LC_MONETARY',
-    'LC_MESSAGES',
-    'LC_PAPER',
-    'LC_NAME',
-    'LC_ADDRESS',
-    'LC_TELEPHONE',
-    'LC_MEASUREMENT',
-    'LC_IDENTIFICATION',
-    'LC_ALL' ],
-  String                            $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
-  Optional[Stdlib::Absolutepath]    $authorizedkeyscommand           = undef,
-  String                            $authorizedkeyscommanduser       = 'nobody',
-  Stdlib::Absolutepath              $banner                          = '/etc/issue.net',
-  Boolean                           $challengeresponseauthentication = false,
-  Optional[Array[String]]           $ciphers                         = undef,
-  Array[String]                     $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
-  Boolean                           $enable_fallback_ciphers         = true,
-  Variant[Boolean, Enum['delayed']] $compression                     = false,
-  Ssh::Syslogfacility               $syslogfacility                  = 'AUTHPRIV',
-  Boolean                           $gssapiauthentication            = false,
-  Optional[Array[String]]           $kex_algorithms                  = undef,
-  Simplib::Host                     $listenaddress                   = '0.0.0.0',
-  Simplib::Port                     $port                            = 22,
-  Optional[Array[String]]           $macs                            = undef,
-  Boolean                           $permitemptypasswords            = false,
-  Boolean                           $permitrootlogin                 = false,
-  Boolean                           $printlastlog                    = false,
-  String                            $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
-  Boolean                           $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => false }),
-  Boolean                           $useprivilegeseparation          = true,
-  Boolean                           $x11forwarding                   = false,
-  Simplib::Netlist                  $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'] }),
-  Boolean                           $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Boolean                           $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
-  Boolean                           $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
-  Boolean                           $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                           $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
-  Boolean                           $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Variant[Enum['simp'],Boolean]     $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
-  Stdlib::Absolutepath              $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
-  Stdlib::Absolutepath              $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
+  Array[String]                    $acceptenv                       = $::ssh::server::params::acceptenv,
+  String                           $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
+  Optional[Stdlib::Absolutepath]   $authorizedkeyscommand           = undef,
+  String                           $authorizedkeyscommanduser       = 'nobody',
+  Stdlib::Absolutepath             $banner                          = '/etc/issue.net',
+  Boolean                          $challengeresponseauthentication = false,
+  Optional[Array[String]]          $ciphers                         = undef,
+  Array[String]                    $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
+  Boolean                          $enable_fallback_ciphers         = true,
+  Variant[Boolean,Enum['delayed']] $compression                     = false,
+  Ssh::Syslogfacility              $syslogfacility                  = 'AUTHPRIV',
+  Boolean                          $gssapiauthentication            = false,
+  Optional[Array[String]]          $kex_algorithms                  = undef,
+  Simplib::Host                    $listenaddress                   = '0.0.0.0',
+  Simplib::Port                    $port                            = 22,
+  Optional[Array[String]]          $macs                            = undef,
+  Boolean                          $permitemptypasswords            = false,
+  Boolean                          $permitrootlogin                 = false,
+  Boolean                          $printlastlog                    = false,
+  String                           $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
+  Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => false }),
+  Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = 'sandbox',
+  Boolean                          $x11forwarding                   = false,
+  Simplib::Netlist                 $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'] }),
+  Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Boolean                          $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
+  Boolean                          $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
+  Boolean                          $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                          $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
+  Boolean                          $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Variant[Enum['simp'],Boolean]    $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
+  Stdlib::Absolutepath             $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  Stdlib::Absolutepath             $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
 ) inherits ::ssh::server::params {
   assert_private()
 
@@ -177,10 +161,10 @@ class ssh::server::conf (
   }
 
   if $authorizedkeyscommand {
-    if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
-      and ( versioncmp($::operatingsystemmajrelease,'6') > 0 )
+    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
+      and ( $facts['os']['release']['major'] > '6' )
     {
-      if empty($authorizedkeyscommanduser) {
+      if !$authorizedkeyscommanduser or empty($authorizedkeyscommanduser) {
         fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
       }
     }
@@ -256,48 +240,48 @@ class ssh::server::conf (
     notify => Service['sshd'],
   }
 
-  sshd_config{ 'AcceptEnv': value => $acceptenv }
-  sshd_config{ 'AuthorizedKeysFile': value => $authorizedkeysfile }
-  sshd_config{ 'Banner': value => $banner }
-  sshd_config{ 'ChallengeResponseAuthentication': value => ssh_config_bool_translate($challengeresponseauthentication) }
-  sshd_config{ 'Ciphers': value => $_ciphers }
-  sshd_config{ 'Compression': value => ssh_config_bool_translate($compression) }
-  sshd_config{ 'SyslogFacility': value => $syslogfacility}
-  sshd_config{ 'GSSAPIAuthentication': value => ssh_config_bool_translate($gssapiauthentication) }
+  sshd_config { 'AcceptEnv'                       : value => $acceptenv }
+  sshd_config { 'AuthorizedKeysFile'              : value => $authorizedkeysfile }
+  sshd_config { 'Banner'                          : value => $banner }
+  sshd_config { 'ChallengeResponseAuthentication' : value => ssh_config_bool_translate($challengeresponseauthentication) }
+  sshd_config { 'Ciphers'                         : value => $_ciphers }
+  sshd_config { 'Compression'                     : value => ssh_config_bool_translate($compression) }
+  sshd_config { 'GSSAPIAuthentication'            : value => ssh_config_bool_translate($gssapiauthentication) }
+  sshd_config { 'ListenAddress'                   : value => $listenaddress }
+  sshd_config { 'MACs'                            : value => $_macs }
+  sshd_config { 'PermitEmptyPasswords'            : value => ssh_config_bool_translate($permitemptypasswords) }
+  sshd_config { 'PermitRootLogin'                 : value => ssh_config_bool_translate($permitrootlogin) }
+  sshd_config { 'Port'                            : value => to_string($port) }
+  sshd_config { 'PrintLastLog'                    : value => ssh_config_bool_translate($printlastlog) }
+  sshd_config { 'SyslogFacility'                  : value => $syslogfacility}
+  sshd_config { 'UsePAM'                          : value => ssh_config_bool_translate($pam) }
+  sshd_config { 'UsePrivilegeSeparation'          : value => ssh_config_bool_translate($useprivilegeseparation) }
+  sshd_config { 'X11Forwarding'                   : value => ssh_config_bool_translate($x11forwarding) }
   # Kex should be empty openssl < 5.7, they are not supported.
-  if !empty($_kex_algorithms) { sshd_config{ 'KexAlgorithms': value => $_kex_algorithms } }
-  sshd_config{ 'ListenAddress': value => $listenaddress }
-  sshd_config{ 'Port': value => to_string($port) }
-  sshd_config{ 'MACs': value => $_macs }
-  sshd_config{ 'PermitEmptyPasswords': value => ssh_config_bool_translate($permitemptypasswords) }
-  sshd_config{ 'PermitRootLogin': value => ssh_config_bool_translate($permitrootlogin) }
-  sshd_config{ 'PrintLastLog': value => ssh_config_bool_translate($printlastlog) }
-  sshd_config{ 'UsePAM': value => ssh_config_bool_translate($pam) }
-  sshd_config{ 'UsePrivilegeSeparation': value => ssh_config_bool_translate($useprivilegeseparation) }
-  sshd_config{ 'X11Forwarding': value => ssh_config_bool_translate($x11forwarding) }
+  if !empty($_kex_algorithms) { sshd_config { 'KexAlgorithms': value => $_kex_algorithms } }
 
   if $authorizedkeyscommand {
     sshd_config { 'AuthorizedKeysCommand': value => $authorizedkeyscommand }
-    if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
-      and ( versioncmp($::operatingsystemmajrelease,'6') > 0 )
+    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
+      and ( $facts['os']['release']['major'] > '6' )
     {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
-  elsif $sssd{
+  elsif $sssd {
     include '::sssd::install'
 
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/bin/sss_ssh_authorizedkeys' }
-    if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
-      and ( versioncmp($::operatingsystemmajrelease,'6') > 0 )
+    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
+      and ( $facts['os']['release']['major'] > '6' )
     {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
   elsif $_use_ldap {
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
-    if ( $::operatingsystem in ['RedHat','CentOS','Fedora'] )
-      and ( versioncmp($::operatingsystemmajrelease,'6') > 0 )
+    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
+      and ( $facts['os']['release']['major'] > '6' )
     {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
@@ -311,7 +295,7 @@ class ssh::server::conf (
   }
 
   $subsystem_array = split($subsystem, ' +')
-  sshd_config_subsystem{ $subsystem_array[0]: command => join($subsystem_array[1,-1]) }
+  sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1]) }
 
   file { '/etc/ssh/local_keys':
     ensure  => 'directory',

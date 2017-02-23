@@ -51,7 +51,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
           it { is_expected.to contain_sshd_config('PrintLastLog').with_value('no') }
           it { is_expected.to contain_sshd_config('UsePAM').with_value('no') }
-          it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('yes') }
+          it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox') }
           it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommand') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser') }
@@ -162,10 +162,10 @@ describe 'ssh::server::conf' do
           let(:pre_condition){ 'include "::ssh"' }
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/some/command') }
-          it { 
+          it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') 
+              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
             else
               is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
             end
@@ -177,14 +177,26 @@ describe 'ssh::server::conf' do
           let(:hieradata) { 'authorizedkeyscommand_with_empty_user' }
           let(:pre_condition){ 'include "::ssh"' }
 
-          it { 
+          it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to_not compile.with_all_deps 
+              is_expected.to_not compile.with_all_deps
             else
-              is_expected.to compile.with_all_deps 
+              is_expected.to compile.with_all_deps
             end
           }
+        end
+
+        context 'with useprivilegeseparation' do
+          let(:facts) { os_facts.merge( { :openssh_version => '6.6' } ) }
+          context '=> true' do
+            let(:params) {{ :useprivilegeseparation => true }}
+            it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('yes') }
+          end
+          context '=> false' do
+            let(:params) {{ :useprivilegeseparation => false }}
+            it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('no') }
+          end
         end
 
         context 'with both simp_options::ldap and simp_options::ssd true' do
@@ -195,10 +207,10 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_class('sssd::install') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/bin/sss_ssh_authorizedkeys') }
-          it { 
+          it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') 
+              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
             else
               is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
             end
@@ -213,10 +225,10 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_class('sssd::install') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/libexec/openssh/ssh-ldap-wrapper') }
-          it { 
+          it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') 
+              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
             else
               is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
             end

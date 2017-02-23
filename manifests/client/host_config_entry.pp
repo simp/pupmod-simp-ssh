@@ -1,5 +1,3 @@
-# define ssh::client::host_config_entry
-#
 # Creates a host entry to ssh_config
 #
 # @example Adding default entry

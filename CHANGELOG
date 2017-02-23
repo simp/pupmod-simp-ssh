@@ -1,3 +1,7 @@
+* Thu Feb 233 2017 Nick Miller <nick.miller@onyxpoint.com> - 6.0.1-0
+- Changed the default UsePrivilegeSeparation setting in sshd_config to use the
+  vendor default of 'sandbox'
+
 * Thu Jan 19 2017 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.0-0
 - Updated pki scheme, application certs now manged in
   /etc/pki/simp_apps/sshd/x509

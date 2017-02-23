@@ -1,5 +1,3 @@
-# class ssh::server::params
-#
 # Default parameters for the SSH Server
 #
 # KexAlgorithm configuration was not added until openssh 5.7
@@ -10,6 +8,22 @@
 class ssh::server::params {
 
   ## Public Variables ##
+  $acceptenv = [
+    'LANG',
+    'LC_CTYPE',
+    'LC_NUMERIC',
+    'LC_TIME',
+    'LC_COLLATE',
+    'LC_MONETARY',
+    'LC_MESSAGES',
+    'LC_PAPER',
+    'LC_NAME',
+    'LC_ADDRESS',
+    'LC_TELEPHONE',
+    'LC_MEASUREMENT',
+    'LC_IDENTIFICATION',
+    'LC_ALL'
+  ]
 
   # These should work with *everything*
   $fallback_ciphers = [

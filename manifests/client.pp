@@ -1,5 +1,3 @@
-# class ssh::client
-#
 # Sets up a ssh client and creates /etc/ssh/ssh_config.
 #
 # @param add_default_entry Set this if you wish to automatically
