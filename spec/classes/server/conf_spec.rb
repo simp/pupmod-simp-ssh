@@ -52,7 +52,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('PermitEmptyPasswords').with_value('no') }
           it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
           it { is_expected.to contain_sshd_config('PrintLastLog').with_value('no') }
-          it { is_expected.to contain_sshd_config('UsePAM').with_value('no') }
+          it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
           it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommand') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser') }
