@@ -1,11 +1,8 @@
-# class ssh::server
-#
 # Sets up a ssh server and starts sshd.
 #
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
-class ssh::server (
-){
+class ssh::server {
 
   include '::ssh'
   include '::ssh::server::conf'

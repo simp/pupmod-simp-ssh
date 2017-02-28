@@ -1,5 +1,3 @@
-# class ssh::client::params
-#
 # Default parameters for the SSH client
 #
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>

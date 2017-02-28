@@ -9,15 +9,10 @@ describe 'ssh class' do
     EOS
   }
   let(:server_hieradata) {{
-    'simp_options::trusted_nets'         => ['ALL'],
-    'simp_options::fips'                 => false,
-    'simp_options::ldap'                 => false,
-    'simp_options::sssd'                 => false,
-    'simp_options::tcpwrappers'          => false,
-    'simp_options::firewall'             => false,
-    'simp_options::pki'                  => false,
-    'ssh::server::conf::banner'          => '/dev/null',
+    'simp_options::trusted_nets' => ['ALL'],
+    'ssh::server::conf::banner'  => '/dev/null',
     'ssh::server::conf::permitrootlogin' => true,
+    'ssh::server::conf::passwordauthentication' => true,
   }}
 
   let(:client_manifest) {
@@ -31,7 +26,7 @@ describe 'ssh class' do
       let(:server){ only_host_with_role( hosts, "#{os}-server" ) }
       let(:client){ only_host_with_role( hosts, "#{os}-client" ) }
 
-      context 'with disabled SIMP features' do
+      context 'with default parameters' do
         it 'should configure server with no errors' do
           install_package(server, 'epel-release')
           install_package(client, 'epel-release')
@@ -56,17 +51,22 @@ describe 'ssh class' do
       end
 
       context 'logging into machines as root' do
+        it 'should set the root password' do
+          on(hosts, "sed -i 's/enforce_for_root//g' /etc/pam.d/*")
+          on(hosts, "sed -i 's/enforce_for_root//g' /etc/pam.d/*")
+          on(hosts, 'echo password | passwd root --stdin')
+        end
         it 'should be able to ssh into localhost' do
           install_package(server, 'expect')
           install_package(client, 'expect')
-          scp_to(hosts, './spec/acceptance/files/ssh_test_script', '/tmp/ssh_test_script')
-          on(hosts, "chmod +x /tmp/ssh_test_script")
+          scp_to(hosts, './spec/acceptance/suites/default/files/ssh_test_script', '/usr/local/bin/ssh_test_script')
+          on(hosts, "chmod +x /usr/local/bin/ssh_test_script")
 
-          on(server, "/tmp/ssh_test_script root localhost puppet")
+          on(server, "/usr/local/bin/ssh_test_script root localhost password")
         end
 
         it "should be able to ssh into #{os}-client" do
-          on(client, "/tmp/ssh_test_script root #{os}-server puppet")
+          on(client, "/usr/local/bin/ssh_test_script root #{os}-server password")
         end
       end
 
@@ -76,16 +76,16 @@ describe 'ssh class' do
           on(hosts, 'useradd testuser', :accept_all_exit_codes => true)
           on(hosts, 'echo password | passwd testuser --stdin')
 
-          on(client, "/tmp/ssh_test_script testuser #{os}-server password")
+          on(client, "/usr/local/bin/ssh_test_script testuser #{os}-server password")
         end
 
         it 'should be able to log in with just a key' do
           # copy the key to local_keys
-          scp_to(server, './spec/acceptance/files/id_rsa_pub.example', '/etc/ssh/local_keys/testuser')
+          scp_to(server, './spec/acceptance/suites/default/files/id_rsa_pub.example', '/etc/ssh/local_keys/testuser')
           on(server, 'chmod o+r /etc/ssh/local_keys/testuser')
           on(client, "su testuser -c 'mkdir /home/testuser/.ssh'")
-          scp_to(client, './spec/acceptance/files/id_rsa_pub.example', '/home/testuser/.ssh/id_rsa.pub')
-          scp_to(client, './spec/acceptance/files/id_rsa.example', '/home/testuser/.ssh/id_rsa')
+          scp_to(client, './spec/acceptance/suites/default/files/id_rsa_pub.example', '/home/testuser/.ssh/id_rsa.pub')
+          scp_to(client, './spec/acceptance/suites/default/files/id_rsa.example', '/home/testuser/.ssh/id_rsa')
           on(client, 'chown -R testuser:testuser /home/testuser')
 
           on(client, "ssh -o StrictHostKeyChecking=no -i ~testuser/.ssh/id_rsa testuser@#{os}-server echo Logged in successfully")
@@ -107,11 +107,11 @@ describe 'ssh class' do
           # reset and expire testuser password
           on(hosts, 'echo password | passwd testuser --stdin')
           on(hosts, 'chage -d 0 testuser')
-          scp_to(hosts, './spec/acceptance/files/ssh_test_script_change_pass', '/tmp/ssh_test_script_change_pass')
-          on(hosts, "chmod +x /tmp/ssh_test_script_change_pass")
+          scp_to(hosts, './spec/acceptance/suites/default/files/ssh_test_script_change_pass', '/usr/local/bin/ssh_test_script_change_pass')
+          on(hosts, "chmod +x /usr/local/bin/ssh_test_script_change_pass")
 
-          on(client, "/tmp/ssh_test_script_change_pass testuser #{os}-server password correcthorsebatterystaple")
-          on(client, "/tmp/ssh_test_script testuser #{os}-server correcthorsebatterystaple")
+          on(client, "/usr/local/bin/ssh_test_script_change_pass testuser #{os}-server password correcthorsebatterystaple")
+          on(client, "/usr/local/bin/ssh_test_script testuser #{os}-server correcthorsebatterystaple")
         end
 
         it 'should prompt user to change password if expired' do
@@ -121,8 +121,8 @@ describe 'ssh class' do
           # remove publc key from server
           on(server, 'rm -rf /etc/ssh/local_keys/*')
 
-          on(client, "/tmp/ssh_test_script_change_pass testuser #{os}-server password correcthorsebatterystaple")
-          on(client, "/tmp/ssh_test_script testuser #{os}-server correcthorsebatterystaple")
+          on(client, "/usr/local/bin/ssh_test_script_change_pass testuser #{os}-server password correcthorsebatterystaple")
+          on(client, "/usr/local/bin/ssh_test_script testuser #{os}-server correcthorsebatterystaple")
         end
 
       end
