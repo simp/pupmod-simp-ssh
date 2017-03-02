@@ -144,7 +144,7 @@ class ssh::server::conf (
   Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => true }),
   Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = $::ssh::server::params::useprivilegeseparation,
   Boolean                          $x11forwarding                   = false,
-  Simplib::Netlist                 $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['127.0.0.1', '::1'] }),
+  Simplib::Netlist                 $trusted_nets                    = simplib::lookup('simp_options::trusted_nets', { 'default_value' => ['ALL'] }),
   Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Boolean                          $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
   Boolean                          $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
