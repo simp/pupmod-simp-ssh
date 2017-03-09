@@ -1,4 +1,4 @@
-* Thu Mar 8 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 6.0.2-0
+* Thu Mar 9 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 6.0.2-0
 - Remove some utf-8 smart quotes that were accidentally added to 
   host_config_entry.pp
 
