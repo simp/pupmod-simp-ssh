@@ -207,7 +207,7 @@
 #
 # @param stricthostkeychecking  If set to yes, ssh will never
 #   automatically add host keys to the known_hosts file, and refuses to connect
-#   to hosts whose keys have changed.  If this flag is set to “ask”, new host
+#   to hosts whose keys have changed.  If this flag is set to "ask", new host
 #   keys will be added to the user known host files only after the user has
 #   confirmed that is what they really want to do, and ssh will refuse to
 #   connect to hosts whose host key has changed. Valid Options: 'yes', 'no',

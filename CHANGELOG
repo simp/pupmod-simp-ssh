@@ -1,4 +1,8 @@
-* Thu Feb 233 2017 Nick Miller <nick.miller@onyxpoint.com> - 6.0.1-0
+* Thu Mar 8 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 6.0.2-0
+- Remove some utf-8 smart quotes that were accidentally added to 
+  host_config_entry.pp
+
+* Thu Feb 23 2017 Nick Miller <nick.miller@onyxpoint.com> - 6.0.1-0
 - Changed the default UsePrivilegeSeparation setting in sshd_config to use the
   vendor default of 'sandbox'
 - Changed the default value of simp_options::trusted_nets to ['ALL'] to prevent
