@@ -17,7 +17,7 @@ module Puppet::Parser::Functions
       fqdn = lookupvar('::fqdn')
       rsakey = lookupvar('::sshrsakey')
 
-      basedir = "#{Puppet[:vardir]}/simp_autofiles/ssh_global_known_hosts"
+      basedir = "#{Puppet[:vardir]}/simp/environments/#{lookupvar('::environment')}/simp_autofiles/ssh_global_known_hosts"
 
       begin
         if not FileTest.directory?(basedir) then
