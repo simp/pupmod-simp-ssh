@@ -1,4 +1,7 @@
-* Thu Mar 9 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 6.0.2-0
+* Mon Mar 20 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.1-0
+- move passgen to Puppet[:vardir]
+
+* Thu Mar 9 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 6.0.1-0
 - Remove some utf-8 smart quotes that were accidentally added to 
   host_config_entry.pp
 
