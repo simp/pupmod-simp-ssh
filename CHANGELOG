@@ -1,8 +1,12 @@
+* Thu Mar 23 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.1.0-0
+- Reverted 'ssh::server::conf::trusted_nets' to 'ALL' by default to prevent
+  lockouts from cloud systems
+
 * Mon Mar 20 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 6.0.1-0
 - move passgen to Puppet[:vardir]
 
 * Thu Mar 9 2017 Dylan Cochran <dylan.cochran@onyxpoint.com> - 6.0.1-0
-- Remove some utf-8 smart quotes that were accidentally added to 
+- Remove some utf-8 smart quotes that were accidentally added to
   host_config_entry.pp
 
 * Thu Feb 23 2017 Nick Miller <nick.miller@onyxpoint.com> - 6.0.1-0
@@ -12,7 +16,7 @@
   permanent lockouts when a console isn't available.
 
 * Thu Jan 19 2017 Nick Markowski <nmarkowski@keywcorp.com> - 6.0.0-0
-- Updated pki scheme, application certs now manged in
+- Updated pki scheme, application certs now managed in
   /etc/pki/simp_apps/sshd/x509
 
 * Tue Jan 10 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.0.0-0
@@ -24,7 +28,7 @@
 - Rename defined type ssh::client::add_entry to ssh::client::host_config_entry
 
 * Wed Nov 23 2016 Jeanne Greulich <jgreulich@onyxpoint.com> - 5.0.0-0
-- Fix dependancies for simp 6 bump
+- Fix dependencies for simp 6 bump
 
 * Mon Nov 21 2016 Chris Tessmer <chris.tessmer@onyxpoint.com> - 5.0.0-0
 - Updated to compliance_markup version 2
@@ -47,7 +51,7 @@
   if sssd is enabled.
 
 * Thu Aug 04 2016 Nick Miller <nick.miller@onyxpoint.com> - 4.1.9-0
-- Updated rpm requires to propery expire old versions
+- Updated rpm requires to properly expire old versions
 
 * Mon Jul 11 2016 Trevor Vaughan <tvaughan@onyxpoint.com> - 4.1.8-0
 - Migration to semantic versioning and fix of the build system
