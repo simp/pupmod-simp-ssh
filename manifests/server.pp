@@ -19,7 +19,7 @@ class ssh::server {
   file { '/etc/ssh/moduli':
     owner => 'root',
     group => 'root',
-    mode  => '0600'
+    mode  => '0644'
   }
 
   file { '/etc/ssh/ssh_host_dsa_key':
@@ -50,7 +50,7 @@ class ssh::server {
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',
-    mode    => '0744',
+    mode    => '0711',
     require => Package['openssh-server'],
   }
 
