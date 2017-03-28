@@ -58,12 +58,15 @@ class ssh::server {
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',
-    mode    => '0755',
+    mode    => '0711',
     require => Package['openssh-server']
   }
 
   file { '/var/empty/sshd/etc/localtime':
     source  => '/etc/localtime',
+    owner   => 'root',
+    group   => 'root',
+    mode    => '0644',
     force   => true,
     require => Package['openssh-server']
   }
