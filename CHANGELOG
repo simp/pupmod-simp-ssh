@@ -1,3 +1,10 @@
+* Tue Mar 28 2017 Nicholas Hughes - 6.1.0-0
+- Set permissions back to what the RPM sets and security scans expect
+  - /etc/ssh/moduli
+  - /var/empty/sshd
+  - /var/empty/sshd/etc
+  - /var/empty/sshd/etc/localtime
+
 * Thu Mar 23 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.1.0-0
 - Reverted 'ssh::server::conf::trusted_nets' to 'ALL' by default to prevent
   lockouts from cloud systems
