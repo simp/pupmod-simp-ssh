@@ -10,11 +10,9 @@
 Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFunction) do
   # @param username username for which SSH key pairs will be generated
   # @param options Options hash
-  #
   # The following options are supported:
   # - 'key_strength': key length, Integer, defaults to 2048
   # - 'return_private': whether to return the private key, Boolean, defaults to false
-  #
   # NOTE: A minimum key strength of 1024 is enforced!
   dispatch :autokey_with_options_hash do
     required_param 'String', :username
@@ -22,9 +20,8 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
   end
 
   # @param username username for which SSH key pairs will be generated
-  # @param 'key_strength': key length, defaults to 2048
-  # @param'return_private': whether to return the private key, defaults to false
-  #
+  # @param key_strength key length, defaults to 2048
+  # @param return_private whether to return the private key, defaults to false
   # NOTE: A minimum key strength of 1024 is enforced!
   dispatch :autokey do
     required_param 'String', :username

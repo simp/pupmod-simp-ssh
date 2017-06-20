@@ -23,6 +23,7 @@
 Puppet::Functions.create_function(:'ssh::format_host_entry_for_sorting') do
 
   # @param host_entry  SSH host entry, which may contain wildcards
+  # @return transformed host_entry
   dispatch :format_host_entry_for_sorting do
     required_param 'String', :host_entry
   end

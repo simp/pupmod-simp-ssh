@@ -1,11 +1,15 @@
-# Translates true|false or 'true'|'false' to yes|no, respectively
+# Translates true|false or 'true'|'false' to 'yes'|'no', respectively
 # All other values are passed-through unchanged
 Puppet::Functions.create_function(:'ssh::config_bool_translate') do
 
+  # @param config_item Configuration item to be translated
+  # @return transformed config_item
   dispatch :config_bool_translate do
     required_param 'String', :config_item
   end
 
+  # @param config_item Configuration item to be translated
+  # @return transformed config_item
   dispatch :config_bool_translate do
     required_param 'Boolean', :config_item
   end
