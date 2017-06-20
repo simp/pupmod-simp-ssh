@@ -19,6 +19,8 @@ module Puppet::Parser::Functions
 
     require "timeout"
 
+    function_deprecation([:ssh_autokey, 'This method is deprecated, please use ssh::autokey'])
+
     username = args[0]
     key_strength = 2048
     return_private = false

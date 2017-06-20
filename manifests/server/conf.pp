@@ -244,21 +244,21 @@ class ssh::server::conf (
   sshd_config { 'AcceptEnv'                       : value => $acceptenv }
   sshd_config { 'AuthorizedKeysFile'              : value => $authorizedkeysfile }
   sshd_config { 'Banner'                          : value => $banner }
-  sshd_config { 'ChallengeResponseAuthentication' : value => ssh_config_bool_translate($challengeresponseauthentication) }
+  sshd_config { 'ChallengeResponseAuthentication' : value => ssh::config_bool_translate($challengeresponseauthentication) }
   sshd_config { 'Ciphers'                         : value => $_ciphers }
-  sshd_config { 'Compression'                     : value => ssh_config_bool_translate($compression) }
-  sshd_config { 'GSSAPIAuthentication'            : value => ssh_config_bool_translate($gssapiauthentication) }
+  sshd_config { 'Compression'                     : value => ssh::config_bool_translate($compression) }
+  sshd_config { 'GSSAPIAuthentication'            : value => ssh::config_bool_translate($gssapiauthentication) }
   sshd_config { 'ListenAddress'                   : value => $listenaddress }
   sshd_config { 'MACs'                            : value => $_macs }
-  sshd_config { 'PermitEmptyPasswords'            : value => ssh_config_bool_translate($permitemptypasswords) }
-  sshd_config { 'PermitRootLogin'                 : value => ssh_config_bool_translate($permitrootlogin) }
+  sshd_config { 'PermitEmptyPasswords'            : value => ssh::config_bool_translate($permitemptypasswords) }
+  sshd_config { 'PermitRootLogin'                 : value => ssh::config_bool_translate($permitrootlogin) }
   sshd_config { 'Port'                            : value => to_string($port) }
-  sshd_config { 'PrintLastLog'                    : value => ssh_config_bool_translate($printlastlog) }
+  sshd_config { 'PrintLastLog'                    : value => ssh::config_bool_translate($printlastlog) }
   sshd_config { 'SyslogFacility'                  : value => $syslogfacility}
-  sshd_config { 'UsePAM'                          : value => ssh_config_bool_translate($pam) }
-  sshd_config { 'UsePrivilegeSeparation'          : value => ssh_config_bool_translate($useprivilegeseparation) }
-  sshd_config { 'X11Forwarding'                   : value => ssh_config_bool_translate($x11forwarding) }
-  if $passwordauthentication { sshd_config { 'PasswordAuthentication' : value => ssh_config_bool_translate($passwordauthentication) } }
+  sshd_config { 'UsePAM'                          : value => ssh::config_bool_translate($pam) }
+  sshd_config { 'UsePrivilegeSeparation'          : value => ssh::config_bool_translate($useprivilegeseparation) }
+  sshd_config { 'X11Forwarding'                   : value => ssh::config_bool_translate($x11forwarding) }
+  if $passwordauthentication { sshd_config { 'PasswordAuthentication' : value => ssh::config_bool_translate($passwordauthentication) } }
   # Kex should be empty openssl < 5.7, they are not supported.
   if !empty($_kex_algorithms) { sshd_config { 'KexAlgorithms': value => $_kex_algorithms } }
 

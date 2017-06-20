@@ -5,6 +5,8 @@ module Puppet::Parser::Functions
       require 'find'
       require 'fileutils'
 
+      function_deprecation([:ssh_global_known_hosts, 'This method is deprecated, please use ssh::global_known_hosts'])
+
       # Do we have an expire time?
       if args[0] then
         expire_days = args[0].to_i
