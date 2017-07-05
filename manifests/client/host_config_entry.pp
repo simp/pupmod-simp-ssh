@@ -367,7 +367,7 @@ define ssh::client::host_config_entry (
     $_cipher = $cipher
   }
 
-  $_name = ssh_format_host_entry_for_sorting($name)
+  $_name = ssh::format_host_entry_for_sorting($name)
 
   concat::fragment { "ssh_config_${_name}":
     target  => '/etc/ssh/ssh_config',
