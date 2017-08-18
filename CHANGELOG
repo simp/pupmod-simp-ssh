@@ -1,3 +1,6 @@
+* Fri Aug 18 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 6.2.1-0
+- Update concat version in metadata.json & build/rpm_metadata/requires
+
 * Tue Jun 20 2017 Liz Nemsick <lnemsick.simp@gmail.com> - 6.2.0-0
 - Convert internally-used Puppet 3 functions to Puppet 4
   - ssh_config_bool_translate is now ssh::config_bool_translate
