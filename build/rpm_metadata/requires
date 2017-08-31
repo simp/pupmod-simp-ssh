@@ -3,7 +3,7 @@ Obsoletes: pupmod-ssh-test >= 0.0.1
 Provides: pupmod-ssh-augeas-lenses >= 4.1.2-0
 Requires: pupmod-herculesteam-augeasproviders_core < 3.0.0-0
 Requires: pupmod-herculesteam-augeasproviders_core >= 2.1.1-0
-Requires: pupmod-herculesteam-augeasproviders_grub < 3.0.0-0
+Requires: pupmod-herculesteam-augeasproviders_grub < 4.0.0-0
 Requires: pupmod-herculesteam-augeasproviders_grub >= 2.3.1-0
 Requires: pupmod-herculesteam-augeasproviders_ssh < 3.0.0-0
 Requires: pupmod-herculesteam-augeasproviders_ssh >= 2.5.0-0
