@@ -131,7 +131,7 @@ class ssh::server::conf (
   Boolean                          $enable_fallback_ciphers         = true,
   Variant[Boolean,Enum['delayed']] $compression                     = false,
   Ssh::Syslogfacility              $syslogfacility                  = 'AUTHPRIV',
-  Boolean                          $gssapiauthentication            = false,
+  Boolean                          $gssapiauthentication            = $::ssh::server::params::gssapiauthentication,
   Optional[Array[String]]          $kex_algorithms                  = undef,
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Simplib::Port                    $port                            = 22,
