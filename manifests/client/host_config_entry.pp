@@ -367,6 +367,14 @@ define ssh::client::host_config_entry (
     $_cipher = $cipher
   }
 
+  # If the host is configured to use IPA, enable this setting
+  if $gssapiauthentication or $facts['ipa'] {
+    $_gssapiauthentication = true
+  }
+  else {
+    $_gssapiauthentication = false
+  }
+
   $_name = ssh::format_host_entry_for_sorting($name)
 
   concat::fragment { "ssh_config_${_name}":
