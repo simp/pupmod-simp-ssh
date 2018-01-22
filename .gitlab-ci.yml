@@ -24,6 +24,7 @@
     - bundle exec rake pkg:compare_latest_tag
     - bundle exec rake pkg:create_tag_changelog
     - bundle exec puppet module build
+    - bundle exec rake test
 
 stages:
   - unit

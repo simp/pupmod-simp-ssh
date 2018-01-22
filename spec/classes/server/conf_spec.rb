@@ -192,10 +192,10 @@ describe 'ssh::server::conf' do
 
         context 'with useprivilegeseparation' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6' } ) }
+          let(:pre_condition){ "service {'sshd':}" }
 
           context '=> true' do
             let(:params) {{ :useprivilegeseparation => true }}
-            let(:pre_condition){ 'include "::ssh"' }
             it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('yes') }
           end
           context '=> false' do
