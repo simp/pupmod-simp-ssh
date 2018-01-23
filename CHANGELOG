@@ -1,4 +1,4 @@
-* Fri Jan 19 2018 Nick Miller <nick.miller@onyxpoint.com> - 6.2.2-0
+* Fri Jan 19 2018 Nick Miller <nick.miller@onyxpoint.com> - 6.3.0-0
 - If the system is a member of an IPA domain, set
   GSSAPIAuthentication to 'yes'
 
