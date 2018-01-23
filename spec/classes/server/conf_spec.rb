@@ -257,7 +257,7 @@ describe 'ssh::server::conf' do
           let(:pre_condition){ 'include "::ssh"' }
           let(:facts) {
             os_facts.merge(
-              ipa: nil
+              ipa: {}
             )
           }
 
