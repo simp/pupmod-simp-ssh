@@ -89,7 +89,8 @@
 #   the global host key database.
 #
 # @param gssapiauthentication  Specifies whether user authentication
-#   based on GSSAPI is allowed.
+#   based on GSSAPI is allowed. If the system is connected to an IPA domain,
+#   this will be set to true, based on the existance of the `ipa` fact.
 #
 # @param gssapidelegatecredentials  Forward credentials to the server.
 #

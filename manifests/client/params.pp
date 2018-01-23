@@ -35,7 +35,7 @@ class ssh::client::params {
   }
 
   if (
-  ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
+    ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
     ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
   ) {
     # FIPS mode not enabled, stay within the bounds but expand the options
