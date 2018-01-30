@@ -12,7 +12,7 @@ describe 'ssh::server::conf' do
 
         context 'with default parameters, openssh_version=5.3, both simp_options::fips and fips_enabled false' do
           let(:facts) { os_facts.merge( { :openssh_version => '5.3', :fips_enabled => false } ) }
-          let(:pre_condition) { 'include "::ssh"' }
+          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to create_class('ssh::server::conf') }
           it { is_expected.to compile.with_all_deps }
@@ -65,7 +65,8 @@ describe 'ssh::server::conf' do
 
         context 'with default parameters, openssh_version=6.6, both simp_options::fips and fips_enabled false' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
-          let(:pre_condition) { 'include "::ssh"' }
+          let(:pre_condition){ 'include "::ssh"' }
+
           it { is_expected.to compile.with_all_deps }
           it {
             if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
@@ -93,7 +94,7 @@ describe 'ssh::server::conf' do
         context 'with default parameters, openssh_version=5.3, simp_options::fips=true and fips_enabled=false' do
           let(:facts) { os_facts.merge( { :openssh_version => '5.3', :fips_enabled => false } ) }
           let(:hieradata) { 'fips_catalyst_enabled' }
-          let(:pre_condition) { 'include "::ssh"' }
+          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to compile }
           it {
@@ -161,6 +162,7 @@ describe 'ssh::server::conf' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
           let(:hieradata) { 'authorizedkeyscommand' }
           let(:pre_condition){ 'include "::ssh"' }
+
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/some/command') }
           it {
@@ -190,6 +192,8 @@ describe 'ssh::server::conf' do
 
         context 'with useprivilegeseparation' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6' } ) }
+          let(:pre_condition){ "service {'sshd':}" }
+
           context '=> true' do
             let(:params) {{ :useprivilegeseparation => true }}
             it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('yes') }
@@ -249,6 +253,17 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_class('haveged') }
         end
 
+        context 'when connected to an IPA domain' do
+          let(:pre_condition){ 'include "::ssh"' }
+          let(:facts) {
+            os_facts.merge(
+              ipa: {}
+            )
+          }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_value('yes') }
+        end
       end
     end
   end

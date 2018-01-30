@@ -41,8 +41,9 @@
 # @param syslogfacility Gives the facility code that is used when
 #   logging messages.
 #
-# @param gssapiauthentication  Specifies whether user authentication
-#   based on GSSAPI is allowed.
+# @param gssapiauthentication Specifies whether user authentication
+#   based on GSSAPI is allowed. If the system is connected to an IPA domain,
+#   this will be default to true, based on the existance of the `ipa` fact.
 #
 # @param kex_algorithms Specifies the key exchange algorithms accepted.  When
 #   unset, an appropriate set of algorithms is automatically selected by this
@@ -56,6 +57,9 @@
 # @param macs  Specifies the available MAC algorithms. When unset, a
 #  strong set of ciphers is automatically selected by this class, taking into
 #  account whether the server is in FIPS mode.
+#
+# @param passwordauthentication Enable password authentication on the sshd
+#  server. If left as undef (default), this setting will not be managed.
 #
 # @param permitemptypasswords  When password authentication is allowed,
 #   it specifies whether the server allows login to accounts with empty password
@@ -131,7 +135,7 @@ class ssh::server::conf (
   Boolean                          $enable_fallback_ciphers         = true,
   Variant[Boolean,Enum['delayed']] $compression                     = false,
   Ssh::Syslogfacility              $syslogfacility                  = 'AUTHPRIV',
-  Boolean                          $gssapiauthentication            = false,
+  Boolean                          $gssapiauthentication            = $::ssh::server::params::gssapiauthentication,
   Optional[Array[String]]          $kex_algorithms                  = undef,
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Simplib::Port                    $port                            = 22,
@@ -161,10 +165,10 @@ class ssh::server::conf (
     include '::haveged'
   }
 
+  $rhel_greater_then_6 = ( $facts['os']['family'] == 'RedHat' ) and ( $facts['os']['release']['major'] > '6' )
+
   if $authorizedkeyscommand {
-    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
-      and ( $facts['os']['release']['major'] > '6' )
-    {
+    if $rhel_greater_then_6 {
       if !$authorizedkeyscommanduser or empty($authorizedkeyscommanduser) {
         fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
       }
@@ -264,9 +268,7 @@ class ssh::server::conf (
 
   if $authorizedkeyscommand {
     sshd_config { 'AuthorizedKeysCommand': value => $authorizedkeyscommand }
-    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
-      and ( $facts['os']['release']['major'] > '6' )
-    {
+    if $rhel_greater_then_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
@@ -274,17 +276,13 @@ class ssh::server::conf (
     include '::sssd::install'
 
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/bin/sss_ssh_authorizedkeys' }
-    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
-      and ( $facts['os']['release']['major'] > '6' )
-    {
+    if $rhel_greater_then_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
   elsif $_use_ldap {
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
-    if ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] )
-      and ( $facts['os']['release']['major'] > '6' )
-    {
+    if $rhel_greater_then_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
     file { '/etc/ssh/ldap.conf':

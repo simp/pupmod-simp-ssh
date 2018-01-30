@@ -81,6 +81,40 @@ Host new_run
 EOM
             )
           }
+
+          context 'when connected to an IPA domain' do
+            let(:facts) {
+              super().merge!(
+                ipa: {
+                  domain: 'test.local',
+                  server: 'ipaserver.test.local'
+                }
+              )
+            }
+            it { is_expected.to compile.with_all_deps }
+            it 'should enable GSSAPIAuthentication' do
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
+                %r(GSSAPIAuthentication yes)
+              )
+            end
+          end
+          context 'when connected to an IPA domain and GSSAPIAuthentication is set to false' do
+            let(:params) {{ gssapiauthentication: false }}
+            let(:facts) {
+              super().merge!(
+                ipa: {
+                  domain: 'test.local',
+                  server: 'ipaserver.test.local'
+                }
+              )
+            }
+            it { is_expected.to compile.with_all_deps }
+            it 'should enable GSSAPIAuthentication' do
+              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
+                %r(GSSAPIAuthentication yes)
+              )
+            end
+          end
         end
 
         context 'with optional parameters specified, both ssh::client::fips and fips_enabled false' do

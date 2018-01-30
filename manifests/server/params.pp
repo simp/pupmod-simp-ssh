@@ -136,4 +136,12 @@ class ssh::server::params {
   else {
     $useprivilegeseparation = 'sandbox'
   }
+
+  # If the host is configured to use IPA, enable this setting
+  if $facts['ipa'] {
+    $gssapiauthentication = true
+  }
+  else {
+    $gssapiauthentication = false
+  }
 }

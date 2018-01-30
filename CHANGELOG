@@ -1,3 +1,8 @@
+* Fri Jan 19 2018 Nick Miller <nick.miller@onyxpoint.com> - 6.3.0-0
+- If the host has joined an IPA domain, set
+  GSSAPIAuthentication to 'yes' in the ssh server and client
+  configuration files.
+
 * Wed Aug 30 2017 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.2.1-0
 - Update to augeasproviders_grub 3
 

@@ -89,7 +89,9 @@
 #   the global host key database.
 #
 # @param gssapiauthentication  Specifies whether user authentication
-#   based on GSSAPI is allowed.
+#   based on GSSAPI is allowed. If the system is connected to an IPA domain,
+#   this will be set to true, regardless of this parameter. It uses the
+#   `ipa` fact to determine domain membership.
 #
 # @param gssapidelegatecredentials  Forward credentials to the server.
 #
@@ -365,6 +367,14 @@ define ssh::client::host_config_entry (
   else {
     $_protocol = $protocol
     $_cipher = $cipher
+  }
+
+  # If the host is configured to use IPA, enable this setting
+  if $gssapiauthentication or $::ssh::client::params::gssapiauthentication {
+    $_gssapiauthentication = true
+  }
+  else {
+    $_gssapiauthentication = false
   }
 
   $_name = ssh::format_host_entry_for_sorting($name)

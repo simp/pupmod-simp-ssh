@@ -37,19 +37,19 @@ describe 'ssh::global_known_hosts' do
           expect(File.exist?(ssh_global_known_hosts_dir))
           expect(File.exist?(my_host_keyfile))
           expect(IO.read(my_host_keyfile).strip).to eq facts[:sshrsakey]
-          
+
           #FIXME This doesn't work in a function context
 #          is_expected.to create_sshkey(facts[:fqdn])
           resource = catalogue.resource('Sshkey', facts[:fqdn])
           expect(resource).to_not be_nil
 
           expected_hash = {
-            :type => 'ssh-rsa',
+            :type         => 'ssh-rsa',
             :host_aliases => facts[:fqdn].split('.').first,
-            :key => facts[:sshrsakey],
-            :ensure => 'present'
+            :key          => facts[:sshrsakey],
+            :ensure       => 'present'
           }
-          expect(resource.to_hash).to eq(expected_hash)
+          expect(resource.to_hash).to include(expected_hash)
         end
       end
 
@@ -66,9 +66,9 @@ describe 'ssh::global_known_hosts' do
             'ssh_global_known_hosts')
           FileUtils.mkdir_p(ssh_global_known_hosts_dir)
           short_host1_keyfile = File.join(ssh_global_known_hosts_dir, 'host1')
-          long_host1_keyfile = File.join(ssh_global_known_hosts_dir, 'host1.example.com')
+          long_host1_keyfile  = File.join(ssh_global_known_hosts_dir, 'host1.example.com')
           short_host2_keyfile = File.join(ssh_global_known_hosts_dir, 'host2')
-          long_host2_keyfile = File.join(ssh_global_known_hosts_dir, 'host2.example.com')
+          long_host2_keyfile  = File.join(ssh_global_known_hosts_dir, 'host2.example.com')
 
           File.open(short_host1_keyfile, 'w') { |file| file.puts(rsakey1) }
           File.open(long_host2_keyfile, 'w') { |file| file.puts(rsakey2) }
@@ -85,7 +85,7 @@ describe 'ssh::global_known_hosts' do
           expect(File.exist?(long_host1_keyfile))
           expect(File.exist?(short_host2_keyfile))
           expect(!File.exist?(long_host2_keyfile))
-          
+
           #FIXME These doesn't work in a function context
 #          is_expected.to create_sshkey(facts[:fqdn])
 #          is_expected.to create_sshkey('host1.example.com')
