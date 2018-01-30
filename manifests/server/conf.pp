@@ -43,7 +43,7 @@
 #
 # @param gssapiauthentication Specifies whether user authentication
 #   based on GSSAPI is allowed. If the system is connected to an IPA domain,
-#   this will be set to true, based on the existance of the `ipa` fact.
+#   this will be default to true, based on the existance of the `ipa` fact.
 #
 # @param kex_algorithms Specifies the key exchange algorithms accepted.  When
 #   unset, an appropriate set of algorithms is automatically selected by this
@@ -165,7 +165,7 @@ class ssh::server::conf (
     include '::haveged'
   }
 
-  $rhel_greater_then_6 = ( $facts['os']['name'] in ['RedHat','CentOS','Fedora'] ) and ( $facts['os']['release']['major'] > '6' )
+  $rhel_greater_then_6 = ( $facts['os']['family'] == 'RedHat' ) and ( $facts['os']['release']['major'] > '6' )
 
   if $authorizedkeyscommand {
     if $rhel_greater_then_6 {

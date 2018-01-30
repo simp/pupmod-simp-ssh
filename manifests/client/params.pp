@@ -12,10 +12,7 @@ class ssh::client::params {
     'aes128-ctr'
   ]
 
-  if (
-    ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
-    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
-  ) {
+  if $facts['os']['family'] == 'RedHat' and versioncmp($facts['os']['release']['major'],'7') >= 0 {
     $fips_macs = [
       'hmac-sha2-256',
       'hmac-sha1'
@@ -34,10 +31,7 @@ class ssh::client::params {
     $fips_ciphers = $_fallback_ciphers
   }
 
-  if (
-    ($facts['os']['name'] in ['RedHat','CentOS'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
-    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
-  ) {
+  if $facts['os']['family'] == 'RedHat' and versioncmp($facts['os']['release']['major'],'7') >= 0 {
     # FIPS mode not enabled, stay within the bounds but expand the options
     $macs = [
       'hmac-sha2-512-etm@openssh.com',
