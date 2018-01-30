@@ -90,8 +90,7 @@
 #
 # @param gssapiauthentication  Specifies whether user authentication
 #   based on GSSAPI is allowed. If the system is connected to an IPA domain,
-#   this will be set to true, regardless of this parameter. It uses the
-#   `ipa` fact to determine domain membership.
+#   this will be default to true, based on the existance of the `ipa` fact.
 #
 # @param gssapidelegatecredentials  Forward credentials to the server.
 #
@@ -370,7 +369,7 @@ define ssh::client::host_config_entry (
   }
 
   # If the host is configured to use IPA, enable this setting
-  if $gssapiauthentication or $facts['ipa'] {
+  if $gssapiauthentication or $::ssh::client::params::gssapiauthentication {
     $_gssapiauthentication = true
   }
   else {

@@ -54,4 +54,12 @@ class ssh::client::params {
     $macs = $_fallback_macs
     $ciphers = $_fallback_ciphers
   }
+
+  # If the host is configured to use IPA, enable this setting
+  if $facts['ipa'] {
+    $gssapiauthentication = true
+  }
+  else {
+    $gssapiauthentication = false
+  }
 }
