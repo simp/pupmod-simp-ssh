@@ -11,7 +11,6 @@ describe 'ssh::client' do
         it { is_expected.to create_class('ssh::client') }
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to create_ssh__client__host_config_entry('*') }
-        it { is_expected.to create_concat('/etc/ssh/ssh_config') }
         it { is_expected.to contain_package('openssh-clients').with_ensure('latest') }
         it { is_expected.to_not contain_class('haveged') }
       end
@@ -20,7 +19,6 @@ describe 'ssh::client' do
         let(:params) {{:add_default_entry => false }}
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to_not create_ssh__client__host_config_entry('*') }
-        it { is_expected.to create_concat('/etc/ssh/ssh_config') }
       end
 
       context 'with haveged enabled' do

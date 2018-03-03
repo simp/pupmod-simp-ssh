@@ -9,6 +9,8 @@
 #
 # @attr name The 'Host' entry name.
 #
+# @param target  Absolute path to the ssh_config file to manage.
+#
 # @param address_family  The IP Address family to use when connecting.
 #   Valid options: 'any', 'inet', 'inet6'.
 #
@@ -242,9 +244,10 @@
 # @param xauthlocation Specifies the full pathname of the xauth
 #   program.
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com
 #
 define ssh::client::host_config_entry (
+  Stdlib::Absolutepath                                  $target                           = '/etc/ssh/ssh_config',
   Enum['any', 'inet', 'inet6']                          $address_family                   = 'any',
   Boolean                                               $batchmode                        = false,
   Optional[Simplib::Host]                               $bindaddress                      = undef,
@@ -378,9 +381,10 @@ define ssh::client::host_config_entry (
     $_gssapiauthentication = false
   }
 
+  $_value = ssh::config_bool_translate($useprivilegedport)
+
   $_name = ssh::format_host_entry_for_sorting($name)
 
-  $target = '/etc/ssh/ssh_config'
   ssh_config{
     default:
       host   => $name,
@@ -392,7 +396,7 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__Protocol":
       key   => 'Protocol',
-      value => $_protocol,
+      value => String($_protocol),
     ;
     "${_name}__BatchMode":
       key   => 'BatchMode',
@@ -408,7 +412,7 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__Ciphers":
       key   => 'Ciphers',
-      value => $_ciphers.join(','),
+      value => $_ciphers,
     ;
     "${_name}__ClearAllForwardings":
       key   => 'ClearAllForwardings',
@@ -420,15 +424,15 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__CompressionLevel":
       key   => 'CompressionLevel',
-      value => $compressionlevel,
+      value => String($compressionlevel),
     ;
     "${_name}__ConnectionAttempts":
       key   => 'ConnectionAttempts',
-      value => $connectionattempts,
+      value => String($connectionattempts),
     ;
     "${_name}__ConnectTimeout":
       key   => 'ConnectTimeout',
-      value => $connecttimeout,
+      value => String($connecttimeout),
     ;
     "${_name}__ControlMaster":
       key   => 'ControlMaster',
@@ -492,7 +496,7 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__HostKeyAlgorithms":
       key   => 'HostKeyAlgorithms',
-      value => $hostkeyalgorithms.join(','),
+      value => $hostkeyalgorithms,
     ;
     "${_name}__IdentitiesOnly":
       key   => 'IdentitiesOnly',
@@ -508,7 +512,7 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__MACs":
       key   => 'MACs',
-      value => $_macs.join(','),
+      value => $_macs,
     ;
     "${_name}__NoHostAuthenticationForLocalhost":
       key   => 'NoHostAuthenticationForLocalhost',
@@ -516,7 +520,7 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__NumberOfPasswordPrompts":
       key   => 'NumberOfPasswordPrompts',
-      value => $numberofpasswordprompts,
+      value => String($numberofpasswordprompts),
     ;
     "${_name}__PasswordAuthentication":
       key   => 'PasswordAuthentication',
@@ -528,7 +532,7 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__Port":
       key   => 'Port',
-      value => $port,
+      value => String($port),
     ;
     "${_name}__PreferredAuthentications":
       key   => 'PreferredAuthentications',
@@ -548,15 +552,15 @@ define ssh::client::host_config_entry (
     ;
     "${_name}__SendEnv":
       key   => 'SendEnv',
-      value => $sendenv.join(' '),
+      value => $sendenv,
     ;
     "${_name}__ServerAliveCountMax":
       key   => 'ServerAliveCountMax',
-      value => $serveralivecountmax,
+      value => String($serveralivecountmax),
     ;
     "${_name}__ServerAliveInterval":
       key   => 'ServerAliveInterval',
-      value => $serveraliveinterval,
+      value => String($serveraliveinterval),
     ;
     "${_name}__StrictHostKeyChecking":
       key   => 'StrictHostKeyChecking',
