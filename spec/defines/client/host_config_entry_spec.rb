@@ -26,60 +26,57 @@ describe 'ssh::client::host_config_entry' do
               expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
             end
 
-            is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(<<EOM
-Host new_run
-    AddressFamily any
-    Protocol 2
-    BatchMode no
-    ChallengeResponseAuthentication yes
-    CheckHostIP yes
-    Ciphers #{expected_ciphers.join(',')}
-    ClearAllForwardings no
-    Compression yes
-    CompressionLevel 6
-    ConnectionAttempts 1
-    ConnectTimeout 0
-    ControlMaster no
-    EnableSSHKeysign no
-    EscapeChar ~
-    ExitOnForwardFailure no
-    ForwardAgent no
-    ForwardX11 no
-    ForwardX11Trusted no
-    GatewayPorts no
-    GSSAPIAuthentication no
-    GSSAPIKeyExchange no
-    GSSAPIDelegateCredentials no
-    GSSAPIRenewalForcesRekey no
-    GSSAPITrustDns no
-    HashKnownHosts yes
-    HostbasedAuthentication no
-    HostKeyAlgorithms ssh-rsa,ssh-dss
-    IdentitiesOnly no
-    KbdInteractiveAuthentication yes
-    LogLevel INFO
-    MACs #{expected_macs.join(',')}
-    NoHostAuthenticationForLocalhost no
-    NumberOfPasswordPrompts 3
-    PasswordAuthentication yes
-    PermitLocalCommand no
-    Port 22
-    PreferredAuthentications publickey,hostbased,keyboard-interactive,password
-    PubkeyAuthentication yes
-    RhostsRSAAuthentication no
-    RSAAuthentication yes
-    SendEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
-    ServerAliveCountMax 3
-    ServerAliveInterval 0
-    StrictHostKeyChecking ask
-    TCPKeepAlive yes
-    Tunnel yes
-    UsePrivilegedPort no
-    VerifyHostKeyDNS no
-    VisualHostKey no
-    XAuthLocation /usr/bin/xauth
-EOM
-            )
+            is_expected.to contain_ssh_config('new_run__AddressFamily').with_host('new_run')
+            is_expected.to contain_ssh_config('new_run__AddressFamily').with_value('any')
+            is_expected.to contain_ssh_config('new_run__Protocol').with_value('2')
+            is_expected.to contain_ssh_config('new_run__BatchMode').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ChallengeResponseAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__CheckHostIP').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__Ciphers').with_value("#{expected_ciphers.join(',')}")
+            is_expected.to contain_ssh_config('new_run__ClearAllForwardings').with_value('no')
+            is_expected.to contain_ssh_config('new_run__Compression').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('6')
+            is_expected.to contain_ssh_config('new_run__ConnectionAttempts').with_value('1')
+            is_expected.to contain_ssh_config('new_run__ConnectTimeout').with_value('0')
+            is_expected.to contain_ssh_config('new_run__ControlMaster').with_value('no')
+            is_expected.to contain_ssh_config('new_run__EnableSSHKeysign').with_value('no')
+            is_expected.to contain_ssh_config('new_run__EscapeChar').with_value('~')
+            is_expected.to contain_ssh_config('new_run__ExitOnForwardFailure').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ForwardAgent').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ForwardX11').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ForwardX11Trusted').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GatewayPorts').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIKeyExchange').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIDelegateCredentials').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIRenewalForcesRekey').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPITrustDns').with_value('no')
+            is_expected.to contain_ssh_config('new_run__HashKnownHosts').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__HostbasedAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__HostKeyAlgorithms').with_value('ssh-rsa,ssh-dss')
+            is_expected.to contain_ssh_config('new_run__IdentitiesOnly').with_value('no')
+            is_expected.to contain_ssh_config('new_run__KbdInteractiveAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__LogLevel').with_value('INFO')
+            is_expected.to contain_ssh_config('new_run__MACs').with_value("#{expected_macs.join(',')}")
+            is_expected.to contain_ssh_config('new_run__NoHostAuthenticationForLocalhost').with_value('no')
+            is_expected.to contain_ssh_config('new_run__NumberOfPasswordPrompts').with_value('3')
+            is_expected.to contain_ssh_config('new_run__PasswordAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__PermitLocalCommand').with_value('no')
+            is_expected.to contain_ssh_config('new_run__Port').with_value('22')
+            is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
+            is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__SendEnv').with_value('LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL')
+            is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
+            is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
+            is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
+            is_expected.to contain_ssh_config('new_run__TCPKeepAlive').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__Tunnel').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('no')
+            is_expected.to contain_ssh_config('new_run__VerifyHostKeyDNS').with_value('no')
+            is_expected.to contain_ssh_config('new_run__VisualHostKey').with_value('no')
+            is_expected.to contain_ssh_config('new_run__XAuthLocation').with_value('/usr/bin/xauth')
           }
 
           context 'when connected to an IPA domain' do
@@ -93,9 +90,7 @@ EOM
             }
             it { is_expected.to compile.with_all_deps }
             it 'should enable GSSAPIAuthentication' do
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(GSSAPIAuthentication yes)
-              )
+              is_expected.to contain_ssh_config('new_run__GSSAPIAuthentication').with_value('yes')
             end
           end
           context 'when connected to an IPA domain and GSSAPIAuthentication is set to false' do
@@ -110,9 +105,7 @@ EOM
             }
             it { is_expected.to compile.with_all_deps }
             it 'should enable GSSAPIAuthentication' do
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(GSSAPIAuthentication yes)
-              )
+              is_expected.to contain_ssh_config('new_run__GSSAPIAuthentication').with_value('yes')
             end
           end
         end
@@ -144,77 +137,73 @@ EOM
           }}
           it { is_expected.to compile.with_all_deps }
           it {
-            is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(<<EOM
-Host new_run
-    AddressFamily any
-    Protocol 2
-    BatchMode no
-    ChallengeResponseAuthentication yes
-    CheckHostIP yes
-    Ciphers aes128-ctr,aes192-ctr
-    ClearAllForwardings no
-    Compression yes
-    CompressionLevel 6
-    ConnectionAttempts 1
-    ConnectTimeout 0
-    ControlMaster no
-    EnableSSHKeysign no
-    EscapeChar ~
-    ExitOnForwardFailure no
-    ForwardAgent no
-    ForwardX11 no
-    ForwardX11Trusted no
-    GatewayPorts no
-    GSSAPIAuthentication no
-    GSSAPIKeyExchange no
-    GSSAPIDelegateCredentials no
-    GSSAPIRenewalForcesRekey no
-    GSSAPITrustDns no
-    HashKnownHosts yes
-    HostbasedAuthentication no
-    HostKeyAlgorithms ssh-rsa,ssh-dss
-    IdentitiesOnly no
-    KbdInteractiveAuthentication yes
-    LogLevel INFO
-    MACs hmac-sha2-256,hmac-sha2-512
-    NoHostAuthenticationForLocalhost no
-    NumberOfPasswordPrompts 3
-    PasswordAuthentication yes
-    PermitLocalCommand no
-    Port 22
-    PreferredAuthentications publickey,hostbased,keyboard-interactive,password
-    PubkeyAuthentication yes
-    RhostsRSAAuthentication no
-    RSAAuthentication yes
-    SendEnv LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL
-    ServerAliveCountMax 3
-    ServerAliveInterval 0
-    StrictHostKeyChecking ask
-    TCPKeepAlive yes
-    Tunnel yes
-    UsePrivilegedPort no
-    VerifyHostKeyDNS no
-    VisualHostKey no
-    XAuthLocation /usr/bin/xauth
-    BindAddress 1.2.3.4
-    ControlPath /some/control/path
-    DynamicForward 1.2.3.4:1022
-    GlobalKnownHostsFile /some/hosts/file1 /some/hosts/file2
-    HostKeyAlias some.alias
-    HostName some.hostname
-    IdentityFile /some/identity/file
-    KbdInteractiveDevices bsdauth,pam
-    LocalCommand some --local --command %d
-    LocalForward 2223 3.4.5.6:2235
-    ProxyCommand /usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p
-    RekeyLimit 5G
-    RemoteForward 3334 4.5.6.7:3345
-    SmartcardDevice dev_sc
-    TunnelDevice dev_td
-    User bob
-    UserKnownHostsFile /some/hosts/file3 /some/hosts/file4
-EOM
-            )
+            is_expected.to contain_ssh_config('new_run__AddressFamily').with_value('any')
+            is_expected.to contain_ssh_config('new_run__Protocol').with_value('2')
+            is_expected.to contain_ssh_config('new_run__BatchMode').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ChallengeResponseAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__CheckHostIP').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__Ciphers').with_value('aes128-ctr,aes192-ctr')
+            is_expected.to contain_ssh_config('new_run__ClearAllForwardings').with_value('no')
+            is_expected.to contain_ssh_config('new_run__Compression').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('6')
+            is_expected.to contain_ssh_config('new_run__ConnectionAttempts').with_value('1')
+            is_expected.to contain_ssh_config('new_run__ConnectTimeout').with_value('0')
+            is_expected.to contain_ssh_config('new_run__ControlMaster').with_value('no')
+            is_expected.to contain_ssh_config('new_run__EnableSSHKeysign').with_value('no')
+            is_expected.to contain_ssh_config('new_run__EscapeChar').with_value('~')
+            is_expected.to contain_ssh_config('new_run__ExitOnForwardFailure').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ForwardAgent').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ForwardX11').with_value('no')
+            is_expected.to contain_ssh_config('new_run__ForwardX11Trusted').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GatewayPorts').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIKeyExchange').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIDelegateCredentials').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPIRenewalForcesRekey').with_value('no')
+            is_expected.to contain_ssh_config('new_run__GSSAPITrustDns').with_value('no')
+            is_expected.to contain_ssh_config('new_run__HashKnownHosts').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__HostbasedAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__HostKeyAlgorithms').with_value('ssh-rsa,ssh-dss')
+            is_expected.to contain_ssh_config('new_run__IdentitiesOnly').with_value('no')
+            is_expected.to contain_ssh_config('new_run__KbdInteractiveAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__LogLevel').with_value('INFO')
+            is_expected.to contain_ssh_config('new_run__MACs').with_value('hmac-sha2-256,hmac-sha2-512')
+            is_expected.to contain_ssh_config('new_run__NoHostAuthenticationForLocalhost').with_value('no')
+            is_expected.to contain_ssh_config('new_run__NumberOfPasswordPrompts').with_value('3')
+            is_expected.to contain_ssh_config('new_run__PasswordAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__PermitLocalCommand').with_value('no')
+            is_expected.to contain_ssh_config('new_run__Port').with_value('22')
+            is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
+            is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__SendEnv').with_value('LANG LC_CTYPE LC_NUMERIC LC_TIME LC_COLLATE LC_MONETARY LC_MESSAGES LC_PAPER LC_NAME LC_ADDRESS LC_TELEPHONE LC_MEASUREMENT LC_IDENTIFICATION LC_ALL')
+            is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
+            is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
+            is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
+            is_expected.to contain_ssh_config('new_run__TCPKeepAlive').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__Tunnel').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('no')
+            is_expected.to contain_ssh_config('new_run__VerifyHostKeyDNS').with_value('no')
+            is_expected.to contain_ssh_config('new_run__VisualHostKey').with_value('no')
+            is_expected.to contain_ssh_config('new_run__XAuthLocation').with_value('/usr/bin/xauth')
+            is_expected.to contain_ssh_config('new_run__BindAddress').with_value('1.2.3.4')
+            is_expected.to contain_ssh_config('new_run__ControlPath').with_value('/some/control/path')
+            is_expected.to contain_ssh_config('new_run__DynamicForward').with_value('1.2.3.4:1022')
+            is_expected.to contain_ssh_config('new_run__GlobalKnownHostsFile').with_value('/some/hosts/file1 /some/hosts/file2')
+            is_expected.to contain_ssh_config('new_run__HostKeyAlias').with_value('some.alias')
+            is_expected.to contain_ssh_config('new_run__HostName').with_value('some.hostname')
+            is_expected.to contain_ssh_config('new_run__IdentityFile').with_value('/some/identity/file')
+            is_expected.to contain_ssh_config('new_run__KbdInteractiveDevices').with_value('bsdauth,pam')
+            is_expected.to contain_ssh_config('new_run__LocalCommand').with_value('some --local --command %d')
+            is_expected.to contain_ssh_config('new_run__LocalForward').with_value('2223 3.4.5.6:2235')
+            is_expected.to contain_ssh_config('new_run__ProxyCommand').with_value('/usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p')
+            is_expected.to contain_ssh_config('new_run__RekeyLimit').with_value('5G')
+            is_expected.to contain_ssh_config('new_run__RemoteForward').with_value('3334 4.5.6.7:3345')
+            is_expected.to contain_ssh_config('new_run__SmartcardDevice').with_value('dev_sc')
+            is_expected.to contain_ssh_config('new_run__TunnelDevice').with_value('dev_td')
+            is_expected.to contain_ssh_config('new_run__User').with_value('bob')
+            is_expected.to contain_ssh_config('new_run__UserKnownHostsFile').with_value('/some/hosts/file3 /some/hosts/file4')
           }
 
         end
@@ -232,12 +221,8 @@ EOM
 
             it { is_expected.to compile.with_all_deps }
             it {
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(Protocol #{_protocol_set}$)
-              )
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(Cipher 3des$)
-              )
+              is_expected.to contain_ssh_config('new_run__Protocol').with_value(%r[#{_protocol_set}])
+              is_expected.to contain_ssh_config('new_run__Cipher').with_value('3des')
             }
           end
         end
@@ -262,19 +247,10 @@ EOM
                 expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               end
 
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(Protocol 2$)
-              )
-              is_expected.to contain_concat__fragment('ssh_config_new_run').without_content(
-                %r(Cipher )
-              )
-
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(MACs #{expected_macs.join(',')}$)
-              )
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(Ciphers #{expected_ciphers.join(',')}$)
-              )
+              is_expected.to contain_ssh_config('new_run__Protocol').with_value('2')
+              is_expected.not_to contain_ssh_config('new_run__Cipher')
+              is_expected.to contain_ssh_config('new_run__MACs').with_value(expected_macs.join(','))
+              is_expected.to contain_ssh_config('new_run__Ciphers').with_value(expected_ciphers.join(','))
             }
           end
         end
@@ -296,19 +272,10 @@ EOM
                 expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               end
 
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(Protocol 2$)
-              )
-              is_expected.to contain_concat__fragment('ssh_config_new_run').without_content(
-                %r(Cipher )
-              )
-
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(MACs #{expected_macs.join(',')}$)
-              )
-              is_expected.to contain_concat__fragment('ssh_config_new_run').with_content(
-                %r(Ciphers #{expected_ciphers.join(',')}$)
-              )
+              is_expected.to contain_ssh_config('new_run__Protocol').with_value('2')
+              is_expected.not_to contain_ssh_config('new_run__Cipher')
+              is_expected.to contain_ssh_config('new_run__MACs').with_value(expected_macs.join(','))
+              is_expected.to contain_ssh_config('new_run__Ciphers').with_value(expected_ciphers.join(','))
             }
           end
         end

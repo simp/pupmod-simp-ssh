@@ -344,6 +344,7 @@ define ssh::client::host_config_entry (
       $_macs = $::ssh::client::params::macs
     }
   }
+
   if $ciphers and !empty($ciphers) {
     $_ciphers = $ciphers
   }
@@ -379,8 +380,373 @@ define ssh::client::host_config_entry (
 
   $_name = ssh::format_host_entry_for_sorting($name)
 
-  concat::fragment { "ssh_config_${_name}":
-    target  => '/etc/ssh/ssh_config',
-    content => template("${module_name}/ssh_config.erb")
+  $target = '/etc/ssh/ssh_config'
+  ssh_config{
+    default:
+      host   => $name,
+      target => $target,
+    ;
+    "${_name}__AddressFamily":
+      key   => 'AddressFamily',
+      value => $address_family,
+    ;
+    "${_name}__Protocol":
+      key   => 'Protocol',
+      value => $_protocol,
+    ;
+    "${_name}__BatchMode":
+      key   => 'BatchMode',
+      value => ssh::config_bool_translate($batchmode),
+    ;
+    "${_name}__ChallengeResponseAuthentication":
+      key   => 'ChallengeResponseAuthentication',
+      value => ssh::config_bool_translate($challengeresponseauthentication),
+    ;
+    "${_name}__CheckHostIP":
+      key   => 'CheckHostIP',
+      value => ssh::config_bool_translate($checkhostip),
+    ;
+    "${_name}__Ciphers":
+      key   => 'Ciphers',
+      value => $_ciphers.join(','),
+    ;
+    "${_name}__ClearAllForwardings":
+      key   => 'ClearAllForwardings',
+      value => ssh::config_bool_translate($clearallforwardings),
+    ;
+    "${_name}__Compression":
+      key   => 'Compression',
+      value => ssh::config_bool_translate($compression),
+    ;
+    "${_name}__CompressionLevel":
+      key   => 'CompressionLevel',
+      value => $compressionlevel,
+    ;
+    "${_name}__ConnectionAttempts":
+      key   => 'ConnectionAttempts',
+      value => $connectionattempts,
+    ;
+    "${_name}__ConnectTimeout":
+      key   => 'ConnectTimeout',
+      value => $connecttimeout,
+    ;
+    "${_name}__ControlMaster":
+      key   => 'ControlMaster',
+      value => $controlmaster,
+    ;
+    "${_name}__EnableSSHKeysign":
+      key   => 'EnableSSHKeysign',
+      value => ssh::config_bool_translate($enablesshkeysign),
+    ;
+    "${_name}__EscapeChar":
+      key   => 'EscapeChar',
+      value => $escapechar,
+    ;
+    "${_name}__ExitOnForwardFailure":
+      key   => 'ExitOnForwardFailure',
+      value => ssh::config_bool_translate($exitonforwardfailure),
+    ;
+    "${_name}__ForwardAgent":
+      key   => 'ForwardAgent',
+      value => ssh::config_bool_translate($forwardagent),
+    ;
+    "${_name}__ForwardX11":
+      key   => 'ForwardX11',
+      value => ssh::config_bool_translate($forwardx11),
+    ;
+    "${_name}__ForwardX11Trusted":
+      key   => 'ForwardX11Trusted',
+      value => ssh::config_bool_translate($forwardx11trusted),
+    ;
+    "${_name}__GatewayPorts":
+      key   => 'GatewayPorts',
+      value => ssh::config_bool_translate($gatewayports),
+    ;
+    "${_name}__GSSAPIAuthentication":
+      key   => 'GSSAPIAuthentication',
+      value => ssh::config_bool_translate($_gssapiauthentication),
+    ;
+    "${_name}__GSSAPIKeyExchange":
+      key   => 'GSSAPIKeyExchange',
+      value => ssh::config_bool_translate($gssapikeyexchange),
+    ;
+    "${_name}__GSSAPIDelegateCredentials":
+      key   => 'GSSAPIDelegateCredentials',
+      value => ssh::config_bool_translate($gssapidelegatecredentials),
+    ;
+    "${_name}__GSSAPIRenewalForcesRekey":
+      key   => 'GSSAPIRenewalForcesRekey',
+      value => ssh::config_bool_translate($gssapirenewalforcesrekey),
+    ;
+    "${_name}__GSSAPITrustDns":
+      key   => 'GSSAPITrustDns',
+      value => ssh::config_bool_translate($gssapitrustdns),
+    ;
+    "${_name}__HashKnownHosts":
+      key   => 'HashKnownHosts',
+      value => ssh::config_bool_translate($hashknownhosts),
+    ;
+    "${_name}__HostbasedAuthentication":
+      key   => 'HostbasedAuthentication',
+      value => ssh::config_bool_translate($hostbasedauthentication),
+    ;
+    "${_name}__HostKeyAlgorithms":
+      key   => 'HostKeyAlgorithms',
+      value => $hostkeyalgorithms.join(','),
+    ;
+    "${_name}__IdentitiesOnly":
+      key   => 'IdentitiesOnly',
+      value => ssh::config_bool_translate($identitiesonly),
+    ;
+    "${_name}__KbdInteractiveAuthentication":
+      key   => 'KbdInteractiveAuthentication',
+      value => ssh::config_bool_translate($kbdinteractiveauthentication),
+    ;
+    "${_name}__LogLevel":
+      key   => 'LogLevel',
+      value => $ssh_loglevel,
+    ;
+    "${_name}__MACs":
+      key   => 'MACs',
+      value => $_macs.join(','),
+    ;
+    "${_name}__NoHostAuthenticationForLocalhost":
+      key   => 'NoHostAuthenticationForLocalhost',
+      value => ssh::config_bool_translate($nohostauthenticationforlocalhost),
+    ;
+    "${_name}__NumberOfPasswordPrompts":
+      key   => 'NumberOfPasswordPrompts',
+      value => $numberofpasswordprompts,
+    ;
+    "${_name}__PasswordAuthentication":
+      key   => 'PasswordAuthentication',
+      value => ssh::config_bool_translate($passwordauthentication),
+    ;
+    "${_name}__PermitLocalCommand":
+      key   => 'PermitLocalCommand',
+      value => ssh::config_bool_translate($permitlocalcommand),
+    ;
+    "${_name}__Port":
+      key   => 'Port',
+      value => $port,
+    ;
+    "${_name}__PreferredAuthentications":
+      key   => 'PreferredAuthentications',
+      value => $preferredauthentications.join(','),
+    ;
+    "${_name}__PubkeyAuthentication":
+      key   => 'PubkeyAuthentication',
+      value => ssh::config_bool_translate($pubkeyauthentication),
+    ;
+    "${_name}__RhostsRSAAuthentication":
+      key   => 'RhostsRSAAuthentication',
+      value => ssh::config_bool_translate($rhostsrsaauthentication),
+    ;
+    "${_name}__RSAAuthentication":
+      key   => 'RSAAuthentication',
+      value => ssh::config_bool_translate($rsaauthentication),
+    ;
+    "${_name}__SendEnv":
+      key   => 'SendEnv',
+      value => $sendenv.join(' '),
+    ;
+    "${_name}__ServerAliveCountMax":
+      key   => 'ServerAliveCountMax',
+      value => $serveralivecountmax,
+    ;
+    "${_name}__ServerAliveInterval":
+      key   => 'ServerAliveInterval',
+      value => $serveraliveinterval,
+    ;
+    "${_name}__StrictHostKeyChecking":
+      key   => 'StrictHostKeyChecking',
+      value => $stricthostkeychecking,
+    ;
+    "${_name}__TCPKeepAlive":
+      key   => 'TCPKeepAlive',
+      value => ssh::config_bool_translate($tcpkeepalive),
+    ;
+    "${_name}__Tunnel":
+      key   => 'Tunnel',
+      value => $tunnel,
+    ;
+    "${_name}__UsePrivilegedPort":
+      key   => 'UsePrivilegedPort',
+      value => ssh::config_bool_translate($useprivilegedport),
+    ;
+    "${_name}__VerifyHostKeyDNS":
+      key   => 'VerifyHostKeyDNS',
+      value => $verifyhostkeydns,
+    ;
+    "${_name}__VisualHostKey":
+      key   => 'VisualHostKey',
+      value => ssh::config_bool_translate($visualhostkey),
+    ;
+    "${_name}__XAuthLocation":
+      key   => 'XAuthLocation',
+      value => $xauthlocation,
+    ;
+  }
+
+  if $_cipher {
+    ssh_config{ "${_name}__Cipher":
+      key    => 'Cipher',
+      value  => $_cipher,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $bindaddress {
+    ssh_config{ "${_name}__BindAddress":
+      key    => 'BindAddress',
+      value  => $bindaddress,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $controlpath {
+    ssh_config{ "${_name}__ControlPath":
+      key    => 'ControlPath',
+      value  => $controlpath,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $dynamicforward {
+    ssh_config{ "${_name}__DynamicForward":
+      key    => 'DynamicForward',
+      value  => $dynamicforward,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $globalknownhostsfile {
+    ssh_config{ "${_name}__GlobalKnownHostsFile":
+      key    => 'GlobalKnownHostsFile',
+      value  => $globalknownhostsfile.join(' '),
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $hostkeyalias {
+    ssh_config{ "${_name}__HostKeyAlias":
+      key    => 'HostKeyAlias',
+      value  => $hostkeyalias,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $hostname {
+    ssh_config{ "${_name}__HostName":
+      key    => 'HostName',
+      value  => $hostname,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $identityfile {
+    ssh_config{ "${_name}__IdentityFile":
+      key    => 'IdentityFile',
+      value  => $identityfile,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $kbdinteractivedevices {
+    ssh_config{ "${_name}__KbdInteractiveDevices":
+      key    => 'KbdInteractiveDevices',
+      value  => $kbdinteractivedevices.join(','),
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $localcommand {
+    ssh_config{ "${_name}__LocalCommand":
+      key    => 'LocalCommand',
+      value  => $localcommand,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $localforward {
+    ssh_config{ "${_name}__LocalForward":
+      key    => 'LocalForward',
+      value  => $localforward,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $proxycommand {
+    ssh_config{ "${_name}__ProxyCommand":
+      key    => 'ProxyCommand',
+      value  => $proxycommand,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $rekeylimit {
+    ssh_config{ "${_name}__RekeyLimit":
+      key    => 'RekeyLimit',
+      value  => $rekeylimit,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $remoteforward {
+    ssh_config{ "${_name}__RemoteForward":
+      key    => 'RemoteForward',
+      value  => $remoteforward,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $smartcarddevice {
+    ssh_config{ "${_name}__SmartcardDevice":
+      key    => 'SmartcardDevice',
+      value  => $smartcarddevice,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $tunneldevice {
+    ssh_config{ "${_name}__TunnelDevice":
+      key    => 'TunnelDevice',
+      value  => $tunneldevice,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $user {
+    ssh_config{ "${_name}__User":
+      key    => 'User',
+      value  => $user,
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $userknownhostsfile {
+    ssh_config{ "${_name}__UserKnownHostsFile":
+      key    => 'UserKnownHostsFile',
+      value  => $userknownhostsfile.join(' '),
+      host   => $name,
+      target => $target,
+    }
   }
 }
