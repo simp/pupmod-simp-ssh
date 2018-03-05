@@ -34,6 +34,18 @@ RSpec.configure do |c|
         server = only_host_with_role(hosts, 'default')
       end
 
+      pluginsync_manifest =<<-PLUGINSYNC_MANIFEST
+        file { $::settings::libdir:
+              ensure  => directory,
+              source  => 'puppet:///plugins',
+              recurse => true,
+              purge   => true,
+              backup  => false,
+              noop    => false
+            }
+      PLUGINSYNC_MANIFEST
+      apply_manifest_on(hosts, pluginsync_manifest)
+
       # Generate and install PKI certificates on each SUT
       Dir.mktmpdir do |cert_dir|
         run_fake_pki_ca_on(server, hosts, cert_dir )
