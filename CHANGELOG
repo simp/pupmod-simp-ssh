@@ -1,3 +1,11 @@
+* Mon Mar 5 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.4.0-0
+- Changed the internal implementation of `ssh::client::host_config_entry`:
+  - Switched over to `ssh_config` resources from augeasproviders_ssh
+  - Removed concat + erb templates
+- Users can customize additional SSH client options using `ssh_config`
+  - This brings ssh_config management in line with sshd_config
+- Added `ssh.aug` lens to pluginsync directory
+
 * Mon Feb 12 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 6.3.0-0
 - Update upperbound on puppetlabs/concat version to < 5.0.0
 
