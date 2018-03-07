@@ -63,11 +63,12 @@ class ssh::server {
   }
 
   file { '/var/empty/sshd/etc/localtime':
-    source  => '/etc/localtime',
+    source  => 'file:///etc/localtime',
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
     force   => true,
+    links   => 'follow',
     require => Package['openssh-server']
   }
 

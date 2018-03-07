@@ -1,61 +1,59 @@
 require 'spec_helper_acceptance'
-
 test_name 'ssh class'
 
 describe 'ssh class' do
-  let(:server_manifest) {
-    <<-EOS
-      include '::ssh::server'
-    EOS
-  }
-  let(:server_hieradata) {{
-    'simp_options::trusted_nets' => ['ALL'],
-    'ssh::server::conf::banner'  => '/dev/null',
-    'ssh::server::conf::permitrootlogin' => true,
-    'ssh::server::conf::passwordauthentication' => true,
-  }}
+  let(:server_manifest) { "include '::ssh::server'" }
+  let(:server_hieradata) do
+    {
+      'simp_options::trusted_nets' => ['ALL'],
+      'ssh::server::conf::banner'  => '/dev/null',
+      'ssh::server::conf::permitrootlogin' => true,
+      'ssh::server::conf::passwordauthentication' => true,
+    }
+  end
 
-  let(:client_manifest) {
-    <<-EOS
-      include '::ssh::client'
-    EOS
-  }
+  let(:client_manifest) { "include '::ssh::client'" }
 
-  ['el7','el6'].each do |os|
+
+  hosts_as('server').each do |_server|
+    os = _server.hostname.split('-').first
     context "on #{os}:" do
-      let(:server){ only_host_with_role( hosts, "#{os}-server" ) }
-      let(:client){ only_host_with_role( hosts, "#{os}-client" ) }
+
+      let(:server) { _server }
+
+      let(:client) do
+        os = server.hostname.split('-').first
+        hosts_as('client').select { |x| x.hostname =~ /^#{os}-.+/ }.first
+      end
 
       context 'with default parameters' do
         it 'should configure server with no errors' do
           install_package(server, 'epel-release')
           install_package(client, 'epel-release')
           set_hieradata_on(server, server_hieradata)
-          # the ssh module needs to be run 3 times before it stops making changes
-          # see SIMP-1143
-          apply_manifest_on(server, server_manifest, :expect_changes => true)
-          apply_manifest_on(server, server_manifest, :acceptable_exit_codes => [0,2]) # allow for 0-many changes
-          apply_manifest_on(server, server_manifest, :acceptable_exit_codes => [0,2])
+          apply_manifest_on(server, server_manifest, expect_changes: true)
         end
+
         it "should configure #{os}-server idempotently" do
           set_hieradata_on(server, server_hieradata)
-          apply_manifest_on(server, server_manifest, :catch_changes => true)
+          apply_manifest_on(server, server_manifest, catch_changes: true)
         end
 
         it "should configure #{os}-client with no errors" do
-          apply_manifest_on(client, client_manifest, :expect_changes => true)
+          apply_manifest_on(client, client_manifest, expect_changes: true)
         end
         it "should configure #{os}-client idempotently" do
-          apply_manifest_on(client, client_manifest, :catch_changes => true)
+          apply_manifest_on(client, client_manifest, catch_changes: true)
         end
       end
 
       context 'logging into machines as root' do
+
         it 'should set the root password' do
-          on(hosts, "sed -i 's/enforce_for_root//g' /etc/pam.d/*")
           on(hosts, "sed -i 's/enforce_for_root//g' /etc/pam.d/*")
           on(hosts, 'echo password | passwd root --stdin')
         end
+
         it 'should be able to ssh into localhost' do
           install_package(server, 'expect')
           install_package(client, 'expect')
@@ -71,6 +69,10 @@ describe 'ssh class' do
       end
 
       context 'with a test user' do
+        let(:ssh_cmd) do
+          "ssh -o StrictHostKeyChecking=no -i ~testuser/.ssh/id_rsa testuser@#{os}-server"
+        end
+
         it 'should be able to log in with password' do
           #create a test user and set a password
           on(hosts, 'useradd testuser', :accept_all_exit_codes => true)
@@ -88,18 +90,20 @@ describe 'ssh class' do
           scp_to(client, './spec/acceptance/suites/default/files/id_rsa.example', '/home/testuser/.ssh/id_rsa')
           on(client, 'chown -R testuser:testuser /home/testuser')
 
-          on(client, "ssh -o StrictHostKeyChecking=no -i ~testuser/.ssh/id_rsa testuser@#{os}-server echo Logged in successfully")
+          on(client, "#{ssh_cmd} echo Logged in successfully")
         end
 
         it 'should not accept old ciphers when not enabled' do
-          new_hieradata = server_hieradata.merge( { 'ssh::server::conf::enable_fallback_ciphers' => false } )
+          new_hieradata = server_hieradata.merge({ 'ssh::server::conf::enable_fallback_ciphers' => false })
           set_hieradata_on(server, new_hieradata)
           apply_manifest_on(server, server_manifest)
 
-          if (fact_on(server, 'operatingsystem') == 'CentOS' and fact_on(server, 'operatingsystemmajrelease') == '6') then
-            on(client, "ssh -o StrictHostKeyChecking=no -o Ciphers=3des-cbc -i ~testuser/.ssh/id_rsa testuser@#{os}-server echo Logged in successfully", :acceptable_exit_codes => [255])
+          if fact_on(server, 'operatingsystem') == 'CentOS' && fact_on(server, 'operatingsystemmajrelease') == '6'
+            on(client, "#{ssh_cmd} -o Ciphers=3des-cbc echo Logged in successfully", acceptable_exit_codes: [255])
           else
-            on(client, "ssh -o StrictHostKeyChecking=no -o Ciphers=aes128-cbc,aes192-cbc,aes256-cbc -i ~testuser/.ssh/id_rsa testuser@#{os}-server echo Logged in successfully", :acceptable_exit_codes => [255])
+            on(client,
+               "#{ssh_cmd} -o Ciphers=aes128-cbc,aes192-cbc,aes256-cbc echo Logged in successfully",
+               :acceptable_exit_codes => [255])
           end
         end
 
@@ -124,7 +128,6 @@ describe 'ssh class' do
           on(client, "/usr/local/bin/ssh_test_script_change_pass testuser #{os}-server password correcthorsebatterystaple")
           on(client, "/usr/local/bin/ssh_test_script testuser #{os}-server correcthorsebatterystaple")
         end
-
       end
     end
   end
