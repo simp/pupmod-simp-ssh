@@ -5,43 +5,61 @@
 
 #### Table of Contents
 
-1. [Module Description - What the module does and why it is useful](#module-description)
-2. [Setup - The basics of getting started with ssh](#setup)
-    * [What ssh affects](#what-ssh-affects)
-    * [Setup requirements](#setup-requirements)
-    * [Beginning with ssh](#beginning-with-ssh)
-3. [Usage - Configuration options and additional functionality](#usage)
-4. [Reference](#reference)
-5. [Limitations - OS compatibility, etc.](#limitations)
-6. [Development - Guide for contributing to the module](#development)
-7. [Acceptance Tests](#acceptance-tests)
+<!-- vim-markdown-toc GFM -->
+
+* [Module Description](#module-description)
+  * [Ciphers](#ciphers)
+* [Setup](#setup)
+  * [What ssh affects](#what-ssh-affects)
+  * [Setup requirements](#setup-requirements)
+  * [Beginning with SSH](#beginning-with-ssh)
+* [Usage](#usage)
+    * [Managing the Server](#managing-the-server)
+    * [Client](#client)
+  * [Disabling fallback ciphers](#disabling-fallback-ciphers)
+* [Reference](#reference)
+  * [Public Classes](#public-classes)
+  * [Defined Types](#defined-types)
+* [Limitations](#limitations)
+* [Development](#development)
+* [Acceptance tests](#acceptance-tests)
+
+<!-- vim-markdown-toc -->
 
 ## Module Description
 
-Sets up SSH Client and Server
+Manages the SSH Client and Server
 
 ### Ciphers
 
 By default, the `sshd::server` class will accept a wide range of ciphers.
 
-At the time of 5.1.0, the default ciphers for `ssh::server` are:
-- aes128-gcm@openssh.com
-- aes256-gcm@openssh.com
+At the time of 6.4.0, the default ciphers for `sshd::server` on EL7 when FIPS
+mode is _disabled_ are:
 
+- `aes128-gcm@openssh.com`
+- `aes256-gcm@openssh.com`
+- `aes256-ctr`
+- `aes192-ctr`
+- `aes128-ctr`
 
 There are also 'fallback' ciphers, which are required in order to communicate
-with FIPS-140-2 conformant systems.  These are _also_ included by default unless
+with FIPS-140-2 conformant systems.  These are _always_ included by default unless
 the parameter `ssh::server::conf::enable_fallback_ciphers` is set to `false`:
-- aes128-cbc
-- aes192-cbc
-- aes256-cbc
+
+- `aes128-ctr`
+- `aes192-ctr`
+- `aes256-ctr`
+
+At the time of 6.4.0, the 'fallback' ciphers are also the default ciphers for
+`sshd::server` on EL6.
 
 ## Setup
 
 ### What ssh affects
 
 SSH installs the SSH package, runs the sshd service and manages files primarily
-in /etc/ssh
+in `/etc/ssh`
 
 ### Setup requirements
 
@@ -49,16 +67,20 @@ The only requirement is including the ssh module in your modulepath
 
 ### Beginning with SSH
 
-including `::ssh` will install both the server and the client
+```puppet
+include 'ssh'
+```
 
 ## Usage
 
-### I want to manage only the server or the client
+including `ssh` will install both the server and the client
 
-#### Server
+#### Managing the Server
+
 ```puppet
 include 'sshd::server'
 ```
+
 This will result in a server that accepts the following ciphers:
 - aes128-gcm@openssh.com
 - aes256-gcm@openssh.com
@@ -76,16 +98,18 @@ older ciphers you should use the command line option, `ssh -c`.  See the man
 pages for further information.
 
 
-### I want to disable fallback ciphers
+### Disabling fallback ciphers
+
 ```puppet
 class{'ssh::config':
   enable_fallback_ciphers => false
 }
 include 'sshd::server'
 ```
+
 This will result in a server that accepts the following ciphers:
-- aes128-gcm@openssh.com
-- aes256-gcm@openssh.com
+- `aes128-gcm@openssh.com`
+- `aes256-gcm@openssh.com`
 
 ## Reference
 

@@ -4,6 +4,10 @@ require 'yaml'
 require 'simp/beaker_helpers'
 include Simp::BeakerHelpers
 
+require 'pry' if ENV['PRY'] == 'yes'
+$LOAD_PATH.unshift(File.expand_path('../acceptance/support',__FILE__))
+
+
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
     # Install Puppet

@@ -1,8 +1,12 @@
 require 'spec_helper_acceptance'
+require 'helpers/dump_sshd_ciphers'
+
 test_name 'ssh class'
 
 describe 'ssh class' do
+
   let(:server_manifest) { "include '::ssh::server'" }
+
   let(:server_hieradata) do
     {
       'simp_options::trusted_nets' => ['ALL'],
@@ -13,7 +17,6 @@ describe 'ssh class' do
   end
 
   let(:client_manifest) { "include '::ssh::client'" }
-
 
   hosts_as('server').each do |_server|
     os = _server.hostname.split('-').first
@@ -61,6 +64,8 @@ describe 'ssh class' do
           on(hosts, "chmod +x /usr/local/bin/ssh_test_script")
 
           on(server, "/usr/local/bin/ssh_test_script root localhost password")
+
+          dump_sshd_ciphers(server)
         end
 
         it "should be able to ssh into #{os}-client" do
@@ -98,6 +103,10 @@ describe 'ssh class' do
           set_hieradata_on(server, new_hieradata)
           apply_manifest_on(server, server_manifest)
 
+          # FIXME: This doesn't prove what it claims to.
+          #
+          # aes*-cbc aren't in the fallback ciphers, so they won't be accepted
+          # whether enable_fallback_ciphers is enabled or not
           if fact_on(server, 'operatingsystem') == 'CentOS' && fact_on(server, 'operatingsystemmajrelease') == '6'
             on(client, "#{ssh_cmd} -o Ciphers=3des-cbc echo Logged in successfully", acceptable_exit_codes: [255])
           else
@@ -105,6 +114,8 @@ describe 'ssh class' do
                "#{ssh_cmd} -o Ciphers=aes128-cbc,aes192-cbc,aes256-cbc echo Logged in successfully",
                :acceptable_exit_codes => [255])
           end
+
+          dump_sshd_ciphers(server,'fallback-ciphers-disabled', "`ssh::server::conf::enable_fallback_ciphers: false`")
         end
 
         it 'should prompt user to change password if expired and logging in with cert' do
