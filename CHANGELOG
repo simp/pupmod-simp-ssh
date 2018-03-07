@@ -1,11 +1,20 @@
 * Mon Mar 5 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.4.0-0
-- Users can now customize additional SSH client options using `ssh_config`
-  - Customizing /etc/ssh/ssh_config is consistent with /etc/ssh/sshd_config
-- Refactored the implementation of `ssh::client::host_config_entry`:
-  - Switched to augeasproviders_ssh (from concat + .erb templates)
+- Re-implemented `ssh::client::host_config_entry` using `ssh_config`:
+  - Users can now customize additional SSH client options
+  - Customizing ssh_config is consistent with sshd_config
   - Tweaked Augeas lens `ssh.aug` to handle `HostKeyAlgorithms` correctly
   - No change to the module's API
-- Removed vestigial SIMP-1143 workaround from acceptance tests
+  - Removed concat + .erb templates from old implementation
+- Fixed idempotency bug with `/var/empty/sshd/etc/localtime`
+  - Removed vestigial SIMP-1143 workaround from acceptance tests
+- Fixed errors in README.md
+  - Ciphers and Usage sections rewritten and verified, with tests
+  - Added new environment variable `SIMP_SSH_report_dir` to acceptance tests
+    to validate ciphers in README
+  - Documented solution to SIMP-4440 and added acceptance test
+- Removed cruft:
+  - Removed grub from metadata.json and .fixtures.yml because nothing uses it
+  - Removed NSCD-related cruft (/etc/pam_ldap.conf) from ancient ldap code
 
 * Mon Feb 12 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 6.3.0-0
 - Update upperbound on puppetlabs/concat version to < 5.0.0
