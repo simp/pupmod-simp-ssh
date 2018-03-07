@@ -67,7 +67,6 @@ class ssh::server {
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    force   => true,
     links   => 'follow',
     require => Package['openssh-server']
   }
