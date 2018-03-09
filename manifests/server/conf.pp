@@ -285,13 +285,6 @@ class ssh::server::conf (
     if $rhel_greater_then_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
-    file { '/etc/ssh/ldap.conf':
-      ensure => 'file',
-      owner  => 'root',
-      group  => 'root',
-      mode   => '0644',
-      source => 'file:///etc/pam_ldap.conf'
-    }
   }
 
   $subsystem_array = split($subsystem, ' +')
