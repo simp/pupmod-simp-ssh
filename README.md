@@ -269,10 +269,14 @@ Linux-compatible distribution.
 
 ## Development
 
-Please read our [Contribution Guide][simp_contrib] and visit our [Developer Wiki][simp_wiki]
+Please read our [Contribution Guide][simp_contrib].
 
 If you find any issues, they can be submitted to our
 [JIRA](https://simp-project.atlassian.net).
+
+To see a list of development tasks avaiable for this module, run
+
+      bundle exec rake -T
 
 ## Acceptance tests
 
@@ -289,20 +293,15 @@ Some environment variables may be useful:
 ```shell
    BEAKER_debug=true
    BEAKER_provision=no
-   BEAKER_destroy=no
-   BEAKER_use_fixtures_dir_for_modules=yes
+   BEAKER_destroy=onpass
+   BEAKER_fips=yes
 ```
 
-*  ``BEAKER_debug``: show the commands being run on the STU and their output.
-*  ``BEAKER_destroy=no``: prevent the machine destruction after the tests
-   finish so you can inspect the state.
+*  ``BEAKER_debug``: show the commands being run on the SUT and their output.
+*  ``BEAKER_destroy=onpass`` prevent the machine destruction if the tests fail.
 *  ``BEAKER_provision=no``: prevent the machine from being recreated.  This can
    save a lot of time while you're writing the tests.
-*  ``BEAKER_use_fixtures_dir_for_modules=yes``: cause all module dependencies
-   to be loaded from the ``spec/fixtures/modules`` directory, based on the
-   contents of ``.fixtures.yml``. The contents of this directory are usually
-   populated by ``bundle exec rake spec_prep``. This can be used to run
-   acceptance tests to run on isolated networks.
+*  ``BEAKER_fips=yes``:  Provision the SUTs in [FIPS mode][fips_mode].
 
 ### Environment variables specific to pupmod-simp-ssh
 
@@ -319,5 +318,4 @@ Some environment variables may be useful:
 [ssh_man]: https://man.openbsd.org/ssh
 [aug_ssh]: https://github.com/hercules-team/augeasproviders_ssh/
 [simp_contrib]: simp.readthedocs.io/en/master/contributors_guide/
-[simp_wiki]: https://simp-project.atlassian.net/wiki/display/SD/SIMP+Development+Home
 [fips_mode]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/chap-federal_standards_and_regulations#sec-Enabling-FIPS-Mode

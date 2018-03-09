@@ -127,7 +127,7 @@ describe 'ssh class' do
                acceptable_exit_codes: [255])
           end
 
-          dump_sshd_ciphers(server,'fallback-ciphers-disabled', "`ssh::server::conf::enable_fallback_ciphers: false`")
+          dump_sshd_ciphers(server,'fallback-ciphers-disabled', '`ssh::server::conf::enable_fallback_ciphers: false`')
         end
 
         it 'should prompt user to change password if expired and logging in with cert' do
