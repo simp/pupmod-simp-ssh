@@ -161,10 +161,10 @@ describe 'ssh class' do
         end
       end
 
-      context 'with additional custom settings via augeasproviders_ssh' do
+      context 'with customized settings' do
         let(:server_hieradata_w_additions) do
           server_hieradata.merge({
-          'ssh::server::conf::gssapiauthentication' => true,
+            'ssh::server::conf::gssapiauthentication' => true,
           })
         end
 
@@ -172,30 +172,61 @@ describe 'ssh class' do
            <<-PP
               include 'ssh::server'
 
+              # Basic example
+
               sshd_config {'LogLevel': value => 'VERBOSE'}
 
-               # SIMP-4440 example
-               sshd_config {
-                default:
-                  ensure => 'present',
-                  value  => 'yes',
-                ;
-                ['GSSAPIKeyExchange', 'GSSAPICleanupCredentials']:
-                  # use defaults
-                ;
+              # Server example for SIMP-4440 & SIMP-4197:
+
+              sshd_config {
+               default:
+                 ensure => 'present',
+                 value  => 'yes',
+               ;
+               ['GSSAPIKeyExchange', 'GSSAPICleanupCredentials']:
+                 # use defaults
+               ;
+              }
+           PP
+        end
+
+        let(:client_manifest_w_custom_host_entries) do
+           <<-PP
+               # SIMP-4440 client example
+
+               class{ 'ssh::client': add_default_entry => false }
+
+               ssh::client::host_config_entry{ '*':
+                 gssapiauthentication      => true,
+                 gssapikeyexchange         => true,
+                 gssapidelegatecredentials => true,
                }
            PP
         end
 
-        let(:client_manifest_w_additions) do
+        let(:client_manifest_w_ssh_config) do
            <<-PP
-              include 'ssh::client'
+               # ssh_config example
+
+               # RequestTTY isn't handled by ssh::client::host_config_entry
+               ssh_config { 'Global RequestTTY':
+                 ensure => present,
+                 key    => 'RequestTTY',
+                 value  => 'auto',
+               }
            PP
         end
 
+        let(:client_manifest_w_new_host) do
+          <<-PP
+            # `ancient.switch.fqdn` only understands old ciphers:
+            ssh::client::host_config_entry { 'ancient.switch.fqdn':
+              ciphers => [ 'aes128-cbc', '3des-cbc' ],
+            }
+          PP
+        end
 
-
-        it 'should permit additional settings via the sshd_config type' do
+        it 'should coexist with additional settings via the sshd_config type' do
 
           # Ensure the server is using the default test setup
           set_hieradata_on(server, server_hieradata)
@@ -217,7 +248,57 @@ describe 'ssh class' do
           ]
 
         end
-        it 'should permit additional settings via the ssh_config type' do
+
+        it 'should customize the default ssh_config Host' do
+          # Ensure the client is using the default test setup
+          on(client, 'echo > /etc/ssh/ssh_config')
+          apply_manifest_on(client, client_manifest)
+          _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+
+          # Create the new test setup
+          apply_manifest_on(client, client_manifest_w_custom_host_entries)
+          _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+
+          # Compare the results
+          expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
+            'GSSAPIAuthentication yes',
+            'GSSAPIDelegateCredentials yes',
+            'GSSAPIKeyExchange yes'
+          ]
+
+        end
+
+        it 'should customize an ssh_config Host entry for a specific host' do
+          # Ensure the client is using the default test setup
+          on(client, 'echo > /etc/ssh/ssh_config')
+          apply_manifest_on(client, client_manifest)
+          _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+
+          # Create the new test setup
+          apply_manifest_on(client, client_manifest_w_new_host)
+          _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+
+          # Compare the results
+          expect( _custom_ssh_conf - _normal_ssh_conf ).to eq [
+            'Host ancient.switch.fqdn',
+            'Ciphers aes128-cbc,3des-cbc'
+          ]
+        end
+
+        it 'should coexist with additional settings via the ssh_config type' do
+          # Ensure the client is using the default test setup
+          on(client, 'echo > /etc/ssh/ssh_config')
+          apply_manifest_on(client, client_manifest)
+          _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+
+          # Create the new test setup
+          apply_manifest_on(client, client_manifest_w_ssh_config)
+          _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+
+          # Compare the results
+          expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
+            'RequestTTY auto'
+          ]
         end
       end
     end
