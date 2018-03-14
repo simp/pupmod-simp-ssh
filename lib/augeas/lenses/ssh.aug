@@ -65,7 +65,8 @@ module Ssh =
     let local_fw = fw_entry /LocalForward/i
 
     let ciphers = commas_entry /Ciphers/i
-    let macs	= commas_entry /MACs/i
+    let host_key_algorithms = commas_entry /HostKeyAlgorithms/i
+    let macs = commas_entry /MACs/i
 
     let special_entry = send_env
 	                    | proxy_command
@@ -73,9 +74,10 @@ module Ssh =
 	                    | local_fw
 	                    | macs
 	                    | ciphers
+	                    | host_key_algorithms
 
     let key_re = /[A-Za-z0-9]+/
-               - /SendEnv|Host|ProxyCommand|RemoteForward|LocalForward|MACs|Ciphers/i
+               - /SendEnv|Host|ProxyCommand|RemoteForward|LocalForward|MACs|Ciphers|HostKeyAlgorithms/i
 
 
     let other_entry = [ indent . key key_re

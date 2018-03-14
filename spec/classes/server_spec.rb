@@ -24,7 +24,7 @@ shared_examples_for "an ssh server" do
   }
 
   it { is_expected.to create_file('/var/empty/sshd/etc/localtime').with({
-      :source  => '/etc/localtime',
+      :source  => 'file:///etc/localtime',
       :require => 'Package[openssh-server]'
     })
   }

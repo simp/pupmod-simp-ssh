@@ -56,7 +56,6 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommand') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser') }
-          it { is_expected.to_not create_file('/etc/ssh/ldap.conf') }
           it { is_expected.to create_file('/etc/ssh/local_keys') }
           it { is_expected.to_not contain_class('iptables') }
           it { is_expected.to_not contain_class('tcpwrappers') }
@@ -238,7 +237,6 @@ describe 'ssh::server::conf' do
               is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
             end
           }
-          it { is_expected.to create_file('/etc/ssh/ldap.conf').with_source('file:///etc/pam_ldap.conf') }
         end
 
         context 'with firewall, haveged, pam, and tcpwrappers global catalysts enabled' do
