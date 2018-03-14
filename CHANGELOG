@@ -1,3 +1,6 @@
+* Wed Mar 14 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.4.1-0
+- Removed unused Augeas lens `sshd.aug`
+
 * Mon Mar 05 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.4.0-0
 - Re-implemented `ssh::client::host_config_entry` using `ssh_config`:
   - Users can now customize additional SSH client options
