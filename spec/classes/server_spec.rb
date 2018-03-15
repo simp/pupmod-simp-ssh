@@ -5,12 +5,6 @@ shared_examples_for "an ssh server" do
   it { is_expected.to compile.with_all_deps }
   it { is_expected.to contain_class('ssh') }
 
-  it { is_expected.to create_file('/usr/share/augeas/lenses/sshd.aug').with({
-      :source => 'puppet:///modules/ssh/augeas_lenses/sshd.aug',
-      :before => 'Class[Ssh::Server::Conf]'
-    })
-  }
-
   it { is_expected.to create_file('/var/empty/sshd').with({
       :ensure  => 'directory',
       :require => 'Package[openssh-server]'
