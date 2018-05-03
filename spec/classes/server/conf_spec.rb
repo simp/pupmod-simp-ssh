@@ -44,14 +44,23 @@ describe 'ssh::server::conf' do
             is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
           }
           it { is_expected.to contain_sshd_config('Compression').with_value('no') }
+          it { is_expected.to contain_sshd_config('ClientAliveCountMax').with_value(0) }
+          it { is_expected.to contain_sshd_config('ClientAliveInterval').with_value(600) }
           it { is_expected.to contain_sshd_config('SyslogFacility').with_value('AUTHPRIV') }
           it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_value('no') }
+          it { is_expected.to contain_sshd_config('HostbasedAuthentication').with_value('no') }
+          it { is_expected.to contain_sshd_config('IgnoreRhosts').with_value('yes') }
+          it { is_expected.to contain_sshd_config('IgnoreUserKnownHosts').with_value('yes') }
+          it { is_expected.to contain_sshd_config('KerberosAuthentication').with_value('no') }
           it { is_expected.to_not contain_sshd_config('KexAlgorithms') }
           it { is_expected.to contain_sshd_config('ListenAddress').with_value('0.0.0.0') }
           it { is_expected.to contain_sshd_config('Port').with_value('22') }
           it { is_expected.to contain_sshd_config('PermitEmptyPasswords').with_value('no') }
           it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
+          it { is_expected.to contain_sshd_config('PermitUserEnvironment').with_value('no') }
           it { is_expected.to contain_sshd_config('PrintLastLog').with_value('no') }
+          it { is_expected.to contain_sshd_config('RhostsRSAAuthentication').with_value('no') }
+          it { is_expected.to contain_sshd_config('StrictModes').with_value('yes') }
           it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
           it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
           it { is_expected.to_not contain_sshd_config('AuthorizedKeysCommand') }
@@ -78,10 +87,12 @@ describe 'ssh::server::conf' do
 
               expected_kex_algorithms = [ 'curve25519-sha256@libssh.org', 'ecdh-sha2-nistp521',
                 'ecdh-sha2-nistp384', 'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
+              expected_useprivilegeseparation = 'sandbox'
             else
               expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
               expected_macs = [ 'hmac-sha1' ]
               expected_kex_algorithms = ['diffie-hellman-group-exchange-sha256']
+              expected_useprivilegeseparation = true 
             end
 
             is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)

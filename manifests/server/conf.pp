@@ -121,7 +121,26 @@
 #   Path and name of the private SSL key file. This key file is used to generate
 #   the system SSH certificates for consistency.
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @param clientalivecountmax
+#   @see man page for sshd_config
+# @param clientaliveinterval
+#   @see man page for sshd_config
+# @param hostbasedauthentication
+#   @see man page for sshd_config
+# @param ignorerhosts
+#   @see man page for sshd_config
+# @param ignoreuserknownhosts
+#   @see man page for sshd_config
+# @param kerberosauthentication
+#   @see man page for sshd_config
+# @param permituserenvironment
+#   @see man page for sshd_config
+# @param protocol
+#   @see man page for sshd_config
+# @param rhostsrsaauthentication
+#   @see man page for sshd_config
+# @param strictmodes
+#   @see man page for sshd_config
 #
 class ssh::server::conf (
   Array[String]                    $acceptenv                       = $::ssh::server::params::acceptenv,
@@ -131,11 +150,17 @@ class ssh::server::conf (
   Stdlib::Absolutepath             $banner                          = '/etc/issue.net',
   Boolean                          $challengeresponseauthentication = false,
   Optional[Array[String]]          $ciphers                         = undef,
+  Integer                          $clientalivecountmax             = 0,
+  Integer                          $clientaliveinterval             = 600,
   Array[String]                    $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
   Boolean                          $enable_fallback_ciphers         = true,
   Variant[Boolean,Enum['delayed']] $compression                     = false,
   Ssh::Syslogfacility              $syslogfacility                  = 'AUTHPRIV',
   Boolean                          $gssapiauthentication            = $::ssh::server::params::gssapiauthentication,
+  Boolean                          $hostbasedauthentication         = false,
+  Boolean                          $ignorerhosts                    = true,
+  Boolean                          $ignoreuserknownhosts            = true,
+  Boolean                          $kerberosauthentication          = false,
   Optional[Array[String]]          $kex_algorithms                  = undef,
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Simplib::Port                    $port                            = 22,
@@ -143,7 +168,11 @@ class ssh::server::conf (
   Optional[Boolean]                $passwordauthentication          = undef,
   Boolean                          $permitemptypasswords            = false,
   Boolean                          $permitrootlogin                 = false,
+  Boolean                          $permituserenvironment           = false,
   Boolean                          $printlastlog                    = false,
+  Array[Integer[1,2]]              $protocol                        = [2],
+  Boolean                          $rhostsrsaauthentication         = false,
+  Boolean                          $strictmodes                     = true,
   String                           $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
   Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => true }),
   Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = $::ssh::server::params::useprivilegeseparation,
@@ -207,6 +236,8 @@ class ssh::server::conf (
     }
   }
 
+  $_protocol = $protocol.unique.join(',')
+
   if $ciphers and !empty($ciphers) {
     $_main_ciphers = $ciphers
   }
@@ -250,14 +281,24 @@ class ssh::server::conf (
   sshd_config { 'Banner'                          : value => $banner }
   sshd_config { 'ChallengeResponseAuthentication' : value => ssh::config_bool_translate($challengeresponseauthentication) }
   sshd_config { 'Ciphers'                         : value => $_ciphers }
+  sshd_config { 'ClientAliveInterval'             : value => to_string($clientaliveinterval) }
+  sshd_config { 'ClientAliveCountMax'             : value => to_string($clientalivecountmax) }
   sshd_config { 'Compression'                     : value => ssh::config_bool_translate($compression) }
   sshd_config { 'GSSAPIAuthentication'            : value => ssh::config_bool_translate($gssapiauthentication) }
+  sshd_config { 'HostbasedAuthentication'         : value => ssh::config_bool_translate($hostbasedauthentication) }
+  sshd_config { 'KerberosAuthentication'          : value => ssh::config_bool_translate($kerberosauthentication) }
+  sshd_config { 'IgnoreRhosts'                    : value => ssh::config_bool_translate($ignorerhosts) }
+  sshd_config { 'IgnoreUserKnownHosts'            : value => ssh::config_bool_translate($ignoreuserknownhosts) }
   sshd_config { 'ListenAddress'                   : value => $listenaddress }
   sshd_config { 'MACs'                            : value => $_macs }
   sshd_config { 'PermitEmptyPasswords'            : value => ssh::config_bool_translate($permitemptypasswords) }
   sshd_config { 'PermitRootLogin'                 : value => ssh::config_bool_translate($permitrootlogin) }
+  sshd_config { 'PermitUserEnvironment'           : value => ssh::config_bool_translate($permituserenvironment) }
   sshd_config { 'Port'                            : value => to_string($port) }
   sshd_config { 'PrintLastLog'                    : value => ssh::config_bool_translate($printlastlog) }
+  sshd_config { 'Protocol'                        : value => $_protocol }
+  sshd_config { 'RhostsRSAAuthentication'         : value => ssh::config_bool_translate($rhostsrsaauthentication) }
+  sshd_config { 'StrictModes'                     : value => ssh::config_bool_translate($strictmodes) }
   sshd_config { 'SyslogFacility'                  : value => $syslogfacility}
   sshd_config { 'UsePAM'                          : value => ssh::config_bool_translate($pam) }
   sshd_config { 'UsePrivilegeSeparation'          : value => ssh::config_bool_translate($useprivilegeseparation) }
