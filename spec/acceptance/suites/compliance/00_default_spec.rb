@@ -44,7 +44,7 @@ compliance_markup::enforcement:
   hosts.each do |host|
     #  This is a hack to get the profiles copied up before ssh is locked down.
     #  It is called again in the inspec tests.
-    #  Make sure the  profiles_to_validate is the same sp all profiles get copied up.
+    #  Make sure the `profiles_to_validate` is the same so all profiles get copied up.
     before(:all) do
       profiles_to_validate = ['disa_stig']
       profiles_to_validate.each do |profile|
@@ -82,7 +82,3 @@ compliance_markup::enforcement:
     end
   end
 end
-
-
-
-

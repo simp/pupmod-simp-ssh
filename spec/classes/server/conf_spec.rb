@@ -43,7 +43,7 @@ describe 'ssh::server::conf' do
             is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
             is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
           }
-          it { is_expected.to contain_sshd_config('Compression').with_value('no') }
+          it { is_expected.to contain_sshd_config('Compression').with_value('delayed') }
           it { is_expected.to contain_sshd_config('ClientAliveCountMax').with_value(0) }
           it { is_expected.to contain_sshd_config('ClientAliveInterval').with_value(600) }
           it { is_expected.to contain_sshd_config('SyslogFacility').with_value('AUTHPRIV') }

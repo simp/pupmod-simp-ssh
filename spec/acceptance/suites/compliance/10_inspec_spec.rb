@@ -9,7 +9,7 @@ describe 'run inspec against the appropriate fixtures' do
   # This is a hack for tests that have both pam and ssh
   # aspects.  This will make the pam part of the test pass
   # V-72245, V-72275
-  let(:pam_sshd_content){ File.read('./spec/acceptance/files/pam_sshd') }
+  let(:pam_sshd_content){ File.read(File.join(File.dirname(__FILE__), 'files', 'pam_sshd')) }
   let(:manifest) {
      <<-EOS
 

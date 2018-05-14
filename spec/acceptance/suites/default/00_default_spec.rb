@@ -1,5 +1,5 @@
 require 'spec_helper_acceptance'
-require 'helpers/dump_sshd_ciphers'
+require_relative '../../support/lib/helpers/dump_sshd_ciphers'
 
 test_name 'ssh class'
 
@@ -18,6 +18,8 @@ describe 'ssh class' do
   end
 
   let(:client_manifest) { "include 'ssh::client'" }
+
+  let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
 
   hosts_as('server').each do |_server|
     os = _server.hostname.split('-').first
@@ -59,10 +61,12 @@ describe 'ssh class' do
         end
 
         it 'should be able to ssh into localhost' do
-          install_package(server, 'expect')
-          install_package(client, 'expect')
-          scp_to(hosts, './spec/acceptance/suites/default/files/ssh_test_script', '/usr/local/bin/ssh_test_script')
-          on(hosts, "chmod +x /usr/local/bin/ssh_test_script")
+          hosts.each do |host|
+            install_package(server, 'expect')
+            install_package(client, 'expect')
+            scp_to(host, File.join(files_dir, 'ssh_test_script'), '/usr/local/bin/ssh_test_script')
+            on(host, "chmod +x /usr/local/bin/ssh_test_script")
+          end
 
           on(server, "/usr/local/bin/ssh_test_script root localhost password")
 
@@ -89,18 +93,12 @@ describe 'ssh class' do
 
         it 'should be able to log in with just a key' do
           # copy the key to local_keys
-          scp_to(server,
-                 './spec/acceptance/suites/default/files/id_rsa_pub.example',
-                 '/etc/ssh/local_keys/testuser')
+          scp_to(server, File.join(files_dir, 'id_rsa_pub.example'), '/etc/ssh/local_keys/testuser')
           on(server, 'chmod o+r /etc/ssh/local_keys/testuser')
 
           on(client, "su testuser -c 'mkdir /home/testuser/.ssh'")
-          scp_to(client,
-                 './spec/acceptance/suites/default/files/id_rsa_pub.example',
-                 '/home/testuser/.ssh/id_rsa.pub')
-          scp_to(client,
-                 './spec/acceptance/suites/default/files/id_rsa.example',
-                 '/home/testuser/.ssh/id_rsa')
+          scp_to(client, File.join(files_dir, 'id_rsa_pub.example'), '/home/testuser/.ssh/id_rsa.pub')
+          scp_to(client, File.join(files_dir, 'id_rsa.example'), '/home/testuser/.ssh/id_rsa')
           on(client, 'chown -R testuser:testuser /home/testuser')
 
           on(client, "#{ssh_cmd} echo Logged in successfully")
@@ -132,12 +130,12 @@ describe 'ssh class' do
 
         it 'should prompt user to change password if expired and logging in with cert' do
           # reset and expire testuser password
-          on(hosts, 'echo password | passwd testuser --stdin')
-          on(hosts, 'chage -d 0 testuser')
-          scp_to(hosts,
-                 './spec/acceptance/suites/default/files/ssh_test_script_change_pass',
-                 '/usr/local/bin/ssh_test_script_change_pass')
-          on(hosts, 'chmod +x /usr/local/bin/ssh_test_script_change_pass')
+          hosts.each do |host|
+            on(host, 'echo password | passwd testuser --stdin')
+            on(host, 'chage -d 0 testuser')
+            scp_to(host, File.join(files_dir, 'ssh_test_script_change_pass'), '/usr/local/bin/ssh_test_script_change_pass')
+            on(host, 'chmod +x /usr/local/bin/ssh_test_script_change_pass')
+          end
 
           on(client, '/usr/local/bin/ssh_test_script_change_pass testuser ' \
                      "#{os}-server password correcthorsebatterystaple")
