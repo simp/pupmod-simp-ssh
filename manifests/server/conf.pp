@@ -154,7 +154,7 @@ class ssh::server::conf (
   Integer                          $clientaliveinterval             = 600,
   Array[String]                    $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
   Boolean                          $enable_fallback_ciphers         = true,
-  Variant[Boolean,Enum['delayed']] $compression                     = false,
+  Variant[Boolean,Enum['delayed']] $compression                     = 'delayed',
   Ssh::Syslogfacility              $syslogfacility                  = 'AUTHPRIV',
   Boolean                          $gssapiauthentication            = $::ssh::server::params::gssapiauthentication,
   Boolean                          $hostbasedauthentication         = false,
