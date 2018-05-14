@@ -6,6 +6,8 @@ spec/fixtures/
 spec/rp_env/
 !/spec/hieradata/default.yaml
 !/spec/fixtures/site.pp
+!/spec/fixtures/inspec_profiles
+sec_results
 .rspec_system
 .vagrant/
 .bundle/

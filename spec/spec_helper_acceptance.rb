@@ -4,10 +4,6 @@ require 'yaml'
 require 'simp/beaker_helpers'
 include Simp::BeakerHelpers
 
-require 'pry' if ENV['PRY'] == 'yes'
-$LOAD_PATH.unshift(File.expand_path('../acceptance/support',__FILE__))
-
-
 unless ENV['BEAKER_provision'] == 'no'
   hosts.each do |host|
     # Install Puppet
@@ -16,6 +12,9 @@ unless ENV['BEAKER_provision'] == 'no'
     else
       install_puppet
     end
+    # Install git, it's a dependency for inspec profiles
+    # Found this when experiencing https://github.com/chef/inspec/issues/1270
+    install_package(host, 'git')
   end
 end
 
@@ -37,18 +36,6 @@ RSpec.configure do |c|
       rescue ArgumentError =>e
         server = only_host_with_role(hosts, 'default')
       end
-
-      pluginsync_manifest =<<-PLUGINSYNC_MANIFEST
-        file { $::settings::libdir:
-              ensure  => directory,
-              source  => 'puppet:///plugins',
-              recurse => true,
-              purge   => true,
-              backup  => false,
-              noop    => false
-            }
-      PLUGINSYNC_MANIFEST
-      apply_manifest_on(hosts, pluginsync_manifest)
 
       # Generate and install PKI certificates on each SUT
       Dir.mktmpdir do |cert_dir|

@@ -1,3 +1,11 @@
+* Thu May 03 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.4.2-0
+- Added some variables for sshd_config to meet STIG requirements.
+  Most are just confirmation of defaults with the exception of
+  ClientAliveInterval and ClientAliveMaxCount which have
+  been set to activate Client Alive checks.
+- Added compliance tests to install setting from compliance
+  markup module and then run inspec tests to check for compliance.
+
 * Wed Mar 14 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.4.1-0
 - Removed unused Augeas lens `sshd.aug`
 
