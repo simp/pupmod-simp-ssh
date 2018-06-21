@@ -1,6 +1,7 @@
 skips = {
   'V-72257' => 'HostbasedAuthentication is set to NO so the keys are not used.',
-  'V-72225' => 'Skipping the check of the banner. '
+  'V-72225' => 'Skipping the check of the banner.',
+  'V-72247' => 'Beaker requires root SSH access to run, this is disabled by default.'
 }
 overrides = []
 subsystems = [ 'ssh' ]
