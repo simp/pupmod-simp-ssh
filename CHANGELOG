@@ -5,6 +5,7 @@
   been set to activate Client Alive checks.
 - Added compliance tests to install setting from compliance
   markup module and then run inspec tests to check for compliance.
+- Update version range of auditd dependency in metadata.json
 
 * Wed Mar 14 2018 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.4.1-0
 - Removed unused Augeas lens `sshd.aug`
