@@ -137,6 +137,14 @@ class ssh::server::params {
     $useprivilegeseparation = 'sandbox'
   }
 
+  # This setting is only present in old openssh versions
+  if versioncmp($facts['openssh_version'], '7.4') >= 0 {
+    $rhostsrsaauthentication = undef
+  }
+  else {
+    $rhostsrsaauthentication = false
+  }
+
   # If the host is configured to use IPA, enable this setting
   if $facts['ipa'] {
     $gssapiauthentication = true

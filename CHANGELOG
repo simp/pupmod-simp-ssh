@@ -1,3 +1,9 @@
+* Thu Aug 16 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 6.4.3-0
+- By default, do not specify the obsolete RhostsRSAAuthentication
+  configuration parameter in sshd_config on systems running openssh 7.4
+  or later.  Beginning with openshh 7.4, sshd emits an error message when
+  this parameter is present in sshd_config.
+
 * Thu May 03 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.4.2-0
 - Added some variables for sshd_config to meet STIG requirements.
   Most are just confirmation of defaults with the exception of

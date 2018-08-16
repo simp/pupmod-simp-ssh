@@ -273,6 +273,23 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_value('yes') }
         end
+
+        context 'with default parameters, openssh_version=7.4' do
+          let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
+          let(:pre_condition){ 'include "::ssh"' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to_not contain_sshd_config('RhostsRSAAuthentication') }
+        end
+
+        context 'with rhostsrsaauthentication explicitly disabled, openssh_version=7.4' do
+          let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
+          let(:hieradata) { 'rhostsrsaauthentication_disabled' }
+          let(:pre_condition){ 'include "::ssh"' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_sshd_config('RhostsRSAAuthentication').with_value('no') }
+        end
       end
     end
   end
