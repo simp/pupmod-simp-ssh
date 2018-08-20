@@ -137,8 +137,15 @@
 #   @see man page for sshd_config
 # @param protocol
 #   @see man page for sshd_config
+#
 # @param rhostsrsaauthentication
-#   @see man page for sshd_config
+#
+#   This sshd option has been completely removed in openssh 7.4 and
+#   will cause an error message to be logged, when present.  On systems
+#   using openssh 7.4 or later, only set this value if you need
+#   `RhostsRSAAuthentication` to be in the sshd configuration file to
+#   satisfy an outdated, STIG check.
+#
 # @param strictmodes
 #   @see man page for sshd_config
 #
@@ -171,7 +178,7 @@ class ssh::server::conf (
   Boolean                          $permituserenvironment           = false,
   Boolean                          $printlastlog                    = false,
   Array[Integer[1,2]]              $protocol                        = [2],
-  Boolean                          $rhostsrsaauthentication         = false,
+  Optional[Boolean]                $rhostsrsaauthentication         = $::ssh::server::params::rhostsrsaauthentication,
   Boolean                          $strictmodes                     = true,
   String                           $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
   Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => true }),
@@ -297,13 +304,21 @@ class ssh::server::conf (
   sshd_config { 'Port'                            : value => to_string($port) }
   sshd_config { 'PrintLastLog'                    : value => ssh::config_bool_translate($printlastlog) }
   sshd_config { 'Protocol'                        : value => $_protocol }
-  sshd_config { 'RhostsRSAAuthentication'         : value => ssh::config_bool_translate($rhostsrsaauthentication) }
+
   sshd_config { 'StrictModes'                     : value => ssh::config_bool_translate($strictmodes) }
   sshd_config { 'SyslogFacility'                  : value => $syslogfacility}
   sshd_config { 'UsePAM'                          : value => ssh::config_bool_translate($pam) }
   sshd_config { 'UsePrivilegeSeparation'          : value => ssh::config_bool_translate($useprivilegeseparation) }
   sshd_config { 'X11Forwarding'                   : value => ssh::config_bool_translate($x11forwarding) }
-  if $passwordauthentication { sshd_config { 'PasswordAuthentication' : value => ssh::config_bool_translate($passwordauthentication) } }
+
+  if $rhostsrsaauthentication != undef {
+    sshd_config { 'RhostsRSAAuthentication' : value => ssh::config_bool_translate($rhostsrsaauthentication) }
+  }
+
+  if $passwordauthentication {
+    sshd_config { 'PasswordAuthentication' : value => ssh::config_bool_translate($passwordauthentication) }
+  }
+
   # Kex should be empty openssl < 5.7, they are not supported.
   if !empty($_kex_algorithms) { sshd_config { 'KexAlgorithms': value => $_kex_algorithms } }
 
