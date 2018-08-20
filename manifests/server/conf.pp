@@ -174,7 +174,7 @@ class ssh::server::conf (
   Optional[Array[String]]          $macs                            = undef,
   Optional[Boolean]                $passwordauthentication          = undef,
   Boolean                          $permitemptypasswords            = false,
-  Boolean                          $permitrootlogin                 = false,
+  Variant[Boolean,Enum['prohibit-password','without-password','forced-commands-only']] $permitrootlogin = false,
   Boolean                          $permituserenvironment           = false,
   Boolean                          $printlastlog                    = false,
   Array[Integer[1,2]]              $protocol                        = [2],
@@ -315,7 +315,7 @@ class ssh::server::conf (
     sshd_config { 'RhostsRSAAuthentication' : value => ssh::config_bool_translate($rhostsrsaauthentication) }
   }
 
-  if $passwordauthentication {
+  if $passwordauthentication != undef {
     sshd_config { 'PasswordAuthentication' : value => ssh::config_bool_translate($passwordauthentication) }
   }
 
