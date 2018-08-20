@@ -2,6 +2,14 @@
 - Added support for Oracle Linux
 - Added support for Puppet 5
 
+* Mon Aug 20 2018 Bryan Howard <bryan@alumni.caltech.edu> - 6.4.4-0
+- PermitRootLogin accepts more values than 'yes' and 'no'. Add
+  support for 'without-password', 'prohibit-password', and
+  'forced-commands-only'.
+- It was not possible to set PasswordAuthentication to 'no'
+  because the conditional treated false the same as undef, which are
+  intended to be different.
+
 * Thu Aug 16 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 6.4.3-0
 - By default, do not specify the obsolete RhostsRSAAuthentication
   configuration parameter in sshd_config on systems running openssh 7.4
