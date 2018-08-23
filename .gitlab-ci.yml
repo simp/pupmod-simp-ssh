@@ -54,6 +54,13 @@ stages:
   - acceptance
   - deploy
 
+# To avoid running a prohibitive number of tests every commit,
+# don't set this env var in your gitlab instance
+.only_with_SIMP_FULL_MATRIX: &only_with_SIMP_FULL_MATRIX
+  only:
+    variables:
+      - $SIMP_FULL_MATRIX
+
 # Puppet 4.7 for PE 2016.4 LTS Support (EOL: 2018-10-21)
 # See: https://puppet.com/misc/puppet-enterprise-lifecycle
 # --------------------------------------
@@ -155,7 +162,6 @@ pup5_3-unit:
   <<: *cache_bundler
   <<: *setup_bundler_env
   <<: *spec_tests
-  allow_failure: true
 
 
 # Keep an eye on the latest puppet 5
@@ -170,7 +176,6 @@ pup5_latest-validation:
   <<: *cache_bundler
   <<: *setup_bundler_env
   <<: *validation_checks
-  allow_failure: true
 
 pup5_latest-unit:
   stage: unit
@@ -182,7 +187,6 @@ pup5_latest-unit:
   <<: *cache_bundler
   <<: *setup_bundler_env
   <<: *spec_tests
-  allow_failure: true
 
 
 
@@ -210,3 +214,57 @@ fips-acceptance:
     BEAKER_fips: 'yes'
   script:
     - bundle exec rake beaker:suites[default]
+
+default-acceptance-puppet5:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  <<: *only_with_SIMP_FULL_MATRIX
+  variables:
+    PUPPET_VERSION: '5.5'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+  script:
+    - bundle exec rake beaker:suites[default]
+
+fips-acceptance-puppet5:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  <<: *only_with_SIMP_FULL_MATRIX
+  variables:
+    PUPPET_VERSION: '5.5'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+    BEAKER_fips: 'yes'
+  script:
+    - bundle exec rake beaker:suites[default]
+
+default-acceptance-puppet5-oel:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  <<: *only_with_SIMP_FULL_MATRIX
+  variables:
+    PUPPET_VERSION: '5.5'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+  script:
+    - bundle exec rake beaker:suites[default,oel]
+
+fips-acceptance-puppet5-oel:
+  stage: acceptance
+  tags:
+    - beaker
+  <<: *cache_bundler
+  <<: *setup_bundler_env
+  <<: *only_with_SIMP_FULL_MATRIX
+  variables:
+    PUPPET_VERSION: '5.5'
+    BEAKER_PUPPET_COLLECTION: 'puppet5'
+    BEAKER_fips: 'yes'
+  script:
+    - bundle exec rake beaker:suites[default,oel]

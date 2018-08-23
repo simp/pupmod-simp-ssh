@@ -1,3 +1,7 @@
+* Thu Aug 23 2018 Adam Yohrling <adam.yohrling@onyxpoint.com> - 6.4.4-0
+- Added support for Oracle Linux
+- Added support for Puppet 5
+
 * Thu Aug 16 2018 Liz Nemsick <lnemsick.simp@gmail.com> - 6.4.3-0
 - By default, do not specify the obsolete RhostsRSAAuthentication
   configuration parameter in sshd_config on systems running openssh 7.4
