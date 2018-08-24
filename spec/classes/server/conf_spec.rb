@@ -27,7 +27,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('Banner').with_value('/etc/issue.net') }
           it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('no') }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com',
                                   'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
@@ -77,7 +77,7 @@ describe 'ssh::server::conf' do
 
           it { is_expected.to compile.with_all_deps }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
                'aes192-ctr', 'aes128-ctr' ]
@@ -108,7 +108,7 @@ describe 'ssh::server::conf' do
 
           it { is_expected.to compile }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
 
@@ -130,7 +130,7 @@ describe 'ssh::server::conf' do
 
           it { is_expected.to compile.with_all_deps }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
 
@@ -157,7 +157,7 @@ describe 'ssh::server::conf' do
 
           it { is_expected.to compile.with_all_deps }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com',
                                   'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
@@ -176,7 +176,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/some/command') }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
             else
@@ -191,7 +191,7 @@ describe 'ssh::server::conf' do
           let(:pre_condition){ 'include "::ssh"' }
 
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               is_expected.to_not compile.with_all_deps
             else
@@ -223,7 +223,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_class('sssd::install') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/bin/sss_ssh_authorizedkeys') }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
             else
@@ -241,7 +241,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to_not contain_class('sssd::install') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/libexec/openssh/ssh-ldap-wrapper') }
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
             else

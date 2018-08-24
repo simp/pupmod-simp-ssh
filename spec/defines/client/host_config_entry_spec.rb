@@ -16,7 +16,7 @@ describe 'ssh::client::host_config_entry' do
           it { is_expected.to contain_class('ssh::client::params') }
 
           it {
-            if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
               (facts[:os][:release][:major].to_s >= '7')
               expected_macs = ['hmac-sha2-512-etm@openssh.com',
                 'hmac-sha2-256-etm@openssh.com', 'hmac-sha2-512', 'hmac-sha2-256']
@@ -238,7 +238,7 @@ describe 'ssh::client::host_config_entry' do
             let(:params){{ :protocol => _protocol_set }}
 
             it {
-              if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+              if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
                 (facts[:os][:release][:major].to_s >= '7')
                 expected_macs = ['hmac-sha2-256', 'hmac-sha1']
                 expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr']
@@ -263,7 +263,7 @@ describe 'ssh::client::host_config_entry' do
 
             it { is_expected.to compile.with_all_deps }
             it {
-              if (['RedHat', 'CentOS'].include?(facts[:os][:name])) and
+              if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
                 (facts[:os][:release][:major].to_s >= '7')
                 expected_macs = ['hmac-sha2-256', 'hmac-sha1']
                 expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr']
