@@ -1,3 +1,9 @@
+* Wed Aug 29 2018 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.4.4-0
+- Added a Ssh::PermitRootLogin data type
+- Updated tests
+- Added a check to fail on EL6 if 'prohibit-password' is set since it is not
+  allowed on that platform.
+
 * Thu Aug 23 2018 Adam Yohrling <adam.yohrling@onyxpoint.com> - 6.4.4-0
 - Added support for Oracle Linux
 - Added support for Puppet 5

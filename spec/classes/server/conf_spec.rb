@@ -168,6 +168,44 @@ describe 'ssh::server::conf' do
           }
         end
 
+        context 'with permitrootlogin set' do
+          let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
+          let(:params) {{
+            :permitrootlogin => value
+          }}
+          # This is just a stub for the one thing that is required
+          let(:pre_condition){ 'service { "sshd": } ' }
+
+          [
+           true,
+           false,
+           'without-password',
+           'forced-commands-only',
+           'prohibit-password'
+          ].each do |value|
+            context "to #{value}" do
+              let(:params) {{
+                :permitrootlogin => value
+              }}
+
+              if value == true
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('yes') }
+              elsif value == false
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
+              elsif value == 'prohibit-password' &&
+                             (['RedHat', 'CentOS'].include?(os_facts[:os][:name])) &&
+                             (os_facts[:os][:release][:major].to_s < '7')
+                it { is_expected.to compile.and_raise_error(%r{permitrootlogin may not be}) }
+              else
+                it { is_expected.to compile.with_all_deps }
+                it { is_expected.to contain_sshd_config('PermitRootLogin').with_value(value) }
+              end
+            end
+          end
+        end
+
         context 'with authorizedkeyscommand and authorizedkeyscommanduser set' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
           let(:hieradata) { 'authorizedkeyscommand' }
