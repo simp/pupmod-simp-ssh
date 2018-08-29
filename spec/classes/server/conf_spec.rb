@@ -192,7 +192,7 @@ describe 'ssh::server::conf' do
                 it { is_expected.to compile.with_all_deps }
                 it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
               elsif value == 'prohibit-password' &&
-                             (['RedHat', 'CentOS'].include?(os_facts[:os][:name])) &&
+                             (['RedHat', 'CentOS', 'OracleLinux'].include?(os_facts[:os][:name])) &&
                              (os_facts[:os][:release][:major].to_s < '7')
                 it { is_expected.to compile.and_raise_error(%r{permitrootlogin may not be}) }
               else
