@@ -170,9 +170,6 @@ describe 'ssh::server::conf' do
 
         context 'with permitrootlogin set' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
-          let(:params) {{
-            :permitrootlogin => value
-          }}
           # This is just a stub for the one thing that is required
           let(:pre_condition){ 'service { "sshd": } ' }
 
