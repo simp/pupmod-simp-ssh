@@ -174,7 +174,7 @@ class ssh::server::conf (
   Optional[Array[String]]          $macs                            = undef,
   Optional[Boolean]                $passwordauthentication          = undef,
   Boolean                          $permitemptypasswords            = false,
-  Boolean                          $permitrootlogin                 = false,
+  Ssh::PermitRootLogin             $permitrootlogin                 = false,
   Boolean                          $permituserenvironment           = false,
   Boolean                          $printlastlog                    = false,
   Array[Integer[1,2]]              $protocol                        = [2],
@@ -197,14 +197,20 @@ class ssh::server::conf (
 ) inherits ::ssh::server::params {
   assert_private()
 
+  $rhel_greater_than_6 = ( $facts['os']['family'] == 'RedHat' ) and ( $facts['os']['release']['major'] > '6' )
+
+  unless $rhel_greater_than_6 {
+    if $permitrootlogin == 'prohibit-password' {
+      fail('$permitrootlogin may not be "prohibit-password" on EL6')
+    }
+  }
+
   if $haveged {
     include '::haveged'
   }
 
-  $rhel_greater_then_6 = ( $facts['os']['family'] == 'RedHat' ) and ( $facts['os']['release']['major'] > '6' )
-
   if $authorizedkeyscommand {
-    if $rhel_greater_then_6 {
+    if $rhel_greater_than_6 {
       if !$authorizedkeyscommanduser or empty($authorizedkeyscommanduser) {
         fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
       }
@@ -315,7 +321,7 @@ class ssh::server::conf (
     sshd_config { 'RhostsRSAAuthentication' : value => ssh::config_bool_translate($rhostsrsaauthentication) }
   }
 
-  if $passwordauthentication {
+  if $passwordauthentication != undef {
     sshd_config { 'PasswordAuthentication' : value => ssh::config_bool_translate($passwordauthentication) }
   }
 
@@ -324,7 +330,7 @@ class ssh::server::conf (
 
   if $authorizedkeyscommand {
     sshd_config { 'AuthorizedKeysCommand': value => $authorizedkeyscommand }
-    if $rhel_greater_then_6 {
+    if $rhel_greater_than_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
@@ -332,13 +338,13 @@ class ssh::server::conf (
     include '::sssd::install'
 
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/bin/sss_ssh_authorizedkeys' }
-    if $rhel_greater_then_6 {
+    if $rhel_greater_than_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
   elsif $_use_ldap {
     sshd_config { 'AuthorizedKeysCommand': value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
-    if $rhel_greater_then_6 {
+    if $rhel_greater_than_6 {
       sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
     }
   }
