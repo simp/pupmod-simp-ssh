@@ -149,7 +149,7 @@ describe 'ssh class' do
           on(hosts, 'echo password | passwd testuser --stdin')
           on(hosts, 'chage -d 0 testuser')
           # remove publc key from server
-          on(server, 'rm -rf /etc/ssh/local_keys/*')
+          on(server, 'rm -f /etc/ssh/local_keys/testuser')
 
           on(client, '/usr/local/bin/ssh_test_script_change_pass testuser ' \
                      "#{os}-server password correcthorsebatterystaple")
