@@ -7,12 +7,15 @@
 #
 # @param haveged If true, include the haveged module to assist with entropy generation.
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @param package_ensure The ensure status the openssh-clients package
+#
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::client (
   Boolean $add_default_entry = true,
   Boolean $haveged           = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean $fips              = simplib::lookup('simp_options::fips', { 'default_value' => false })
+  Boolean $fips              = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  String  $package_ensure    = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
 
   if $add_default_entry {
@@ -32,7 +35,9 @@ class ssh::client (
     mode  => '0644'
   }
 
-  package { 'openssh-clients': ensure => 'latest' }
+  package { 'openssh-clients':
+    ensure => $package_ensure
+  }
 
   if $haveged {
     include '::haveged'

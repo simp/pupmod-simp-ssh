@@ -1,8 +1,15 @@
 # Sets up a ssh server and starts sshd.
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @param server_ensure The ensure status of the openssh-server package
 #
-class ssh::server {
+# @param ldap_ensure The ensure status of the openssh-ldap package
+#
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
+#
+class ssh::server (
+  String $server_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+  String $ldap_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+) {
 
   include '::ssh'
   include '::ssh::server::conf'
@@ -68,10 +75,14 @@ class ssh::server {
     gid       => '74'
   }
 
-  package { 'openssh-server': ensure => 'latest' }
+  package { 'openssh-server':
+    ensure => $server_ensure
+  }
 
   if $::ssh::server::conf::_use_ldap {
-    package { 'openssh-ldap': ensure => 'latest' }
+    package { 'openssh-ldap':
+      ensure => $ldap_ensure
+    }
   }
 
   user { 'sshd':

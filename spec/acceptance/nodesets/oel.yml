@@ -12,36 +12,36 @@ HOSTS:
       - server
       - el7
       - el7-server
-    platform:   el-7-x86_64
-    box:        elastic/oel-7-x86_64
+    platform: el-7-x86_64
+    box: elastic/oel-7-x86_64
     hypervisor: <%= hypervisor %>
   el7-client:
     roles:
       - client
       - el7
       - el7-client
-    platform:   el-7-x86_64
-    box:        elastic/oel-7-x86_64
+    platform: el-7-x86_64
+    box: elastic/oel-7-x86_64
     hypervisor: <%= hypervisor %>
   el6-server:
     roles:
       - server
       - el6
       - el6-server
-    platform:   el-6-x86_64
-    box:        elastic/oel-6-x86_64
+    platform: el-6-x86_64
+    box: elastic/oel-6-x86_64
     hypervisor: <%= hypervisor %>
   el6-client:
     roles:
       - client
       - el6
       - el6-client
-    platform:   el-6-x86_64
-    box:        elastic/oel-6-x86_64
+    platform: el-6-x86_64
+    box: elastic/oel-6-x86_64
     hypervisor: <%= hypervisor %>
 CONFIG:
-  log_level:       verbose
-  type:            aio
+  log_level: verbose
+  type: aio
   vagrant_memsize: 256
 <% if ENV['BEAKER_PUPPET_COLLECTION'] -%>
   puppet_collection: <%= ENV['BEAKER_PUPPET_COLLECTION'] %>
