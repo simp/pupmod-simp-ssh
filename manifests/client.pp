@@ -9,7 +9,7 @@
 #
 # @param package_ensure The ensure status the openssh-clients package
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::client (
   Boolean $add_default_entry = true,
