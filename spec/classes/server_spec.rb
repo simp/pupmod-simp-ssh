@@ -25,7 +25,7 @@ shared_examples_for "an ssh server" do
 
   it { is_expected.to contain_group('sshd') }
 
-  it { is_expected.to contain_package('openssh-server').with_ensure('latest') }
+  it { is_expected.to contain_package('openssh-server').with_ensure('installed') }
 
   it { is_expected.to contain_user('sshd').with({
       :ensure    => 'present',
@@ -56,7 +56,7 @@ describe 'ssh::server' do
 
         context "with default parameters" do
           it_behaves_like "an ssh server"
-          it { is_expected.to_not contain_package('openssh-ldap').with_ensure('latest') }
+          it { is_expected.to_not contain_package('openssh-ldap').with_ensure('installed') }
         end
 
         context "with ldap => true" do
@@ -64,7 +64,7 @@ describe 'ssh::server' do
             "class{'ssh::server::conf': ldap => true }"
           }
           it_behaves_like "an ssh server"
-          it { is_expected.to contain_package('openssh-ldap').with_ensure('latest') }
+          it { is_expected.to contain_package('openssh-ldap').with_ensure('installed') }
         end
 
         context "with a non-standard ssh port" do

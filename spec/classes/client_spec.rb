@@ -11,7 +11,7 @@ describe 'ssh::client' do
         it { is_expected.to create_class('ssh::client') }
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to create_ssh__client__host_config_entry('*') }
-        it { is_expected.to contain_package('openssh-clients').with_ensure('latest') }
+        it { is_expected.to contain_package('openssh-clients').with_ensure('installed') }
         it { is_expected.to_not contain_class('haveged') }
       end
 
