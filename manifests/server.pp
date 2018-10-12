@@ -4,7 +4,7 @@
 #
 # @param ldap_ensure The ensure status of the openssh-ldap package
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::server (
   String $server_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
