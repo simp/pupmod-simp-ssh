@@ -44,6 +44,30 @@ class ssh::server (
     mode  => '0644'
   }
 
+  file { '/etc/ssh/ssh_host_ecdsa_key':
+    owner => 'root',
+    group => 'root',
+    mode  => '0600'
+  }
+
+  file { '/etc/ssh/ssh_host_ecdsa_key.pub':
+    owner => 'root',
+    group => 'root',
+    mode  => '0644'
+  }
+
+  file { '/etc/ssh/ssh_host_ed25519_key':
+    owner => 'root',
+    group => 'root',
+    mode  => '0600'
+  }
+
+  file { '/etc/ssh/ssh_host_ed25519_key.pub':
+    owner => 'root',
+    group => 'root',
+    mode  => '0644'
+  }
+
   file { '/var/empty/sshd':
     ensure  => 'directory',
     owner   => 'root',
