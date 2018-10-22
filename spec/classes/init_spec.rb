@@ -14,7 +14,6 @@ describe 'ssh' do
           it { is_expected.to create_class('ssh') }
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to create_file('/etc/ssh') }
-          it { is_expected.to create_file('/etc/ssh/ssh_host_key') }
           it { is_expected.to create_file('/etc/ssh/ssh_known_hosts') }
         end
 

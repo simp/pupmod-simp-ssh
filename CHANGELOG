@@ -1,3 +1,9 @@
+* Fri Oct 26 2018 Adam Yohrling <adam.yohrling@onyxpoint.com> - 6.5.1-0
+- Add ssh_host_keys fact to gather configured `hostkey` values
+  from sshd
+- Loop through all hostkeys and manage permissions for security and
+  compliance
+
 * Fri Oct 12 2018 Nick Miller <nick.miller@onyxpoint.com> - 6.5.0-0
 - Added the following package ensure parameters
   - $ssh::client::package_ensure
