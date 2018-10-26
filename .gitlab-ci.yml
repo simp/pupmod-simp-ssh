@@ -8,7 +8,7 @@
 # PE 2018.4   5.5.6   2.4.4  2020-05 (LTS)
 # SIMP 6.3    5.5.7   2.4.4
 #
-# *** = Modules created for SIMP 6.2+ are not required to support Puppet < 4.10
+# *** = Modules created for SIMP 6.3+ are not required to support Puppet < 5.5
 ---
 stages:
   - 'sanity'
@@ -141,11 +141,11 @@ pup4.10-unit:
   <<: *pup_4_10_X
   <<: *unit_tests
 
-pup5.3-unit:
+pup5.5.6-unit:
   <<: *pup_5_5_6
   <<: *unit_tests
 
-pup5.5-unit:
+pup5.5.7-unit:
   <<: *pup_5_5_7
   <<: *unit_tests
 
