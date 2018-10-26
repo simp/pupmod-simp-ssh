@@ -127,7 +127,8 @@ class ssh::server (
         refreshonly => true,
         require     => [ Package['openssh-server'], File[$key] ],
       }
-    } else {
+    }
+    else {
       file { $key:
         owner => 'root',
         group => 'root',
