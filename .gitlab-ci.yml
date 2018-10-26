@@ -14,6 +14,7 @@ stages:
   - 'sanity'
   - 'validation'
   - 'acceptance'
+  - 'compliance'
   - 'deployment'
 
 image: 'ruby:2.1'
@@ -108,6 +109,11 @@ variables:
   tags: ['beaker']
   <<: *setup_bundler_env
 
+.compliance_base: &compliance_base
+  stage: 'compliance'
+  tags: ['beaker']
+  <<: *setup_bundler_env
+
 # Pipeline / testing matrix
 #=======================================================================
 
@@ -173,3 +179,8 @@ pup5.5-fips-acceptance:
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites'
 
+pup5.5-fips-compliance:
+  <<: *pup_5_5_7
+  <<: *compliance_base
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
