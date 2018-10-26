@@ -20,30 +20,6 @@ class ssh::server (
     mode  => '0644'
   }
 
-  file { '/etc/ssh/ssh_host_dsa_key':
-    owner => 'root',
-    group => 'root',
-    mode  => '0600'
-  }
-
-  file { '/etc/ssh/ssh_host_dsa_key.pub':
-    owner => 'root',
-    group => 'root',
-    mode  => '0644'
-  }
-
-  file { '/etc/ssh/ssh_host_key':
-    owner => 'root',
-    group => 'root',
-    mode  => '0600'
-  }
-
-  file { '/etc/ssh/ssh_host_key.pub':
-    owner => 'root',
-    group => 'root',
-    mode  => '0644'
-  }
-
   file { '/var/empty/sshd':
     ensure  => 'directory',
     owner   => 'root',
@@ -127,41 +103,43 @@ class ssh::server (
     }
   }
 
-  if $::ssh::server::conf::pki {
+  # Make sure all ssh keys are managed for permissions per compiance settings
+  $facts['ssh_host_keys'].each |$key| {
+    if ($key =~ /ssh_host_rsa_key/) and $::ssh::server::conf::pki {
+      file { $key:
+        owner     => 'root',
+        group     => 'root',
+        mode      => '0600',
+        source    => "file://${::ssh::server::conf::app_pki_key}",
+        subscribe => Pki::Copy['sshd'],
+        notify    => [ Exec['gensshpub'], Service['sshd'] ],
+      }
 
-    file { '/etc/ssh/ssh_host_rsa_key':
-      owner     => 'root',
-      group     => 'root',
-      mode      => '0600',
-      source    => "file://${::ssh::server::conf::app_pki_key}",
-      subscribe => Pki::Copy['sshd'],
-      notify    => [ Exec['gensshpub'], Service['sshd'] ],
-    }
+      file { "${key}.pub":
+        owner     => 'root',
+        group     => 'root',
+        mode      => '0644',
+        subscribe => Exec['gensshpub'],
+      }
 
-    file { '/etc/ssh/ssh_host_rsa_key.pub':
-      owner     => 'root',
-      group     => 'root',
-      mode      => '0644',
-      subscribe => Exec['gensshpub'],
+      exec { 'gensshpub':
+        command     => "/usr/bin/ssh-keygen -y -f ${key} > ${key}.pub",
+        refreshonly => true,
+        require     => [ Package['openssh-server'], File[$key] ],
+      }
     }
+    else {
+      file { $key:
+        owner => 'root',
+        group => 'root',
+        mode  => '0600'
+      }
 
-    exec { 'gensshpub':
-      command     => '/usr/bin/ssh-keygen -y -f /etc/ssh/ssh_host_rsa_key > /etc/ssh/ssh_host_rsa_key.pub',
-      refreshonly => true,
-      require     => [Package['openssh-server'],File['/etc/ssh/ssh_host_rsa_key']]
-    }
-  }
-  else {
-    file { '/etc/ssh/ssh_host_rsa_key':
-      owner => 'root',
-      group => 'root',
-      mode  => '0600'
-    }
-
-    file { '/etc/ssh/ssh_host_rsa_key.pub':
-      owner => 'root',
-      group => 'root',
-      mode  => '0644'
+      file { "${key}.pub":
+        owner => 'root',
+        group => 'root',
+        mode  => '0644'
+      }
     }
   }
 }

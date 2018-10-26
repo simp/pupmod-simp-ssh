@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-shared_examples_for "an ssh server" do
+shared_examples_for "an ssh server" do |os_facts|
   it { is_expected.to create_class('ssh::server') }
   it { is_expected.to compile.with_all_deps }
   it { is_expected.to contain_class('ssh') }
@@ -43,19 +43,34 @@ shared_examples_for "an ssh server" do
 
   it { is_expected.to_not contain_exec('SELinux Allow SSH Port 22') }
 
+  os_facts[:ssh_host_keys].each do |host_key|
+    it { is_expected.to create_file(host_key).with({
+        :owner => 'root',
+        :group => 'root',
+        :mode  => '0600'
+      })
+    }
+
+    it { is_expected.to create_file("#{host_key}.pub").with({
+        :owner => 'root',
+        :group => 'root',
+        :mode  => '0644'
+      })
+    }
+  end
 end
 
 describe 'ssh::server' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
-     context "on #{os}" do
+      context "on #{os}" do
         let(:facts) do
           os_facts
         end
         let(:facts) { os_facts.merge( { :openssh_version => '6.6' } ) }
 
         context "with default parameters" do
-          it_behaves_like "an ssh server"
+          it_behaves_like "an ssh server", os_facts
           it { is_expected.to_not contain_package('openssh-ldap').with_ensure('installed') }
         end
 
@@ -63,7 +78,7 @@ describe 'ssh::server' do
           let(:pre_condition){
             "class{'ssh::server::conf': ldap => true }"
           }
-          it_behaves_like "an ssh server"
+          it_behaves_like "an ssh server", os_facts
           it { is_expected.to contain_package('openssh-ldap').with_ensure('installed') }
         end
 
