@@ -231,7 +231,13 @@ pup5.5.7-oel:
 
 pup5.5.7-oel-fips:
   <<: *pup_5_5_7
-  <<: *compliance_base
+  <<: *acceptance_base
   <<: *only_with_SIMP_FULL_MATRIX
+  script:
+    - 'BEAKER_fips=yes bundle exec rake beaker:suites[default,oel]'
+
+pup5.5.7-compliance-fips:
+  <<: *pup_5_5_7
+  <<: *compliance_base
   script:
     - 'BEAKER_fips=yes bundle exec rake beaker:suites[compliance]'
