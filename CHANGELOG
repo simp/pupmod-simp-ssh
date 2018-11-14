@@ -1,4 +1,12 @@
-* Fri Oct 26 2018 Adam Yohrling <adam.yohrling@onyxpoint.com> - 6.5.1-0
+* Thu Nov 15 2018 Nick Miller <nick.miller@onyxpoint.com> - 6.5.0-0
+- Added a new class, ssh::authorized_keys, that consumes a hash of ssh pubkeys
+  - Users are meant to be able to paste the output of their pubkey into hiera
+  - Arrays and hashes work too, though the hash option is not as smart as the
+    others
+  - Update README with a section on it
+- Add REFERENCE.md
+
+* Fri Oct 26 2018 Adam Yohrling <adam.yohrling@onyxpoint.com> - 6.5.0-0
 - Add ssh_host_keys fact to gather configured `hostkey` values
   from sshd
 - Loop through all hostkeys and manage permissions for security and
