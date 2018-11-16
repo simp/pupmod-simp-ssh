@@ -6,7 +6,7 @@
 **Classes**
 
 * [`ssh`](#ssh): Sets up files for ssh.
-* [`ssh::authorized_keys`](#sshauthorized_keys): Add ssh_authorized_keys via hiera in a loop  It was designed so you can just paste the output of the ssh pubkey into hiera and it will work. 
+* [`ssh::authorized_keys`](#sshauthorized_keys): Add `ssh_authorized_keys` via hiera in a loop  It was designed so you can just paste the output of the ssh pubkey into hiera and it will work
 * [`ssh::client`](#sshclient): Sets up a ssh client and creates /etc/ssh/ssh_config.
 * [`ssh::client::params`](#sshclientparams): Default parameters for the SSH client
 * [`ssh::server`](#sshserver): Sets up a ssh server and starts sshd.
@@ -59,10 +59,18 @@ Default value: `true`
 
 ### ssh::authorized_keys
 
-Add ssh_authorized_keys via hiera in a loop
+Add `ssh_authorized_keys` via hiera in a loop
 
 It was designed so you can just paste the output of the ssh pubkey into
 hiera and it will work. See the example below for details.
+
+> **WARNING**
+>
+> This creates a user for every key and every user in the Hash. If this is
+> large, please consider moving to a central source for these keys, such as
+> LDAP, so that you do not over-burden your Puppet server.
+>
+> **WARNING**
 
 * **See also**
 https://puppet.com/docs/puppet/5.5/types/ssh_authorized_key.html
@@ -73,7 +81,7 @@ https://puppet.com/docs/puppet/5.5/types/ssh_authorized_key.html
 
 ```puppet
 ```yaml
-ssh_authorized_keys::keys:
+ssh::authorized_keys::keys:
   kelly: ssh-rsa skjfhslkdjfs...
   nick:
   - ssh-rsa sajhgfsaihd...
