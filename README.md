@@ -309,6 +309,24 @@ Either of the choices above are preferable to weakening the system-wide
 client settings unecessarily.
 
 
+### Managing ssh_authorized_keys
+
+You can manage users authorized_keys file using the ``ssh::authorized_keys``
+class and the ``ssh::authorized_keys::keys`` hiera value.
+
+```yaml
+---
+ssh::authorized_keys::keys:
+  kelly: ssh-rsa skjfhslkdjfs...
+  nick:
+  - ssh-rsa sajhgfsaihd...
+  - ssh-rsa jrklsahsgfs...
+  mike:
+    key: ssh-rsa dlfkjsahh...
+    user: mlast
+    target: /home/gitlab-runner/.ssh/authorized_keys
+```
+
 
 ## Limitations
 
