@@ -350,7 +350,7 @@ class ssh::server::conf (
   }
 
   $subsystem_array = split($subsystem, ' +')
-  sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1]) }
+  sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1], " ") }
 
   file { '/etc/ssh/local_keys':
     ensure  => 'directory',
