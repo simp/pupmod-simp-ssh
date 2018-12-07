@@ -1,3 +1,7 @@
+* Tue Dec 04 2018 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.6.0-0
+- Fix bug in which the sshd 'Subsystem' configuration specified by 
+  ssh::server::conf::subsystem was erroneously stripped of whitespace
+  
 * Thu Nov 15 2018 Nick Miller <nick.miller@onyxpoint.com> - 6.6.0-0
 - Added a new class, ssh::authorized_keys, that consumes a hash of ssh pubkeys
   - Users are meant to be able to paste the output of their pubkey into hiera
