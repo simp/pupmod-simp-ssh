@@ -130,6 +130,7 @@ If you need to customize a setting in `/etc/ssh/ssh_config` that
 
 ```puppet
 # RequestTTY isn't handled by ssh::client::host_config_entry
+# Note: RequestTTY is not a valid ssh_config setting on OpenSSH where version < 5.9
 ssh_config { 'Global RequestTTY':
   ensure => present,
   key    => 'RequestTTY',

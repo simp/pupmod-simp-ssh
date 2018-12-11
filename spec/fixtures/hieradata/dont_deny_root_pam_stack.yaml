@@ -1,0 +1,5 @@
+---
+simp_options::pam : true
+simp_options::oath : false
+ssh::server::conf::manage_pam_sshd : true
+ssh::server::conf::even_deny_root : false

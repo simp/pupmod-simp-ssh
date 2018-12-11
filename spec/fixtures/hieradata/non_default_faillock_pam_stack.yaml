@@ -1,0 +1,10 @@
+---
+simp_options::pam : true
+simp_options::oath : false
+ssh::server::conf::manage_pam_sshd : true
+ssh::server::conf::display_account_lock : true
+ssh::server::conf::deny : 10 
+ssh::server::conf::unlock_time : 300
+ssh::server::conf::fail_interval : 400
+ssh::server::conf::even_deny_root : true
+ssh::server::conf::root_unlock_time : 30

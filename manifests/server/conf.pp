@@ -88,7 +88,10 @@
 #   permitted per connection.
 #
 # @param passwordauthentication Enable password authentication on the sshd
-#   server. If left as undef (default), this setting will not be managed.
+#   server. If set to undef, this setting will not be managed.
+#
+#   * Note: This setting must be managed by default so that switching to and
+#     from OATH does not lock you out of your system.
 #
 # @param permitemptypasswords  When password authentication is allowed,
 #   it specifies whether the server allows login to accounts with empty password
@@ -127,6 +130,22 @@
 # @param tcpwrappers  If true, allow sshd tcpwrapper.
 #
 # @param usepam Enables the Pluggable Authentication Module interface.
+#
+# @param manage_pam_sshd Flag indicating whether or not to mangae the 
+#   pam stack for sshd. This is required for the oath option to work 
+#   properly.
+#
+# @param oath  Configures ssh to use pam_oath TOTP in the sshd pam stack.
+#   Also configures sshd_config to use required settings. Inherits from
+#   simp_options::oath, defaults to false if not found. 
+#   WARNING: If this setting is enabled then disabled and 
+#            passwordauthentication is unmanaged, this will be set to no
+#            in sshd_config! 
+#   WARNING: pupmod-simp-oath is a dependency of this option. If this is                                                                                                                                          
+#            set to true without the oath module, you will be unable to                                                                                                                                           
+#            log in locally!  
+#
+# @param oath_window  Sets the TOTP window (Defined in RFC 6238 section 5.2)
 #
 # @param useprivilegeseparation  Specifies whether sshd separates
 #   privileges by creating an unprivileged child process to deal with incoming
@@ -212,7 +231,7 @@ class ssh::server::conf (
   Optional[Array[String]]          $macs                            = undef,
   Integer[1]                       $maxauthtries                    = 6,
   Boolean                          $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
-  Optional[Boolean]                $passwordauthentication          = undef,
+  Optional[Boolean]                $passwordauthentication          = true,
   Boolean                          $permitemptypasswords            = false,
   Ssh::PermitRootLogin             $permitrootlogin                 = false,
   Boolean                          $permituserenvironment           = false,
@@ -238,6 +257,28 @@ class ssh::server::conf (
   Variant[Enum['simp'],Boolean]    $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
   Boolean                          $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
   Simplib::Netlist                 $trusted_nets                    = ['ALL'],
+  Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value'         => true }),
+  Boolean                          $display_account_lock            = simplib::lookup('pam::display_account_lock', { 'default_value' => false }),
+  Integer[0]                       $deny                            = simplib::lookup('pam::deny', { 'default_value'                 => 5 }),
+  Integer[0]                       $unlock_time                     = simplib::lookup('pam::unlock_time', { 'default_value'          => 900 }),
+  Integer[0]                       $fail_interval                   = simplib::lookup('pam::fail_interval', { 'default_value'        => 900 }),
+  Boolean                          $even_deny_root                  = simplib::lookup('pam::even_deny_root', { 'default_value'       => true }),
+  Integer[0]                       $root_unlock_time                = simplib::lookup('pam::root_unlock_time', { 'default_value'     => 60 }),
+  Boolean                          $manage_pam_sshd                 = true,
+  Boolean                          $oath                            = simplib::lookup('simp_options::oath', { 'default_value'        => false }),
+  Integer[0]                       $oath_window                     = 1,
+  Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = $::ssh::server::params::useprivilegeseparation,
+  Boolean                          $x11forwarding                   = false,
+  Simplib::Netlist                 $trusted_nets                    = ['ALL'],
+  Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value'    => false }),
+  Boolean                          $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value'        => false }),
+  Boolean                          $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value'        => false }),
+  Boolean                          $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value'     => false }),
+  Boolean                          $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
+  Boolean                          $fips                            = simplib::lookup('simp_options::fips', { 'default_value'        => false }),
+  Variant[Enum['simp'],Boolean]    $pki                             = simplib::lookup('simp_options::pki', { 'default_value'         => false }),
+  String                           $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  Stdlib::Absolutepath             $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
 ) inherits ::ssh::server::params {
   assert_private()
 
@@ -264,7 +305,7 @@ class ssh::server::conf (
   if $pki {
     pki::copy { 'sshd':
       source => $app_pki_external_source,
-      pki    => $pki
+      pki    => $pki,
     }
   }
 
@@ -326,6 +367,45 @@ class ssh::server::conf (
     }
   }
 
+  if $oath and !$pam {
+    fail('$pam must be set if $oath is set')
+  }
+
+  if $pam {
+    simplib::assert_optional_dependency($module_name, 'simp/pam')
+    if $oath {
+      if $manage_pam_sshd {
+        simplib::assert_optional_dependency($module_name, 'simp/oath')
+        $_challengeresponseauthentication = true
+        $_passwordauthentication = false
+      }
+      else {
+        fail('manage_pam_sshd must be true for oath to work')
+      }
+    }
+    else {
+      $_passwordauthentication = $passwordauthentication
+      $_challengeresponseauthentication = $challengeresponseauthentication
+    }
+    if $manage_pam_sshd {
+      if $facts['os']['release']['major'] == '6'{
+        file { '/etc/pam.d/sshd':
+          ensure  => file,
+          content => epp('ssh/etc/pam.d/sshd_el6.epp'),
+        }
+      }
+      elsif $facts['os']['release']['major'] == '7'{
+        file { '/etc/pam.d/sshd':
+          ensure  => file,
+          content => epp('ssh/etc/pam.d/sshd_el7.epp'),
+        }
+      }
+      else {
+        fail('Unsupported RedHat major release version!')
+      }
+    }
+  }
+
   file { '/etc/ssh/sshd_config':
     owner  => 'root',
     group  => 'root',
@@ -358,7 +438,7 @@ class ssh::server::conf (
   }
   sshd_config { 'AuthorizedKeysFile'              : value => $authorizedkeysfile }
   sshd_config { 'Banner'                          : value => $banner }
-  sshd_config { 'ChallengeResponseAuthentication' : value => ssh::config_bool_translate($challengeresponseauthentication) }
+  sshd_config { 'ChallengeResponseAuthentication' : value => ssh::config_bool_translate($_challengeresponseauthentication) }
   sshd_config { 'Ciphers'                         : value => $_ciphers }
   sshd_config { 'ClientAliveInterval'             : value => String($clientaliveinterval) }
   sshd_config { 'ClientAliveCountMax'             : value => String($clientalivecountmax) }
@@ -397,15 +477,47 @@ class ssh::server::conf (
   sshd_config { 'UsePrivilegeSeparation'          : value => ssh::config_bool_translate($useprivilegeseparation) }
   sshd_config { 'X11Forwarding'                   : value => ssh::config_bool_translate($x11forwarding) }
 
+  if $rhostsrsaauthentication != undef {
+    sshd_config { 'RhostsRSAAuthentication' : value => ssh::config_bool_translate($rhostsrsaauthentication) }
+  }
+
+  if $_passwordauthentication != undef {
+    sshd_config { 'PasswordAuthentication' : value => ssh::config_bool_translate($_passwordauthentication) }
+  }
+
+  # Kex should be empty openssl < 5.7, they are not supported.
+  if !empty($_kex_algorithms) { sshd_config { 'KexAlgorithms': value => $_kex_algorithms } }
+
+  if $authorizedkeyscommand {
+    sshd_config { 'AuthorizedKeysCommand': value => $authorizedkeyscommand }
+    if $rhel_greater_than_6 {
+      sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
+    }
+  }
+  elsif $sssd {
+    include '::sssd::install'
+
+    sshd_config { 'AuthorizedKeysCommand': value => '/usr/bin/sss_ssh_authorizedkeys' }
+    if $rhel_greater_than_6 {
+      sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
+    }
+  }
+  elsif $_use_ldap {
+    sshd_config { 'AuthorizedKeysCommand': value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
+    if $rhel_greater_than_6 {
+      sshd_config { 'AuthorizedKeysCommandUser': value => $authorizedkeyscommanduser }
+    }
+  }
+
   $subsystem_array = split($subsystem, ' +')
-  sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1], " ") }
+  sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1], ' ') }
 
   file { '/etc/ssh/local_keys':
     ensure  => 'directory',
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
-    recurse => true
+    recurse => true,
   }
 
   if $firewall {
@@ -414,7 +526,7 @@ class ssh::server::conf (
     iptables::listen::tcp_stateful { 'allow_sshd':
       order        => 8,
       trusted_nets => $trusted_nets,
-      dports       => $port
+      dports       => $port,
     }
   }
 

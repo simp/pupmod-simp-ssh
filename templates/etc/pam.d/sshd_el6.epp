@@ -1,0 +1,25 @@
+#%PAM-1.0
+auth       required     pam_sepermit.so
+auth       required     pam_faillock.so preauth<% if
+$ssh::server::conf::display_account_lock == false { %> silent<% } %> deny=<%=
+$ssh::server::conf::deny %> audit unlock_time=<%=
+$ssh::server::conf::unlock_time %> fail_interval=<%=
+$ssh::server::conf::fail_interval %> <%- if $ssh::server::conf::even_deny_root == true { %> even_deny_root root_unlock_time=<%= $ssh::server::conf::root_unlock_time %><% } -%>
+<% if $ssh::server::conf::oath == true { %>
+auth       [success=3 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/exclude_groups.oath
+auth       [success=2 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/exclude_users.oath
+auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=<%= $ssh::server::conf::oath_window %>
+auth       requisite    pam_deny.so<% } %>
+auth       include      password-auth
+account    required     pam_nologin.so
+account    include      password-auth
+password   include      password-auth
+# pam_selinux.so close should be the first session rule
+session    required     pam_selinux.so close
+session    required     pam_loginuid.so
+# pam_selinux.so open should only be followed by sessions to be executed in the
+# user context
+session    required     pam_selinux.so open env_params
+session    required     pam_namespace.so
+session    optional     pam_keyinit.so force revoke
+session    include      password-auth
