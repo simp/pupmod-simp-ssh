@@ -1,5 +1,8 @@
-[![License](http://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html) [![Build Status](https://travis-ci.org/simp/pupmod-simp-ssh.svg)](https://travis-ci.org/simp/pupmod-simp-ssh) [![SIMP compatibility](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)](https://img.shields.io/badge/SIMP%20compatibility-4.2.*%2F5.1.*-orange.svg)
-
+[![License](https://img.shields.io/:license-apache-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0.html)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/73/badge)](https://bestpractices.coreinfrastructure.org/projects/73)
+[![Puppet Forge](https://img.shields.io/puppetforge/v/simp/ssh.svg)](https://forge.puppetlabs.com/simp/ssh)
+[![Puppet Forge Downloads](https://img.shields.io/puppetforge/dt/simp/ssh.svg)](https://forge.puppetlabs.com/simp/ssh)
+[![Build Status](https://travis-ci.org/simp/pupmod-simp-ssh.svg)](https://travis-ci.org/simp/pupmod-simp-ssh)
 
 # SSH
 
@@ -385,5 +388,5 @@ Some environment variables may be useful:
 [aug_ssh]: https://github.com/hercules-team/augeasproviders_ssh/
 [aug_ssh__ssh_config]: https://github.com/hercules-team/augeasproviders_ssh#ssh_config-provider
 [aug_ssh__sshd_config]: https://github.com/hercules-team/augeasproviders_ssh#sshd_config-provider
-[simp_contrib]: simp.readthedocs.io/en/master/contributors_guide/
+[simp_contrib]: simp.readthedocs.io/en/stable/contributors_guide/
 [fips_mode]: https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/7/html/security_guide/chap-federal_standards_and_regulations#sec-Enabling-FIPS-Mode
