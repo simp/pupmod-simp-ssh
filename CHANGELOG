@@ -1,3 +1,7 @@
+* Tue Mar 19 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 6.6.1-0
+- Use Puppet String in lieu of simplib's deprecated Puppet 3 to_string
+- Use simplib::nets2ddq in lieu of deprecated Puppet 3 nets2ddq
+
 * Mon Mar 04 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 6.6.0-0
 - Expanded the upper limit of the stdlib Puppet module version
 - Updated URLs in the README.md

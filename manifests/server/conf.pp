@@ -294,8 +294,8 @@ class ssh::server::conf (
   sshd_config { 'Banner'                          : value => $banner }
   sshd_config { 'ChallengeResponseAuthentication' : value => ssh::config_bool_translate($challengeresponseauthentication) }
   sshd_config { 'Ciphers'                         : value => $_ciphers }
-  sshd_config { 'ClientAliveInterval'             : value => to_string($clientaliveinterval) }
-  sshd_config { 'ClientAliveCountMax'             : value => to_string($clientalivecountmax) }
+  sshd_config { 'ClientAliveInterval'             : value => String($clientaliveinterval) }
+  sshd_config { 'ClientAliveCountMax'             : value => String($clientalivecountmax) }
   sshd_config { 'Compression'                     : value => ssh::config_bool_translate($compression) }
   sshd_config { 'GSSAPIAuthentication'            : value => ssh::config_bool_translate($gssapiauthentication) }
   sshd_config { 'HostbasedAuthentication'         : value => ssh::config_bool_translate($hostbasedauthentication) }
@@ -307,7 +307,7 @@ class ssh::server::conf (
   sshd_config { 'PermitEmptyPasswords'            : value => ssh::config_bool_translate($permitemptypasswords) }
   sshd_config { 'PermitRootLogin'                 : value => ssh::config_bool_translate($permitrootlogin) }
   sshd_config { 'PermitUserEnvironment'           : value => ssh::config_bool_translate($permituserenvironment) }
-  sshd_config { 'Port'                            : value => to_string($port) }
+  sshd_config { 'Port'                            : value => String($port) }
   sshd_config { 'PrintLastLog'                    : value => ssh::config_bool_translate($printlastlog) }
   sshd_config { 'Protocol'                        : value => $_protocol }
 
@@ -373,7 +373,7 @@ class ssh::server::conf (
   if $tcpwrappers {
     include '::tcpwrappers'
     tcpwrappers::allow { 'sshd':
-      pattern => nets2ddq($trusted_nets),
+      pattern => simplib::nets2ddq($trusted_nets),
       order   => 1
     }
   }
