@@ -1,3 +1,6 @@
+* Tue Apr 16 2019 Zach <turtles.be.the.best@gmail.com> - 6.7.0-0
+- Add OATH support
+
 * Thu Apr 11 2019 Bob Vincent <pillarsdotnet@gmail.com> - 6.7.0
 - Added support for the following SSH server configuration parameters:
   - AllowGroups
