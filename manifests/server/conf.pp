@@ -199,7 +199,7 @@ class ssh::server::conf (
   Boolean                          $enable_fallback_ciphers         = true,
   Array[String]                    $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
   Boolean                          $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Boolean                          f$irewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Boolean                          $gssapiauthentication            = $::ssh::server::params::gssapiauthentication,
   Boolean                          $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
   Boolean                          $hostbasedauthentication         = false,
