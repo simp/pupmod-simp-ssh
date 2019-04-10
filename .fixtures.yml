@@ -19,6 +19,10 @@ fixtures:
       repo: https://github.com/simp/inspec-profile-disa_stig-el7
       branch:  master
       target: spec/fixtures/inspec_deps/inspec_profiles/profiles
+
+    # Required for the acceptance test
+    sshkeys_core:
+      repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
+      puppet_version: ">= 6.0.0"
   symlinks:
     ssh: "#{source_dir}"
-
