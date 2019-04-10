@@ -184,7 +184,7 @@ class ssh::server::conf (
   Optional[Array[String]]          $allowgroups                     = undef,
   Optional[Array[String]]          $allowusers                      = undef,
   String                           $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
-  Stdlib::Absolutepath             $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
+  Stdlib::Absolutepath             $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
   String                           $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
   Optional[Stdlib::Absolutepath]   $authorizedkeyscommand           = undef,
   String                           $authorizedkeyscommanduser       = 'nobody',
