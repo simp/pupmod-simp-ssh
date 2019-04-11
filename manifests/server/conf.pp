@@ -208,7 +208,7 @@ class ssh::server::conf (
   Optional[Array[String]]          $kex_algorithms                  = undef,
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Integer[0]                       $logingracetime                  = 120,
-  Ssh::Loglevel                    $loglevel                        = 'INFO',
+  Ssh::Loglevel                    $ssh_loglevel                    = 'INFO',
   Optional[Array[String]]          $macs                            = undef,
   Integer[1]                       $maxauthtries                    = 6,
   Boolean                          $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
@@ -376,7 +376,7 @@ class ssh::server::conf (
   sshd_config { 'IgnoreUserKnownHosts'            : value => ssh::config_bool_translate($ignoreuserknownhosts) }
   sshd_config { 'ListenAddress'                   : value => $listenaddress }
   sshd_config { 'LoginGraceTime'                  : value => $logingracetime }
-  sshd_config { 'LogLevel'                        : value => $loglevel }
+  sshd_config { 'LogLevel'                        : value => $ssh_loglevel }
   sshd_config { 'MACs'                            : value => $_macs }
   sshd_config { 'MaxAuthTries'                    : value => $maxauthtries }
   if $passwordauthentication != undef {
