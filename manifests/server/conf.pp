@@ -208,7 +208,7 @@ class ssh::server::conf (
   Optional[Array[String]]          $kex_algorithms                  = undef,
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Integer[0]                       $logingracetime                  = 120,
-  Ssh::Loglevel                    $ssh_loglevel                    = 'INFO',
+  Optional[Ssh::Loglevel]          $ssh_loglevel                    = undef,
   Optional[Array[String]]          $macs                            = undef,
   Integer[1]                       $maxauthtries                    = 6,
   Boolean                          $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
