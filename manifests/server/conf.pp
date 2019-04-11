@@ -3,6 +3,8 @@
 # sshd configuration variables can be set using Augeas outside of this class
 # with no adverse effects.
 #
+#### SSH Parameters ####
+#
 # @param acceptenv  Specifies what environment variables sent by the
 #   client will be copied into the sessions environment.
 #
@@ -12,16 +14,6 @@
 #
 # @param allowusers  A list of user name patterns. If specified, login is
 #   allowed only for users whose name matches one of the patterns.
-#
-# @param app_pki_external_source
-#   * If pki = 'simp' or true, this is the directory from which certs will be
-#     copied, via pki::copy.  Defaults to /etc/pki/simp/x509.
-#
-#   * If pki = false, this variable has no effect.
-#
-# @param app_pki_key
-#   Path and name of the private SSL key file. This key file is used to generate
-#   the system SSH certificates for consistency.
 #
 # @param authorizedkeysfile  This is set to a non-standard location to
 #   provide for increased control over who can log in as a given user.
@@ -48,6 +40,7 @@
 #
 # @param clientaliveinterval
 #   @see man page for sshd_config
+#
 # @param compression Specifies whether compression is allowed, or
 #   delayed until the user has authenticated successfully.
 #
@@ -58,25 +51,9 @@
 # @param denyusers  A list of user name patterns.  If specified, login is
 #   disallowed for users whose name matches one of the patterns.
 #
-# @param enable_fallback_ciphers  If true, add the fallback ciphers
-#   from ssh::server::params to the cipher list. This is intended to provide
-#   compatibility with non-SIMP systems in a way that properly supports FIPS
-#   140-2.
-#
-# @param fallback_ciphers  The set of ciphers that should be used should
-#   no other cipher be declared. This is used when
-#   $::ssh::server::conf::enable_fallback_ciphers is enabled.
-#
-# @param fips If set or FIPS is already enabled, adjust for FIPS mode.
-#
-# @param firewall  If true, use the SIMP iptables class.
-#
 # @param gssapiauthentication Specifies whether user authentication
 #   based on GSSAPI is allowed. If the system is connected to an IPA domain,
 #   this will be default to true, based on the existance of the `ipa` fact.
-#
-# @param haveged  If true, include the haveged module to assist
-#   with entropy generation.
 #
 # @param hostbasedauthentication
 #   @see man page for sshd_config
@@ -94,17 +71,13 @@
 #   class, taking into account whether the server is in FIPS mode and whether
 #   the version of openssh installed supports this feature.
 #
-# @param ldap  If true, enable LDAP support on the system. If
-#   authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
-#   ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
-#
 # @param listenaddress  Specifies the local addresses sshd should listen on.
 #
 # @param logingracetime  The max number of seconds the server will wait for a
 #   successful login before disconnecting. If the value is 0, there is no
 #   limit.
 #
-# @param loglevel  Specifies the verbosity level that is used when logging
+# @param ssh_loglevel  Specifies the verbosity level that is used when logging
 #   messages from sshd.
 #
 # @param macs  Specifies the available MAC algorithms. When unset, a
@@ -113,8 +86,6 @@
 #
 # @pram maxauthtries  Specifies the maximum number of authentication attempts
 #   permitted per connection.
-#
-# @param pam Enables the Pluggable Authentication Module interface.
 #
 # @param passwordauthentication Enable password authentication on the sshd
 #   server. If left as undef (default), this setting will not be managed.
@@ -127,19 +98,6 @@
 #
 # @param permituserenvironment
 #   @see man page for sshd_config
-#
-# @param pki
-#   * If 'simp', include SIMP's pki module and use pki::copy to manage
-#     application certs in /etc/pki/simp_apps/sshd/x509
-#   * If true, do *not* include SIMP's pki module, but still use pki::copy
-#     to manage certs in /etc/pki/simp_apps/sshd/x509
-#   * If false, do not include SIMP's pki module and do not use pki::copy
-#     to manage certs.  You will need to appropriately assign a subset of:
-#     * app_pki_dir
-#     * app_pki_key
-#     * app_pki_cert
-#     * app_pki_ca
-#     * app_pki_ca_dir
 #
 # @param port  Specifies the port number SSHD listens on.
 #
@@ -157,8 +115,6 @@
 #   `RhostsRSAAuthentication` to be in the sshd configuration file to
 #   satisfy an outdated, STIG check.
 #
-# @param sssd  If true, use sssd.
-#
 # @param strictmodes
 #   @see man page for sshd_config
 #
@@ -170,7 +126,7 @@
 #
 # @param tcpwrappers  If true, allow sshd tcpwrapper.
 #
-# @param trusted_nets  The networks to allow to connect to SSH.
+# @param usepam Enables the Pluggable Authentication Module interface.
 #
 # @param useprivilegeseparation  Specifies whether sshd separates
 #   privileges by creating an unprivileged child process to deal with incoming
@@ -178,13 +134,61 @@
 #
 # @param x11forwarding  Specifies whether X11 forwarding is permitted.
 #
+#### SIMP parameters ####
+#
+# @param app_pki_external_source
+#   * If pki = 'simp' or true, this is the directory from which certs will be
+#     copied, via pki::copy.  Defaults to /etc/pki/simp/x509.
+#
+#   * If pki = false, this variable has no effect.
+#
+# @param app_pki_key
+#   Path and name of the private SSL key file. This key file is used to generate
+#   the system SSH certificates for consistency.
+#
+# @param enable_fallback_ciphers  If true, add the fallback ciphers
+#   from ssh::server::params to the cipher list. This is intended to provide
+#   compatibility with non-SIMP systems in a way that properly supports FIPS
+#   140-2.
+#
+# @param fallback_ciphers  The set of ciphers that should be used should
+#   no other cipher be declared. This is used when
+#   $::ssh::server::conf::enable_fallback_ciphers is enabled.
+#
+# @param fips If set or FIPS is already enabled, adjust for FIPS mode.
+#
+# @param firewall  If true, use the SIMP iptables class.
+#
+# @param haveged  If true, include the haveged module to assist
+#   with entropy generation.
+#
+# @param ldap  If true, enable LDAP support on the system. If
+#   authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
+#   ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
+#
+# @param pki
+#   * If 'simp', include SIMP's pki module and use pki::copy to manage
+#     application certs in /etc/pki/simp_apps/sshd/x509
+#   * If true, do *not* include SIMP's pki module, but still use pki::copy
+#     to manage certs in /etc/pki/simp_apps/sshd/x509
+#   * If false, do not include SIMP's pki module and do not use pki::copy
+#     to manage certs.  You will need to appropriately assign a subset of:
+#     * app_pki_dir
+#     * app_pki_key
+#     * app_pki_cert
+#     * app_pki_ca
+#     * app_pki_ca_dir
+#
+# @param sssd  If true, use sssd.
+#
+# @param trusted_nets  The networks to allow to connect to SSH.
+#
 
 class ssh::server::conf (
+#### SSH Parameters ####
   Array[String]                    $acceptenv                       = $::ssh::server::params::acceptenv,
   Optional[Array[String]]          $allowgroups                     = undef,
   Optional[Array[String]]          $allowusers                      = undef,
-  String                           $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
-  Stdlib::Absolutepath             $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
   String                           $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
   Optional[Stdlib::Absolutepath]   $authorizedkeyscommand           = undef,
   String                           $authorizedkeyscommanduser       = 'nobody',
@@ -196,41 +200,44 @@ class ssh::server::conf (
   Variant[Boolean,Enum['delayed']] $compression                     = 'delayed',
   Optional[Array[String]]          $denygroups                      = undef,
   Optional[Array[String]]          $denyusers                       = undef,
-  Boolean                          $enable_fallback_ciphers         = true,
-  Array[String]                    $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
-  Boolean                          $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
   Boolean                          $gssapiauthentication            = $::ssh::server::params::gssapiauthentication,
-  Boolean                          $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
   Boolean                          $hostbasedauthentication         = false,
   Boolean                          $ignorerhosts                    = true,
   Boolean                          $ignoreuserknownhosts            = true,
   Boolean                          $kerberosauthentication          = false,
   Optional[Array[String]]          $kex_algorithms                  = undef,
-  Boolean                          $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
   Simplib::Host                    $listenaddress                   = '0.0.0.0',
   Integer[0]                       $logingracetime                  = 120,
-  Ssh::Sysloglevel                 $loglevel                        = 'INFO',
+  Ssh::Loglevel                    $loglevel                        = 'INFO',
   Optional[Array[String]]          $macs                            = undef,
   Integer[1]                       $maxauthtries                    = 6,
-  Boolean                          $pam                             = simplib::lookup('simp_options::pam', { 'default_value' => true }),
+  Boolean                          $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
   Optional[Boolean]                $passwordauthentication          = undef,
   Boolean                          $permitemptypasswords            = false,
   Ssh::PermitRootLogin             $permitrootlogin                 = false,
   Boolean                          $permituserenvironment           = false,
-  Variant[Enum['simp'],Boolean]    $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
   Simplib::Port                    $port                            = 22,
   Boolean                          $printlastlog                    = false,
   Array[Integer[1,2]]              $protocol                        = [2],
   Optional[Boolean]                $rhostsrsaauthentication         = $::ssh::server::params::rhostsrsaauthentication,
-  Boolean                          $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
   Boolean                          $strictmodes                     = true,
   String                           $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
   Ssh::Syslogfacility              $syslogfacility                  = 'AUTHPRIV',
   Boolean                          $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
-  Simplib::Netlist                 $trusted_nets                    = ['ALL'],
   Variant[Boolean,Enum['sandbox']] $useprivilegeseparation          = $::ssh::server::params::useprivilegeseparation,
   Boolean                          $x11forwarding                   = false,
+#### SIMP parameters ####
+  String                           $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  Stdlib::Absolutepath             $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
+  Boolean                          $enable_fallback_ciphers         = true,
+  Array[String]                    $fallback_ciphers                = $::ssh::server::params::fallback_ciphers,
+  Boolean                          $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Boolean                          $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Boolean                          $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                          $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
+  Variant[Enum['simp'],Boolean]    $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
+  Boolean                          $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
+  Simplib::Netlist                 $trusted_nets                    = ['ALL'],
 ) inherits ::ssh::server::params {
   assert_private()
 
@@ -386,7 +393,7 @@ class ssh::server::conf (
   }
   sshd_config { 'StrictModes'                     : value => ssh::config_bool_translate($strictmodes) }
   sshd_config { 'SyslogFacility'                  : value => $syslogfacility}
-  sshd_config { 'UsePAM'                          : value => ssh::config_bool_translate($pam) }
+  sshd_config { 'UsePAM'                          : value => ssh::config_bool_translate($usepam) }
   sshd_config { 'UsePrivilegeSeparation'          : value => ssh::config_bool_translate($useprivilegeseparation) }
   sshd_config { 'X11Forwarding'                   : value => ssh::config_bool_translate($x11forwarding) }
 
