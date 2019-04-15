@@ -172,7 +172,7 @@ describe 'ssh class' do
 
               # Basic example
 
-              sshd_config {'LogLevel': value => 'VERBOSE'}
+              sshd_config {'AllowTcpForwarding': value => 'no'}
 
               # Server example for SIMP-4440 & SIMP-4197:
 
@@ -239,10 +239,10 @@ describe 'ssh class' do
 
           # Compare the results
           expect( (_custom_sshd_conf - _normal_sshd_conf).sort ).to eq [
+            'AllowTcpForwarding no',
             'GSSAPIAuthentication yes',
             'GSSAPICleanupCredentials yes',
-            'GSSAPIKeyExchange yes',
-            'LogLevel VERBOSE'
+            'GSSAPIKeyExchange yes'
           ]
 
         end
