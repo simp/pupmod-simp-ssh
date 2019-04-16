@@ -995,6 +995,16 @@ second argument must be host:hostport.
 
 Default value: `undef`
 
+##### `ssh_loglevel`
+
+Data type: `Ssh::Loglevel`
+
+Gives the verbosity level that is used when
+logging messages. Valid options: 'QUIET', 'FATAL', 'ERROR', 'INFO',
+'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', and 'DEBUG3'.
+
+Default value: 'INFO'
+
 ##### `macs`
 
 Data type: `Optional[Array[String]]`
@@ -1005,16 +1015,6 @@ automatically selected by this class, taking into account whether
 the server is in FIPS mode.
 
 Default value: `undef`
-
-##### `ssh_loglevel`
-
-Data type: `Ssh::Sysloglevel`
-
-Gives the verbosity level that is used when
-logging messages. Valid options: 'QUIET', 'FATAL', 'ERROR', 'INFO',
-'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', and 'DEBUG3'.
-
-Default value: 'INFO'
 
 ##### `nohostauthenticationforlocalhost`
 

@@ -144,14 +144,14 @@
 #   remote machine. The first argument must be [bind_address:]port and the
 #   second argument must be host:hostport.
 #
+# @param ssh_loglevel  Gives the verbosity level that is used when
+#   logging messages. Valid options: 'QUIET', 'FATAL', 'ERROR', 'INFO',
+#   'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', and 'DEBUG3'.
+#
 # @param macs  Specifies the MAC (message authentication code) algorithms
 #   in order of preference.  When unset, a strong set of algorithms is
 #   automatically selected by this class, taking into account whether
 #   the server is in FIPS mode.
-#
-# @param ssh_loglevel  Gives the verbosity level that is used when
-#   logging messages. Valid options: 'QUIET', 'FATAL', 'ERROR', 'INFO',
-#   'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', and 'DEBUG3'.
 #
 # @param nohostauthenticationforlocalhost  This option can be used if
 #   the home directory is shared across machines. In this case localhost will
@@ -287,8 +287,8 @@ define ssh::client::host_config_entry (
   Optional[Array[String]]                               $kbdinteractivedevices            = undef,
   Optional[String]                                      $localcommand                     = undef,
   Optional[String]                                      $localforward                     = undef,
+  Ssh::Loglevel                                         $ssh_loglevel                     = 'INFO',
   Optional[Array[String]]                               $macs                             = undef,
-  Ssh::Sysloglevel                                      $ssh_loglevel                     = 'INFO',
   Boolean                                               $nohostauthenticationforlocalhost = false,
   Integer[1]                                            $numberofpasswordprompts          = 3,
   Boolean                                               $passwordauthentication           = true,
