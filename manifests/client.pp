@@ -17,6 +17,7 @@ class ssh::client (
   Boolean $fips              = simplib::lookup('simp_options::fips', { 'default_value' => false }),
   String  $package_ensure    = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
+  simplib::assert_metadata( $module_name )
 
   if $add_default_entry {
     ssh::client::host_config_entry { '*': }
@@ -40,6 +41,8 @@ class ssh::client (
   }
 
   if $haveged {
-    include '::haveged'
+    simplib::assert_optional_dependency($module_name, 'simp/haveged')
+
+    include 'haveged'
   }
 }

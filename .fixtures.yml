@@ -9,14 +9,15 @@ fixtures:
     haveged: https://github.com/simp/pupmod-simp-haveged
     iptables: https://github.com/simp/pupmod-simp-iptables
     logrotate: https://github.com/simp/pupmod-simp-logrotate
+    oath: https://github.com/simp/pupmod-simp-oath
+    oddjob: https://github.com/simp/pupmod-simp-oddjob
+    pam: https://github.com/simp/pupmod-simp-pam
     pki: https://github.com/simp/pupmod-simp-pki
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog
     simplib: https://github.com/simp/pupmod-simp-simplib
     sssd: https://github.com/simp/pupmod-simp-sssd
     stdlib: https://github.com/simp/puppetlabs-stdlib
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
-    oath: https://github.com/simp/pupmod-simp-oath
-    pam: https://github.com/simp/pupmod-simp-pam
     sshkeys_core:
       repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
       puppet_version: ">= 6.0.0"
@@ -24,10 +25,5 @@ fixtures:
       repo: https://github.com/simp/inspec-profile-disa_stig-el7
       branch:  master
       target: spec/fixtures/inspec_deps/inspec_profiles/profiles
-
-    # Required for the acceptance test
-    sshkeys_core:
-      repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
-      puppet_version: ">= 6.0.0"
   symlinks:
     ssh: "#{source_dir}"

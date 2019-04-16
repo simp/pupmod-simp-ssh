@@ -333,18 +333,18 @@ define ssh::client::host_config_entry (
   Boolean                                               $visualhostkey                    = false,
   Stdlib::Absolutepath                                  $xauthlocation                    = '/usr/bin/xauth'
 ) {
-  include '::ssh::client::params'
-  include '::ssh::client'
+  include 'ssh::client::params'
+  include 'ssh::client'
 
   if $macs and !empty($macs) {
     $_macs = $macs
   }
   else {
-    if $::ssh::client::fips or $facts['fips_enabled'] {
-      $_macs = $::ssh::client::params::fips_macs
+    if $ssh::client::fips or $facts['fips_enabled'] {
+      $_macs = $ssh::client::params::fips_macs
     }
     else {
-      $_macs = $::ssh::client::params::macs
+      $_macs = $ssh::client::params::macs
     }
   }
 
@@ -352,15 +352,15 @@ define ssh::client::host_config_entry (
     $_ciphers = $ciphers
   }
   else {
-    if $::ssh::client::fips or $facts['fips_enabled'] {
-      $_ciphers = $::ssh::client::params::fips_ciphers
+    if $ssh::client::fips or $facts['fips_enabled'] {
+      $_ciphers = $ssh::client::params::fips_ciphers
     }
     else {
-      $_ciphers = $::ssh::client::params::ciphers
+      $_ciphers = $ssh::client::params::ciphers
     }
   }
 
-  if $::ssh::client::fips or $facts['fips_enabled'] {
+  if $ssh::client::fips or $facts['fips_enabled'] {
     $_protocol = 2
     $_cipher = undef
   }
@@ -374,7 +374,7 @@ define ssh::client::host_config_entry (
   }
 
   # If the host is configured to use IPA, enable this setting
-  if $gssapiauthentication or $::ssh::client::params::gssapiauthentication {
+  if $gssapiauthentication or $ssh::client::params::gssapiauthentication {
     $_gssapiauthentication = true
   }
   else {

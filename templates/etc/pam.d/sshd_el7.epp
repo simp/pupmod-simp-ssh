@@ -1,15 +1,11 @@
 #%PAM-1.0
-auth	   required	    pam_sepermit.so
-auth       required     pam_faillock.so preauth<% if
-$ssh::server::conf::display_account_lock == false { %> silent<% } %> deny=<%=
-$ssh::server::conf::deny %> audit unlock_time=<%=
-$ssh::server::conf::unlock_time %> fail_interval=<%=
-$ssh::server::conf::fail_interval %> <%- if $ssh::server::conf::even_deny_root == true { %> even_deny_root root_unlock_time=<%= $ssh::server::conf::root_unlock_time %><% } -%>
-<% if $ssh::server::conf::oath == true { %>
+auth       required     pam_sepermit.so
+<% if $ssh::server::conf::oath { %>
 auth       [success=3 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/exclude_groups.oath
 auth       [success=2 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/exclude_users.oath
 auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=<%= $ssh::server::conf::oath_window %>
-auth       requisite    pam_deny.so<% } %>
+auth       requisite    pam_deny.so
+<% } -%>
 auth       substack     password-auth
 auth       include      postlogin
 # Used with polkit to reauthorize users in remote sessions

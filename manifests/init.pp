@@ -11,8 +11,10 @@ class ssh (
   Boolean $enable_server = true
 ){
 
-  if $enable_client { include '::ssh::client' }
-  if $enable_server { include '::ssh::server' }
+  simplib::assert_metadata( $module_name )
+
+  if $enable_client { include 'ssh::client' }
+  if $enable_server { include 'ssh::server' }
 
   file { '/etc/ssh':
     owner => 'root',
