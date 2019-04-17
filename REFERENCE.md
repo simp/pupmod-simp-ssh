@@ -10,7 +10,7 @@
 * [`ssh::client`](#sshclient): Sets up a ssh client and creates /etc/ssh/ssh_config.
 * [`ssh::client::params`](#sshclientparams): Default parameters for the SSH client
 * [`ssh::server`](#sshserver): Sets up a ssh server and starts sshd.
-* [`ssh::server::conf`](#sshserverconf): Sets up sshd_config and adds an iptables rule if iptables is being used.  sshd configuration variables can be set using Augeas outside of thi
+* [`ssh::server::conf`](#sshserverconf): 
 * [`ssh::server::params`](#sshserverparams): Default parameters for the SSH Server  KexAlgorithm configuration was not added until openssh 5.7 Curve exchange was not fully supported unti
 
 **Defined types**
@@ -176,10 +176,7 @@ Default value: simplib::lookup('simp_options::package_ensure', { 'default_value'
 
 ### ssh::server::conf
 
-Sets up sshd_config and adds an iptables rule if iptables is being used.
-
-sshd configuration variables can be set using Augeas outside of this class
-with no adverse effects.
+The ssh::server::conf class.
 
 #### Parameters
 
@@ -189,17 +186,31 @@ The following parameters are available in the `ssh::server::conf` class.
 
 Data type: `Array[String]`
 
-Specifies what environment variables sent by the
-client will be copied into the sessions environment.
 
-Default value: $::ssh::server::params::acceptenv
+
+Default value: $ssh::server::params::acceptenv
+
+##### `allowgroups`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
+##### `allowusers`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
 
 ##### `authorizedkeysfile`
 
 Data type: `String`
 
-This is set to a non-standard location to
-provide for increased control over who can log in as a given user.
+
 
 Default value: '/etc/ssh/local_keys/%u'
 
@@ -207,8 +218,7 @@ Default value: '/etc/ssh/local_keys/%u'
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
-Specifies a program to be used for
-lookup of the user's public keys.
+
 
 Default value: `undef`
 
@@ -216,8 +226,7 @@ Default value: `undef`
 
 Data type: `String`
 
-Specifies the user under whose
-account the AuthorizedKeysCommand is run.
+
 
 Default value: 'nobody'
 
@@ -225,8 +234,7 @@ Default value: 'nobody'
 
 Data type: `Stdlib::Absolutepath`
 
-The contents of the specified file are sent to the
-remote user before authentication is allowed.
+
 
 Default value: '/etc/issue.net'
 
@@ -234,8 +242,7 @@ Default value: '/etc/issue.net'
 
 Data type: `Boolean`
 
-Specifies whether
-challenge-response authentication is allowed.
+
 
 Default value: `false`
 
@@ -243,272 +250,15 @@ Default value: `false`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the ciphers allowed for protocol
-version 2.  When unset, a strong set of ciphers is automatically
-selected by this class, taking into account whether the server is
-in FIPS mode.
+
 
 Default value: `undef`
-
-##### `compression`
-
-Data type: `Variant[Boolean,Enum['delayed']]`
-
-Specifies whether compression is allowed, or
-delayed until the user has authenticated successfully.
-
-Default value: 'delayed'
-
-##### `fallback_ciphers`
-
-Data type: `Array[String]`
-
-The set of ciphers that should be used should
-no other cipher be declared. This is used when
-$::ssh::server::conf::enable_fallback_ciphers is enabled.
-
-Default value: $::ssh::server::params::fallback_ciphers
-
-##### `enable_fallback_ciphers`
-
-Data type: `Boolean`
-
-If true, add the fallback ciphers
-from ssh::server::params to the cipher list. This is intended to provide
-compatibility with non-SIMP systems in a way that properly supports FIPS
-140-2.
-
-Default value: `true`
-
-##### `syslogfacility`
-
-Data type: `Ssh::Syslogfacility`
-
-Gives the facility code that is used when
-logging messages.
-
-Default value: 'AUTHPRIV'
-
-##### `gssapiauthentication`
-
-Data type: `Boolean`
-
-Specifies whether user authentication
-based on GSSAPI is allowed. If the system is connected to an IPA domain,
-this will be default to true, based on the existance of the `ipa` fact.
-
-Default value: $::ssh::server::params::gssapiauthentication
-
-##### `kex_algorithms`
-
-Data type: `Optional[Array[String]]`
-
-Specifies the key exchange algorithms accepted.  When
-unset, an appropriate set of algorithms is automatically selected by this
-class, taking into account whether the server is in FIPS mode and whether
-the version of openssh installed supports this feature.
-
-Default value: `undef`
-
-##### `listenaddress`
-
-Data type: `Simplib::Host`
-
-Specifies the local addresses sshd should listen on.
-
-Default value: '0.0.0.0'
-
-##### `port`
-
-Data type: `Simplib::Port`
-
-Specifies the port number SSHD listens on.
-
-Default value: 22
-
-##### `macs`
-
-Data type: `Optional[Array[String]]`
-
-Specifies the available MAC algorithms. When unset, a
-strong set of ciphers is automatically selected by this class, taking into
-account whether the server is in FIPS mode.
-
-Default value: `undef`
-
-##### `passwordauthentication`
-
-Data type: `Optional[Boolean]`
-
-Enable password authentication on the sshd
-server. If left as undef (default), this setting will not be managed.
-
-Default value: `undef`
-
-##### `permitemptypasswords`
-
-Data type: `Boolean`
-
-When password authentication is allowed,
-it specifies whether the server allows login to accounts with empty password
-strings.
-
-Default value: `false`
-
-##### `permitrootlogin`
-
-Data type: `Ssh::PermitRootLogin`
-
-Specifies whether root can log in using SSH.
-
-Default value: `false`
-
-##### `printlastlog`
-
-Data type: `Boolean`
-
-Specifies whether SSHD should print the date and
-time of the last user login when a user logs in interactively.
-
-Default value: `false`
-
-##### `subsystem`
-
-Data type: `String`
-
-Configures and external subsystem for file
-transfers.
-
-Default value: 'sftp /usr/libexec/openssh/sftp-server'
-
-##### `pam`
-
-Data type: `Boolean`
-
-Enables the Pluggable Authentication Module interface.
-
-Default value: simplib::lookup('simp_options::pam', { 'default_value' => true })
-
-##### `useprivilegeseparation`
-
-Data type: `Variant[Boolean,Enum['sandbox']]`
-
-Specifies whether sshd separates
-privileges by creating an unprivileged child process to deal with incoming
-network traffic.
-
-Default value: $::ssh::server::params::useprivilegeseparation
-
-##### `x11forwarding`
-
-Data type: `Boolean`
-
-Specifies whether X11 forwarding is permitted.
-
-Default value: `false`
-
-##### `trusted_nets`
-
-Data type: `Simplib::Netlist`
-
-The networks to allow to connect to SSH.
-
-Default value: ['ALL']
-
-##### `firewall`
-
-Data type: `Boolean`
-
-If true, use the SIMP iptables class.
-
-Default value: simplib::lookup('simp_options::firewall', { 'default_value' => false })
-
-##### `ldap`
-
-Data type: `Boolean`
-
-If true, enable LDAP support on the system. If
-authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
-ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
-
-Default value: simplib::lookup('simp_options::ldap', { 'default_value' => false })
-
-##### `tcpwrappers`
-
-Data type: `Boolean`
-
-If true, allow sshd tcpwrapper.
-
-Default value: simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })
-
-##### `haveged`
-
-Data type: `Boolean`
-
-If true, include the haveged module to assist
-with entropy generation.
-
-Default value: simplib::lookup('simp_options::haveged', { 'default_value' => false })
-
-##### `sssd`
-
-Data type: `Boolean`
-
-If true, use sssd.
-
-Default value: simplib::lookup('simp_options::sssd', { 'default_value' => false })
-
-##### `fips`
-
-Data type: `Boolean`
-
-If set or FIPS is already enabled, adjust for FIPS mode.
-
-Default value: simplib::lookup('simp_options::fips', { 'default_value' => false })
-
-##### `pki`
-
-Data type: `Variant[Enum['simp'],Boolean]`
-
-* If 'simp', include SIMP's pki module and use pki::copy to manage
-  application certs in /etc/pki/simp_apps/sshd/x509
-* If true, do *not* include SIMP's pki module, but still use pki::copy
-  to manage certs in /etc/pki/simp_apps/sshd/x509
-* If false, do not include SIMP's pki module and do not use pki::copy
-  to manage certs.  You will need to appropriately assign a subset of:
-  * app_pki_dir
-  * app_pki_key
-  * app_pki_cert
-  * app_pki_ca
-  * app_pki_ca_dir
-
-Default value: simplib::lookup('simp_options::pki', { 'default_value' => false })
-
-##### `app_pki_external_source`
-
-Data type: `String`
-
-* If pki = 'simp' or true, this is the directory from which certs will be
-  copied, via pki::copy.  Defaults to /etc/pki/simp/x509.
-
-* If pki = false, this variable has no effect.
-
-Default value: simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' })
-
-##### `app_pki_key`
-
-Data type: `Stdlib::Absolutepath`
-
-Path and name of the private SSL key file. This key file is used to generate
-the system SSH certificates for consistency.
-
-Default value: "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
 
 ##### `clientalivecountmax`
 
 Data type: `Integer`
 
-@see man page for sshd_config
+
 
 Default value: 0
 
@@ -516,15 +266,47 @@ Default value: 0
 
 Data type: `Integer`
 
-@see man page for sshd_config
+
 
 Default value: 600
+
+##### `compression`
+
+Data type: `Variant[Boolean,Enum['delayed']]`
+
+
+
+Default value: 'delayed'
+
+##### `denygroups`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
+##### `denyusers`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
+##### `gssapiauthentication`
+
+Data type: `Boolean`
+
+
+
+Default value: $ssh::server::params::gssapiauthentication
 
 ##### `hostbasedauthentication`
 
 Data type: `Boolean`
 
-@see man page for sshd_config
+
 
 Default value: `false`
 
@@ -532,7 +314,7 @@ Default value: `false`
 
 Data type: `Boolean`
 
-@see man page for sshd_config
+
 
 Default value: `true`
 
@@ -540,7 +322,7 @@ Default value: `true`
 
 Data type: `Boolean`
 
-@see man page for sshd_config
+
 
 Default value: `true`
 
@@ -548,7 +330,87 @@ Default value: `true`
 
 Data type: `Boolean`
 
-@see man page for sshd_config
+
+
+Default value: `false`
+
+##### `kex_algorithms`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
+##### `listenaddress`
+
+Data type: `Simplib::Host`
+
+
+
+Default value: '0.0.0.0'
+
+##### `logingracetime`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 120
+
+##### `ssh_loglevel`
+
+Data type: `Optional[Ssh::Loglevel]`
+
+
+
+Default value: `undef`
+
+##### `macs`
+
+Data type: `Optional[Array[String]]`
+
+
+
+Default value: `undef`
+
+##### `maxauthtries`
+
+Data type: `Integer[1]`
+
+
+
+Default value: 6
+
+##### `usepam`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::pam', { 'default_value' => true })
+
+##### `passwordauthentication`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `permitemptypasswords`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `permitrootlogin`
+
+Data type: `Ssh::PermitRootLogin`
+
+
 
 Default value: `false`
 
@@ -556,7 +418,23 @@ Default value: `false`
 
 Data type: `Boolean`
 
-@see man page for sshd_config
+
+
+Default value: `false`
+
+##### `port`
+
+Data type: `Simplib::Port`
+
+
+
+Default value: 22
+
+##### `printlastlog`
+
+Data type: `Boolean`
+
+
 
 Default value: `false`
 
@@ -564,7 +442,7 @@ Default value: `false`
 
 Data type: `Array[Integer[1,2]]`
 
-@see man page for sshd_config
+
 
 Default value: [2]
 
@@ -572,21 +450,169 @@ Default value: [2]
 
 Data type: `Optional[Boolean]`
 
-This sshd option has been completely removed in openssh 7.4 and
-will cause an error message to be logged, when present.  On systems
-using openssh 7.4 or later, only set this value if you need
-`RhostsRSAAuthentication` to be in the sshd configuration file to
-satisfy an outdated, STIG check.
 
-Default value: $::ssh::server::params::rhostsrsaauthentication
+
+Default value: $ssh::server::params::rhostsrsaauthentication
 
 ##### `strictmodes`
 
 Data type: `Boolean`
 
-@see man page for sshd_config
+
 
 Default value: `true`
+
+##### `subsystem`
+
+Data type: `String`
+
+
+
+Default value: 'sftp /usr/libexec/openssh/sftp-server'
+
+##### `syslogfacility`
+
+Data type: `Ssh::Syslogfacility`
+
+
+
+Default value: 'AUTHPRIV'
+
+##### `tcpwrappers`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })
+
+##### `useprivilegeseparation`
+
+Data type: `Variant[Boolean,Enum['sandbox']]`
+
+
+
+Default value: $ssh::server::params::useprivilegeseparation
+
+##### `x11forwarding`
+
+Data type: `Boolean`
+
+
+
+Default value: `false`
+
+##### `app_pki_external_source`
+
+Data type: `String`
+
+
+
+Default value: simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' })
+
+##### `app_pki_key`
+
+Data type: `Stdlib::Absolutepath`
+
+
+
+Default value: "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
+
+##### `enable_fallback_ciphers`
+
+Data type: `Boolean`
+
+
+
+Default value: `true`
+
+##### `fallback_ciphers`
+
+Data type: `Array[String]`
+
+
+
+Default value: $ssh::server::params::fallback_ciphers
+
+##### `fips`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::fips', { 'default_value' => false })
+
+##### `firewall`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::firewall', { 'default_value' => false })
+
+##### `haveged`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::haveged', { 'default_value' => false })
+
+##### `ldap`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::ldap', { 'default_value' => false })
+
+##### `oath`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::oath', { 'default_value' => false })
+
+##### `manage_pam_sshd`
+
+Data type: `Boolean`
+
+
+
+Default value: $oath
+
+##### `oath_window`
+
+Data type: `Integer[0]`
+
+
+
+Default value: 1
+
+##### `pki`
+
+Data type: `Variant[Enum['simp'],Boolean]`
+
+
+
+Default value: simplib::lookup('simp_options::pki', { 'default_value' => false })
+
+##### `sssd`
+
+Data type: `Boolean`
+
+
+
+Default value: simplib::lookup('simp_options::sssd', { 'default_value' => false })
+
+##### `trusted_nets`
+
+Data type: `Simplib::Netlist`
+
+
+
+Default value: ['ALL']
 
 ### ssh::server::params
 

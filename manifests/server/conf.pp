@@ -135,15 +135,15 @@
 #   pam stack for sshd. This is required for the oath option to work
 #   properly.
 #
-# @param oath  Configures ssh to use pam_oath TOTP in the sshd pam stack.
+# @param oath
+#   **EXPERIMENTAL FEATURE**
+#   Configures ssh to use pam_oath TOTP in the sshd pam stack.
 #   Also configures sshd_config to use required settings. Inherits from
 #   simp_options::oath, defaults to false if not found.
-#   WARNING: If this setting is enabled then disabled and
-#            passwordauthentication is unmanaged, this will be set to no
-#            in sshd_config!
-#   WARNING: pupmod-simp-oath is a dependency of this option. If this is
-#            set to true without the oath module, you will be unable to
-#            log in locally!
+#
+#   * WARNING: If this setting is enabled then disabled and
+#     passwordauthentication is unmanaged, this will be set to no
+#     in sshd_config!
 #
 # @param oath_window  Sets the TOTP window (Defined in RFC 6238 section 5.2)
 #
