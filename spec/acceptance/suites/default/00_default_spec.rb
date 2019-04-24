@@ -67,7 +67,6 @@ describe 'ssh class' do
             scp_to(host, File.join(files_dir, 'ssh_test_script'), '/usr/local/bin/ssh_test_script')
             on(host, "chmod +x /usr/local/bin/ssh_test_script")
           end
-
           on(server, "/usr/local/bin/ssh_test_script root localhost password")
 
           dump_sshd_ciphers(server)
@@ -285,18 +284,26 @@ describe 'ssh class' do
 
         it 'should coexist with additional settings via the ssh_config type' do
           # Ensure the client is using the default test setup
-          on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
-          _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+          # It appears as though RequestTTY is not a valid ssh_config option
+          # on CentOS 6.9 with openssh 5.3
+          os_major_release = os
+          os_major_release.delete!("^0-9")
+          if os_major_release != nil then
+            if os_major_release.to_i >= 7 then
+              on(client, 'echo > /etc/ssh/ssh_config')
+              apply_manifest_on(client, client_manifest)
+              _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
-          # Create the new test setup
-          apply_manifest_on(client, client_manifest_w_ssh_config)
-          _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+              # Create the new test setup
+              apply_manifest_on(client, client_manifest_w_ssh_config)
+              _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
-          # Compare the results
-          expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
-            'RequestTTY auto'
-          ]
+              # Compare the results
+              expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
+                'RequestTTY auto'
+              ]
+            end
+          end
         end
       end
     end

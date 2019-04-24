@@ -1,8 +1,10 @@
 module Puppet::Parser::Functions
   newfunction(:ssh_autokey, :type => :rvalue, :doc => <<-EOM) do |args|
-    This function generates a random RSA SSH private and public key pair for a passed user.
+    @summary Generates a random RSA SSH private and public key pair for a passed user.
 
     Keys are stored in "Puppet[:vardir]/simp/environments/<environment>/simp_autofiles/ssh_autokeys"
+
+    @return [String] The public cert of the passed user or the private key if requested.
 
     Arguments: username, [option_hash|integer], [return_private]
       * If an integer is the second argument, it will be used as the key strength

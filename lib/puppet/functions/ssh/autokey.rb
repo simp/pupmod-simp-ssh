@@ -1,10 +1,10 @@
-# This function generates a random RSA SSH private and public key pair
-# for a passed user.
+# @summary Generates a random RSA SSH private and public key pair for a passed
+# user.
 #
-# Keys are stored in 
+# Keys are stored in
 #   "Puppet[:vardir]/simp/environments/<environment>/simp_autofiles/ssh_autokeys"
 #
-# Note: This function if marked as an InternalFunction because it 
+# Note: This function if marked as an InternalFunction because it
 # changes the state of the system by writing key files.
 #
 Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFunction) do
@@ -14,6 +14,8 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
   # - 'key_strength': key length, Integer, defaults to 2048
   # - 'return_private': whether to return the private key, Boolean, defaults to false
   # NOTE: A minimum key strength of 1024 is enforced!
+  #
+  # @return [String] The public key of the user
   dispatch :autokey_with_options_hash do
     required_param 'String', :username
     optional_param 'Hash', :options
@@ -23,6 +25,9 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
   # @param key_strength key length, defaults to 2048
   # @param return_private whether to return the private key, defaults to false
   # NOTE: A minimum key strength of 1024 is enforced!
+  #
+  # @return [String] The public key of the user or the private key if
+  #   return_private is specified.
   dispatch :autokey do
     required_param 'String', :username
     optional_param 'Integer', :key_strength

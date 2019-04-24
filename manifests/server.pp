@@ -1,4 +1,4 @@
-# Sets up a ssh server and starts sshd.
+# @summary Sets up a ssh server and starts sshd.
 #
 # @param server_ensure The ensure status of the openssh-server package
 #
@@ -10,9 +10,10 @@ class ssh::server (
   String $server_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
   String $ldap_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
 ) {
+  simplib::assert_metadata( $module_name )
 
-  include '::ssh'
-  include '::ssh::server::conf'
+  include 'ssh'
+  include 'ssh::server::conf'
 
   file { '/etc/ssh/moduli':
     owner => 'root',

@@ -1,6 +1,6 @@
-# Add `ssh_authorized_keys` via hiera in a loop
+# @summary Add `ssh_authorized_keys` via hiera in a loop
 #
-# It was designed so you can just paste the output of the ssh pubkey into
+# This class was designed so you can just paste the output of the ssh pubkey into
 # hiera and it will work. See the example below for details.
 #
 # > **WARNING**

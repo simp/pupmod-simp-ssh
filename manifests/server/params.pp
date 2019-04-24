@@ -1,7 +1,7 @@
-# Default parameters for the SSH Server
+# @summary Default parameters for the SSH Server
 #
-# KexAlgorithm configuration was not added until openssh 5.7
-# Curve exchange was not fully supported until openssh 6.5
+# * ``KexAlgorithm`` configuration was not added until openssh 5.7
+# * ``Curve`` exchange was not fully supported until openssh 6.5
 #
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #

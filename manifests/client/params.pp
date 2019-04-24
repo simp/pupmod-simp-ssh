@@ -1,4 +1,4 @@
-# Default parameters for the SSH client
+# @summary Default parameters for the SSH client
 #
 # @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
 #
