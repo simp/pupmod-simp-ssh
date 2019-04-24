@@ -1,4 +1,4 @@
-# Sets up files for ssh.
+# @summary Sets up files for ssh.
 #
 # @param enable_client  If true, set up the SSH client configuration files.
 #

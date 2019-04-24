@@ -1,5 +1,5 @@
-# A method to sensibly format sort SSH 'host' entries which contain wildcards
-# and question marks.
+# @summary A method to sensibly format sort SSH 'host' entries which contain
+# wildcards and question marks.
 #
 # The output is intended for use with the simpcat_fragment type and is *not*
 # meant for use as a host entry itself.

@@ -1,7 +1,7 @@
-# Sets up sshd_config and adds an iptables rule if iptables is being used.
+# @summary Sets up sshd_config and adds an iptables rule if iptables is being used.
 #
-# sshd configuration variables can be set using Augeas outside of this class
-# with no adverse effects.
+# ``sshd`` configuration variables can be set using Augeas outside of this
+# class with no adverse effects.
 #
 #### SSH Parameters ####
 #
@@ -84,7 +84,7 @@
 #   strong set of ciphers is automatically selected by this class, taking into
 #   account whether the server is in FIPS mode.
 #
-# @pram maxauthtries  Specifies the maximum number of authentication attempts
+# @param maxauthtries  Specifies the maximum number of authentication attempts
 #   permitted per connection.
 #
 # @param passwordauthentication Enable password authentication on the sshd
@@ -202,7 +202,6 @@
 #
 # @param trusted_nets  The networks to allow to connect to SSH.
 #
-
 class ssh::server::conf (
 #### SSH Parameters ####
   Array[String]                    $acceptenv                       = $ssh::server::params::acceptenv,

@@ -1,4 +1,5 @@
-# Translates true|false or 'true'|'false' to 'yes'|'no', respectively
+# @summary Translates true|false or 'true'|'false' to 'yes'|'no', respectively
+#
 # All other values are passed-through unchanged
 Puppet::Functions.create_function(:'ssh::config_bool_translate') do
 

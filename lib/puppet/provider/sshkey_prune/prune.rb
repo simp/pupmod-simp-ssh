@@ -1,4 +1,5 @@
 Puppet::Type.type(:sshkey_prune).provide(:prune) do
+  desc 'Update and prune gathered Host SSH keys'
 
   def insync?(is)
     sys_diff = (@system_hosts.keys - is)

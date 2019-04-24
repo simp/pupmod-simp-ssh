@@ -1,6 +1,5 @@
-# Update the ssh_known_hosts files for all hosts, purging old files,
-# removing duplicates, and creating catalog resources
-# that are found
+# @summary Update the ssh_known_hosts files for all hosts, purging old files,
+# removing duplicates, and creating catalog resources that are found
 #
 #  Note: This function if marked as an InternalFunction because it
 #  changes the state of the system by adding/removing files and
@@ -10,6 +9,8 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
 
   # @param expire_days expire time in days; defaults to 7; value of 0
   #   means never purge
+  #
+  # @return [None]
   dispatch :global_known_hosts do
     optional_param 'Integer', :expire_days
   end
@@ -38,7 +39,7 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
       end
     end
   end
- 
+
   def write_this_host_key_file(basedir)
     #FIXME accessing facts per the documentation doesn't work in unit tests
     # fqdn = closure_scope['facts']['networking']['fqdn']

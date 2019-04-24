@@ -1,4 +1,4 @@
-# Sets up a ssh server and starts sshd.
+# @summary Sets up a ssh server and starts sshd.
 #
 # @param server_ensure The ensure status of the openssh-server package
 #

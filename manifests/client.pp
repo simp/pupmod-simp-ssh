@@ -1,4 +1,4 @@
-# Sets up a ssh client and creates /etc/ssh/ssh_config.
+# @summary Sets up a ssh client and creates /etc/ssh/ssh_config.
 #
 # @param add_default_entry Set this if you wish to automatically
 #   have the '*' Host entry set up with some sane defaults.
