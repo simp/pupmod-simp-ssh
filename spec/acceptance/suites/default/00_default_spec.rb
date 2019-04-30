@@ -33,6 +33,10 @@ describe 'ssh class' do
       end
 
       context 'with default parameters' do
+        it 'should back up the original sshd_config for future reference' do
+          on(server, 'cp -a /etc/ssh/sshd_config ~')
+        end
+
         it 'should configure server with no errors' do
           install_package(server, 'epel-release')
           install_package(client, 'epel-release')
@@ -161,7 +165,7 @@ describe 'ssh class' do
       context 'with customized settings' do
         let(:server_hieradata_w_additions) do
           server_hieradata.merge({
-            'ssh::server::conf::gssapiauthentication' => true,
+            'ssh::server::conf::ssh_loglevel' => 'VERBOSE',
           })
         end
 
@@ -175,14 +179,8 @@ describe 'ssh class' do
 
               # Server example for SIMP-4440 & SIMP-4197:
 
-              sshd_config {
-               default:
-                 ensure => 'present',
-                 value  => 'yes',
-               ;
-               ['GSSAPIKeyExchange', 'GSSAPICleanupCredentials']:
-                 # use defaults
-               ;
+              sshd_config { 'X11UseLocalhost':
+                value => 'yes'
               }
            PP
         end
@@ -194,9 +192,7 @@ describe 'ssh class' do
                class{ 'ssh::client': add_default_entry => false }
 
                ssh::client::host_config_entry{ '*':
-                 gssapiauthentication      => true,
-                 gssapikeyexchange         => true,
-                 gssapidelegatecredentials => true,
+                 ssh_loglevel => 'VERBOSE'
                }
            PP
         end
@@ -227,7 +223,7 @@ describe 'ssh class' do
 
           # Ensure the server is using the default test setup
           set_hieradata_on(server, server_hieradata)
-          on(server, 'echo > /etc/ssh/sshd_config')
+          on(server, '/bin/cp -a ~/sshd_config /etc/ssh/sshd_config')
           apply_manifest_on(server, server_manifest)
           _normal_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
 
@@ -239,9 +235,8 @@ describe 'ssh class' do
           # Compare the results
           expect( (_custom_sshd_conf - _normal_sshd_conf).sort ).to eq [
             'AllowTcpForwarding no',
-            'GSSAPIAuthentication yes',
-            'GSSAPICleanupCredentials yes',
-            'GSSAPIKeyExchange yes'
+            'LogLevel VERBOSE',
+            'X11UseLocalhost yes'
           ]
 
         end
@@ -258,9 +253,7 @@ describe 'ssh class' do
 
           # Compare the results
           expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
-            'GSSAPIAuthentication yes',
-            'GSSAPIDelegateCredentials yes',
-            'GSSAPIKeyExchange yes'
+            'LogLevel VERBOSE'
           ]
 
         end
@@ -288,8 +281,8 @@ describe 'ssh class' do
           # on CentOS 6.9 with openssh 5.3
           os_major_release = os
           os_major_release.delete!("^0-9")
-          if os_major_release != nil then
-            if os_major_release.to_i >= 7 then
+          if os_major_release != nil
+            if os_major_release.to_i >= 7
               on(client, 'echo > /etc/ssh/ssh_config')
               apply_manifest_on(client, client_manifest)
               _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
