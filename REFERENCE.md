@@ -75,10 +75,10 @@ https://puppet.com/docs/puppet/5.5/types/ssh_authorized_key.html
 
 #### Examples
 
-##### 
+##### Adding user keys via Hiera
 
 ```puppet
-```yaml
+---
 ssh::authorized_keys::keys:
   kelly: ssh-rsa skjfhslkdjfs...
   nick:
@@ -88,7 +88,6 @@ ssh::authorized_keys::keys:
     key: ssh-rsa dlfkjsahh...
     user: mlast
     target: /home/gitlab-runner/.ssh/authorized_keys
-```
 ```
 
 #### Parameters
@@ -189,8 +188,8 @@ The following parameters are available in the `ssh::server::conf` class.
 
 Data type: `Array[String]`
 
-Specifies what environment variables sent by the
-client will be copied into the sessions environment.
+Specifies what environment variables sent by the client will be copied into
+the sessions environment.
 
 Default value: $ssh::server::params::acceptenv
 
@@ -198,9 +197,9 @@ Default value: $ssh::server::params::acceptenv
 
 Data type: `Optional[Array[String]]`
 
-A list of group name patterns. If specified, login is
-allowed only for users whose primary or supplementary group list matches
-one of the patterns.
+A list of group name patterns. If specified, login is allowed only for
+users whose primary or supplementary group list matches one of the
+patterns.
 
 Default value: `undef`
 
@@ -208,8 +207,8 @@ Default value: `undef`
 
 Data type: `Optional[Array[String]]`
 
-A list of user name patterns. If specified, login is
-allowed only for users whose name matches one of the patterns.
+A list of user name patterns. If specified, login is allowed only for users
+whose name matches one of the patterns.
 
 Default value: `undef`
 
@@ -217,8 +216,8 @@ Default value: `undef`
 
 Data type: `String`
 
-This is set to a non-standard location to
-provide for increased control over who can log in as a given user.
+This is set to a non-standard location to provide for increased control
+over who can log in as a given user.
 
 Default value: '/etc/ssh/local_keys/%u'
 
@@ -226,8 +225,7 @@ Default value: '/etc/ssh/local_keys/%u'
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
-Specifies a program to be used for
-lookup of the user's public keys.
+Specifies a program to be used for lookup of the user's public keys.
 
 Default value: `undef`
 
@@ -235,8 +233,7 @@ Default value: `undef`
 
 Data type: `String`
 
-Specifies the user under whose
-account the AuthorizedKeysCommand is run.
+Specifies the user under whose account the AuthorizedKeysCommand is run.
 
 Default value: 'nobody'
 
@@ -244,8 +241,8 @@ Default value: 'nobody'
 
 Data type: `Stdlib::Absolutepath`
 
-The contents of the specified file are sent to the
-remote user before authentication is allowed.
+The contents of the specified file are sent to the remote user before
+authentication is allowed.
 
 Default value: '/etc/issue.net'
 
@@ -253,8 +250,7 @@ Default value: '/etc/issue.net'
 
 Data type: `Boolean`
 
-Specifies whether
-challenge-response authentication is allowed.
+Specifies whether challenge-response authentication is allowed.
 
 Default value: `false`
 
@@ -262,10 +258,9 @@ Default value: `false`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the ciphers allowed for protocol
-version 2.  When unset, a strong set of ciphers is automatically
-selected by this class, taking into account whether the server is
-in FIPS mode.
+Specifies the ciphers allowed for protocol version 2.  When unset, a strong
+set of ciphers is automatically selected by this class, taking into account
+whether the server is in FIPS mode.
 
 Default value: `undef`
 
@@ -289,8 +284,8 @@ Default value: 600
 
 Data type: `Variant[Boolean,Enum['delayed']]`
 
-Specifies whether compression is allowed, or
-delayed until the user has authenticated successfully.
+Specifies whether compression is allowed, or delayed until the user has
+authenticated successfully.
 
 Default value: 'delayed'
 
@@ -298,9 +293,8 @@ Default value: 'delayed'
 
 Data type: `Optional[Array[String]]`
 
-A list of group name patterns.  If specified, login is
-disallowed for users whose primary or supplementary group list matches
-one of the patterns.
+A list of group name patterns.  If specified, login is disallowed for users
+whose primary or supplementary group list matches one of the patterns.
 
 Default value: `undef`
 
@@ -308,8 +302,8 @@ Default value: `undef`
 
 Data type: `Optional[Array[String]]`
 
-A list of user name patterns.  If specified, login is
-disallowed for users whose name matches one of the patterns.
+A list of user name patterns.  If specified, login is disallowed for users
+whose name matches one of the patterns.
 
 Default value: `undef`
 
@@ -317,9 +311,9 @@ Default value: `undef`
 
 Data type: `Boolean`
 
-Specifies whether user authentication
-based on GSSAPI is allowed. If the system is connected to an IPA domain,
-this will be default to true, based on the existance of the `ipa` fact.
+Specifies whether user authentication based on GSSAPI is allowed. If the
+system is connected to an IPA domain, this will be default to true, based
+on the existance of the `ipa` fact.
 
 Default value: $ssh::server::params::gssapiauthentication
 
@@ -359,10 +353,10 @@ Default value: `false`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the key exchange algorithms accepted.  When
-unset, an appropriate set of algorithms is automatically selected by this
-class, taking into account whether the server is in FIPS mode and whether
-the version of openssh installed supports this feature.
+Specifies the key exchange algorithms accepted.  When unset, an appropriate
+set of algorithms is automatically selected by this class, taking into
+account whether the server is in FIPS mode and whether the version of
+openssh installed supports this feature.
 
 Default value: `undef`
 
@@ -378,9 +372,8 @@ Default value: '0.0.0.0'
 
 Data type: `Integer[0]`
 
-The max number of seconds the server will wait for a
-successful login before disconnecting. If the value is 0, there is no
-limit.
+The max number of seconds the server will wait for a successful login
+before disconnecting. If the value is 0, there is no limit.
 
 Default value: 120
 
@@ -388,8 +381,7 @@ Default value: 120
 
 Data type: `Optional[Ssh::Loglevel]`
 
-Specifies the verbosity level that is used when logging
-messages from sshd.
+Specifies the verbosity level that is used when logging messages from sshd.
 
 Default value: `undef`
 
@@ -397,9 +389,9 @@ Default value: `undef`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the available MAC algorithms. When unset, a
-strong set of ciphers is automatically selected by this class, taking into
-account whether the server is in FIPS mode.
+Specifies the available MAC algorithms. When unset, a strong set of ciphers
+is automatically selected by this class, taking into account whether the
+server is in FIPS mode.
 
 Default value: `undef`
 
@@ -407,8 +399,8 @@ Default value: `undef`
 
 Data type: `Integer[1]`
 
-Specifies the maximum number of authentication attempts
-permitted per connection.
+Specifies the maximum number of authentication attempts permitted per
+connection.
 
 Default value: 6
 
@@ -416,8 +408,8 @@ Default value: 6
 
 Data type: `Boolean`
 
-Enable password authentication on the sshd
-server. If set to undef, this setting will not be managed.
+Enable password authentication on the sshd server. If set to undef, this
+setting will not be managed.
 
 * Note: This setting must be managed by default so that switching to and
   from OATH does not lock you out of your system.
@@ -428,9 +420,8 @@ Default value: `true`
 
 Data type: `Boolean`
 
-When password authentication is allowed,
-it specifies whether the server allows login to accounts with empty password
-strings.
+When password authentication is allowed, it specifies whether the server
+allows login to accounts with empty password strings.
 
 Default value: `false`
 
@@ -462,8 +453,8 @@ Default value: 22
 
 Data type: `Boolean`
 
-Specifies whether SSHD should print the date and
-time of the last user login when a user logs in interactively.
+Specifies whether SSHD should print the date and time of the last user
+login when a user logs in interactively.
 
 Default value: `false`
 
@@ -499,8 +490,7 @@ Default value: `true`
 
 Data type: `String`
 
-Configures and external subsystem for file
-transfers.
+Configures and external subsystem for file transfers.
 
 Default value: 'sftp /usr/libexec/openssh/sftp-server'
 
@@ -508,8 +498,7 @@ Default value: 'sftp /usr/libexec/openssh/sftp-server'
 
 Data type: `Ssh::Syslogfacility`
 
-Gives the facility code that is used when
-logging messages.
+Gives the facility code that is used when logging messages.
 
 Default value: 'AUTHPRIV'
 
@@ -517,7 +506,7 @@ Default value: 'AUTHPRIV'
 
 Data type: `Boolean`
 
-If true, allow sshd tcpwrapper.
+If true, enable sshd tcpwrappers.
 
 Default value: simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })
 
@@ -533,9 +522,8 @@ Default value: simplib::lookup('simp_options::pam', { 'default_value' => true })
 
 Data type: `Boolean`
 
-Flag indicating whether or not to mangae the
-pam stack for sshd. This is required for the oath option to work
-properly.
+Flag indicating whether or not to mangae the pam stack for sshd. This is
+required for the oath option to work properly.
 
 Default value: $oath
 
@@ -566,9 +554,8 @@ Default value: 1
 
 Data type: `Variant[Boolean,Enum['sandbox']]`
 
-Specifies whether sshd separates
-privileges by creating an unprivileged child process to deal with incoming
-network traffic.
+Specifies whether sshd separates privileges by creating an unprivileged
+child process to deal with incoming network traffic.
 
 Default value: $ssh::server::params::useprivilegeseparation
 
@@ -579,6 +566,24 @@ Data type: `Boolean`
 Specifies whether X11 forwarding is permitted.
 
 Default value: `false`
+
+##### `custom_entries`
+
+Data type: `Optional[Hash[String[1],NotUndef]]`
+
+A Hash of key/value pairs that will be added as ``sshd_config`` resources
+without any validation.
+
+* NOTE: Due to complexity, ``Match`` entries are not supported and will
+  need to be added using ``sshd_config_match`` resources as described in
+  ``augeasproviders_ssh``
+
+@example Set AuthorizedPrincipalsCommand
+  ---
+  ssh::server::conf::custom_entries:
+    AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
+
+Default value: `undef`
 
 ##### `app_pki_external_source`
 
@@ -604,10 +609,9 @@ Default value: "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"
 
 Data type: `Boolean`
 
-If true, add the fallback ciphers
-from ssh::server::params to the cipher list. This is intended to provide
-compatibility with non-SIMP systems in a way that properly supports FIPS
-140-2.
+If true, add the fallback ciphers from ssh::server::params to the cipher
+list. This is intended to provide compatibility with non-SIMP systems in a
+way that properly supports FIPS 140-2.
 
 Default value: `true`
 
@@ -615,9 +619,8 @@ Default value: `true`
 
 Data type: `Array[String]`
 
-The set of ciphers that should be used should
-no other cipher be declared. This is used when
-$ssh::server::conf::enable_fallback_ciphers is enabled.
+The set of ciphers that should be used should no other cipher be declared.
+This is used when $ssh::server::conf::enable_fallback_ciphers is enabled.
 
 Default value: $ssh::server::params::fallback_ciphers
 
@@ -641,8 +644,7 @@ Default value: simplib::lookup('simp_options::firewall', { 'default_value' => fa
 
 Data type: `Boolean`
 
-If true, include the haveged module to assist
-with entropy generation.
+If true, include the haveged module to assist with entropy generation.
 
 Default value: simplib::lookup('simp_options::haveged', { 'default_value' => false })
 
@@ -678,7 +680,7 @@ Default value: simplib::lookup('simp_options::pki', { 'default_value' => false }
 
 Data type: `Boolean`
 
-If true, use sssd.
+If true, use sssd
 
 Default value: simplib::lookup('simp_options::sssd', { 'default_value' => false })
 

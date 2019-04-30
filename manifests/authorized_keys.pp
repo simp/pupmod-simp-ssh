@@ -11,8 +11,8 @@
 # >
 # > **WARNING**
 #
-# @example
-#   ```yaml
+# @example Adding user keys via Hiera
+#   ---
 #   ssh::authorized_keys::keys:
 #     kelly: ssh-rsa skjfhslkdjfs...
 #     nick:
@@ -22,7 +22,6 @@
 #       key: ssh-rsa dlfkjsahh...
 #       user: mlast
 #       target: /home/gitlab-runner/.ssh/authorized_keys
-#   ```
 #
 # @param keys The hash to generate key resouces from
 #
