@@ -282,6 +282,7 @@ class ssh::server::conf (
   Boolean                            $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
   Variant[Boolean,Enum['sandbox']]   $useprivilegeseparation          = $ssh::server::params::useprivilegeseparation,
   Boolean                            $x11forwarding                   = false,
+  Optional[Hash[String[1],NotUndef]] $custom_entries                  = undef,
 #### SIMP parameters ####
   String                             $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
   Stdlib::Absolutepath               $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
@@ -296,8 +297,7 @@ class ssh::server::conf (
   Integer[0]                         $oath_window                     = 1,
   Variant[Enum['simp'],Boolean]      $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
   Boolean                            $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
-  Simplib::Netlist                   $trusted_nets                    = ['ALL'],
-  Optional[Hash[String[1],NotUndef]] $custom_entries                  = undef
+  Simplib::Netlist                   $trusted_nets                    = ['ALL']
 ) inherits ::ssh::server::params {
   assert_private()
 

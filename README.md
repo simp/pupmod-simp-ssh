@@ -23,11 +23,14 @@
     * [Including the client by itself](#including-the-client-by-itself)
   * [SSH server](#ssh-server)
     * [Managing server settings](#managing-server-settings)
-    * [Managing additional server settings using ``sshd_config``](#managing-additional-server-settings-using-sshd_config)
+    * [Managing additional server settings](#managing-additional-server-settings)
+      * [Using Hiera](#using-hiera)
+      * [Using ``sshd_config``](#using-sshd_config)
     * [Including the server by itself](#including-the-server-by-itself)
   * [Managing SSH ciphers](#managing-ssh-ciphers)
     * [Server ciphers](#server-ciphers)
     * [Client ciphers](#client-ciphers)
+  * [Managing ssh_authorized_keys](#managing-ssh_authorized_keys)
 * [Limitations](#limitations)
 * [Development](#development)
 * [Acceptance tests](#acceptance-tests)
@@ -187,8 +190,23 @@ include 'ssh::server'
 include 'ssh'
 ```
 
+#### Managing additional server settings
 
-#### Managing additional server settings using ``sshd_config``
+##### Using Hiera
+
+Users may specify any undefined **global** ``sshd`` settings using the
+``ssh::server::conf::custom_entries`` parameter as follows:
+
+```yaml
+---
+ssh::server::conf::custom_entries:
+  AuthorizedPrincipalsCommand: "/usr/local/bin/my_command"
+```
+
+NOTE: This is **unvalidated** and you may specify options that are not allowed
+for your particular SSH daemon and which may cause it to fail on restart.
+
+##### Using ``sshd_config``
 
 If you need to customize a setting in `/etc/ssh/sshd_config` that the
 `ssh::server` class doesn't manage, use the
