@@ -173,6 +173,19 @@
 # @param x11forwarding
 #   Specifies whether X11 forwarding is permitted.
 #
+# @param custom_entries
+#   A Hash of key/value pairs that will be added as ``sshd_config`` resources
+#   without any validation.
+#
+#   * NOTE: Due to complexity, ``Match`` entries are not supported and will
+#     need to be added using ``sshd_config_match`` resources as described in
+#     ``augeasproviders_ssh``
+#
+#   @example Set AuthorizedPrincipalsCommand
+#     ---
+#     ssh::server::conf::custom_entries:
+#       AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
+#
 #### SIMP parameters ####
 #
 # @param app_pki_external_source
@@ -224,19 +237,6 @@
 #   If true, use sssd
 #
 # @param trusted_nets  The networks to allow to connect to SSH.
-#
-# @param custom_entries
-#   A Hash of key/value pairs that will be added as ``sshd_config`` resources
-#   without any validation.
-#
-#   * NOTE: Due to complexity, ``Match`` entries are not supported and will
-#     need to be added using ``sshd_config_match`` resources as described in
-#     ``augeasproviders_ssh``
-#
-#   @example Set AuthorizedPrincipalsCommand
-#     ---
-#     ssh::server::conf::custom_entries:
-#       AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 #
 # @author https://github.com/simp/pupmod-simp-pam/graphs/contributors
 #
