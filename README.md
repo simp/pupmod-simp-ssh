@@ -203,8 +203,9 @@ ssh::server::conf::custom_entries:
   AuthorizedPrincipalsCommand: "/usr/local/bin/my_command"
 ```
 
-NOTE: This is **unvalidated** and you may specify options that are not allowed
-for your particular SSH daemon and which may cause it to fail on restart.
+NOTE: This is parameter is **not validated**.  Be careful to only specify
+options that are allowed for your particular SSH daemon. Invalid options may
+cause the ssh service to fail on restart.
 
 ##### Using ``sshd_config``
 
