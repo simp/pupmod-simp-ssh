@@ -9,10 +9,11 @@ describe 'ssh::server::conf' do
       end
 
       context "on os #{os}" do
+        # This is a common dependency that is notified
+        let(:pre_condition){ 'service { "sshd": }' }
 
         context 'with default parameters, openssh_version=5.3, both simp_options::fips and fips_enabled false' do
           let(:facts) { os_facts.merge( { :openssh_version => '5.3', :fips_enabled => false } ) }
-          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to create_class('ssh::server::conf') }
           it { is_expected.to compile.with_all_deps }
@@ -73,7 +74,6 @@ describe 'ssh::server::conf' do
 
         context 'with default parameters, openssh_version=6.6, both simp_options::fips and fips_enabled false' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
-          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to compile.with_all_deps }
           it {
@@ -104,7 +104,9 @@ describe 'ssh::server::conf' do
         context 'with default parameters, openssh_version=5.3, simp_options::fips=true and fips_enabled=false' do
           let(:facts) { os_facts.merge( { :openssh_version => '5.3', :fips_enabled => false } ) }
           let(:hieradata) { 'fips_catalyst_enabled' }
-          let(:pre_condition){ 'include "::ssh"' }
+
+          # Force cache invalidation
+          let(:params) {{ :app_pki_external_source => 'fips_catalyst_enabled' }}
 
           it { is_expected.to compile }
           it {
@@ -126,7 +128,6 @@ describe 'ssh::server::conf' do
 
         context 'with default parameters, openssh_version=6.6, simp_options::fips=false and fips_enabled=true' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
-          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to compile.with_all_deps }
           it {
@@ -153,7 +154,6 @@ describe 'ssh::server::conf' do
         context 'with enable_fallback_ciphers=false' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
           let(:hieradata) { 'enable_fallback_ciphers_disabled' }
-          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to compile.with_all_deps }
           it {
@@ -170,9 +170,6 @@ describe 'ssh::server::conf' do
 
         context 'with permitrootlogin set' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
-          # This is just a stub for the one thing that is required
-          let(:pre_condition){ 'service { "sshd": } ' }
-
           [
            true,
            false,
@@ -204,9 +201,10 @@ describe 'ssh::server::conf' do
         end
 
         context 'with authorizedkeyscommand and authorizedkeyscommanduser set' do
-          let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
-          let(:hieradata) { 'authorizedkeyscommand' }
-          let(:pre_condition){ 'include "::ssh"' }
+          let(:facts){ os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
+          let(:params){{
+            :authorizedkeyscommand => '/some/command'
+          }}
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/some/command') }
@@ -222,8 +220,10 @@ describe 'ssh::server::conf' do
 
         context 'with authorizedkeyscommand set but authorizedkeyscommanduser empty' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
-          let(:hieradata) { 'authorizedkeyscommand_with_empty_user' }
-          let(:pre_condition){ 'include "::ssh"' }
+          let(:params){{
+            :authorizedkeyscommand     => '/some/command',
+            :authorizedkeyscommanduser => ''
+          }}
 
           it {
             if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
@@ -237,7 +237,6 @@ describe 'ssh::server::conf' do
 
         context 'with useprivilegeseparation' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6' } ) }
-          let(:pre_condition){ "service {'sshd':}" }
 
           context '=> true' do
             let(:params) {{ :useprivilegeseparation => true }}
@@ -252,7 +251,9 @@ describe 'ssh::server::conf' do
         context 'with both simp_options::ldap and simp_options::ssd true' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
           let(:hieradata) { 'ldap_and_sssd' }
-          let(:pre_condition){ 'include "::ssh"' }
+
+          # Force cache invalidation
+          let(:params) {{ :app_pki_external_source => 'ldap_and_sssd' }}
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_class('sssd::install') }
@@ -270,7 +271,9 @@ describe 'ssh::server::conf' do
         context 'with simp_options::ldap = true, but simp_options::ssd = false' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
           let(:hieradata) { 'ldap_only' }
-          let(:pre_condition){ 'include "::ssh"' }
+
+          # Force cache invalidation
+          let(:params) {{ :app_pki_external_source => 'ldap_only' }}
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_class('sssd::install') }
@@ -288,7 +291,9 @@ describe 'ssh::server::conf' do
         context 'with firewall, haveged, pam, and tcpwrappers global catalysts enabled' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => true } ) }
           let(:hieradata) { 'some_global_catalysts_enabled' }
-          let(:pre_condition){ 'include "::ssh"' }
+
+          # Force cache invalidation
+          let(:params) {{ :app_pki_external_source => 'some_global_catalysts_enabled' }}
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
@@ -298,7 +303,6 @@ describe 'ssh::server::conf' do
         end
 
         context 'when connected to an IPA domain' do
-          let(:pre_condition){ 'include "::ssh"' }
           let(:facts) {
             os_facts.merge(
               ipa: {}
@@ -311,7 +315,6 @@ describe 'ssh::server::conf' do
 
         context 'with default parameters, openssh_version=7.4' do
           let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
-          let(:pre_condition){ 'include "::ssh"' }
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_sshd_config('RhostsRSAAuthentication') }
@@ -319,11 +322,22 @@ describe 'ssh::server::conf' do
 
         context 'with rhostsrsaauthentication explicitly disabled, openssh_version=7.4' do
           let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
-          let(:hieradata) { 'rhostsrsaauthentication_disabled' }
-          let(:pre_condition){ 'include "::ssh"' }
+          let(:params) {{ :rhostsrsaauthentication => false }}
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('RhostsRSAAuthentication').with_value('no') }
+        end
+
+        context 'with custom entries' do
+          let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
+          let(:hieradata) { 'custom_entries' }
+
+          # Force cache invalidation
+          let(:params) {{ :app_pki_external_source => 'custom_entries' }}
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_sshd_config('X11UseLocalhost').with_value('no') }
+          it { is_expected.to contain_sshd_config('X11MaxDisplays').with_value(20) }
         end
       end
     end

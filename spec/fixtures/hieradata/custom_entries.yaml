@@ -1,0 +1,4 @@
+---
+ssh::server::conf::custom_entries:
+  X11UseLocalhost: 'no'
+  X11MaxDisplays: 20
