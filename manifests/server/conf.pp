@@ -173,6 +173,8 @@
 # @param x11forwarding
 #   Specifies whether X11 forwarding is permitted.
 #
+#### Custom Parameters ####
+#
 # @param custom_entries
 #   A Hash of key/value pairs that will be added as ``sshd_config`` resources
 #   without any validation.
@@ -186,7 +188,7 @@
 #     ssh::server::conf::custom_entries:
 #       AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 #
-#### SIMP parameters ####
+#### SIMP Parameters ####
 #
 # @param app_pki_external_source
 #   * If pki = 'simp' or true, this is the directory from which certs will be

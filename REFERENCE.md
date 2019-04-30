@@ -178,7 +178,9 @@ class with no adverse effects.
 
 SSH Parameters ####
 
-SIMP parameters ####
+Custom Parameters ####
+
+SIMP Parameters ####
 
 #### Parameters
 
