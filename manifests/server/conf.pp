@@ -144,7 +144,7 @@
 #   @see man page for sshd_config
 #
 # @param subsystem
-#   Configures and external subsystem for file transfers.
+#   Configures an external subsystem for file transfers.
 #
 # @param syslogfacility
 #   Gives the facility code that is used when logging messages.
