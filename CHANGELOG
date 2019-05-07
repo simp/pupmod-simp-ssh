@@ -1,6 +1,7 @@
 * Mon Apr 29 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.7.0
 - Added the ability for users to set custom sshd config entries via a Hash in
   Hiera.
+- Made ListenAddress optional and documented EL6 bug
 
 * Tue Apr 16 2019 Zach <turtles.be.the.best@gmail.com> - 6.7.0-0
 - Add OATH support

@@ -10,9 +10,9 @@ describe 'ssh class' do
 
   let(:server_hieradata) do
     {
-      'simp_options::trusted_nets' => ['ALL'],
-      'ssh::server::conf::banner'  => '/dev/null',
-      'ssh::server::conf::permitrootlogin' => true,
+      'simp_options::trusted_nets'                => ['ALL'],
+      'ssh::server::conf::banner'                 => '/dev/null',
+      'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
     }
   end
@@ -20,6 +20,13 @@ describe 'ssh class' do
   let(:client_manifest) { "include 'ssh::client'" }
 
   let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
+
+  context 'backup config prior to execution' do
+    # Back up all of the SSH configuration files prior to editing
+    block_on(hosts, :run_in_parallel => true) do |host|
+      on(host, '/bin/cp -ra /etc/ssh /root')
+    end
+  end
 
   hosts_as('server').each do |_server|
     os = _server.hostname.split('-').first
@@ -33,10 +40,6 @@ describe 'ssh class' do
       end
 
       context 'with default parameters' do
-        it 'should back up the original sshd_config for future reference' do
-          on(server, 'cp -a /etc/ssh/sshd_config ~')
-        end
-
         it 'should configure server with no errors' do
           install_package(server, 'epel-release')
           install_package(client, 'epel-release')
@@ -178,7 +181,6 @@ describe 'ssh class' do
               sshd_config {'AllowTcpForwarding': value => 'no'}
 
               # Server example for SIMP-4440 & SIMP-4197:
-
               sshd_config { 'X11UseLocalhost':
                 value => 'yes'
               }
@@ -188,7 +190,6 @@ describe 'ssh class' do
         let(:client_manifest_w_custom_host_entries) do
            <<-PP
                # SIMP-4440 client example
-
                class{ 'ssh::client': add_default_entry => false }
 
                ssh::client::host_config_entry{ '*':
@@ -222,9 +223,10 @@ describe 'ssh class' do
         it 'should coexist with additional settings via the sshd_config type' do
 
           # Ensure the server is using the default test setup
+          on(server, 'cat /root/ssh/sshd_config > /etc/ssh/sshd_config')
           set_hieradata_on(server, server_hieradata)
-          on(server, '/bin/cp -a ~/sshd_config /etc/ssh/sshd_config')
           apply_manifest_on(server, server_manifest)
+
           _normal_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
 
           # Create the new test setup
