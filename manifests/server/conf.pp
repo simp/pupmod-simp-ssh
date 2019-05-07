@@ -246,7 +246,7 @@
 #
 # @param trusted_nets  The networks to allow to connect to SSH.
 #
-# @author https://github.com/simp/pupmod-simp-pam/graphs/contributors
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::server::conf (
 #### SSH Parameters ####
