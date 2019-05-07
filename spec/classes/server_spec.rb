@@ -37,11 +37,12 @@ shared_examples_for "an ssh server" do |os_facts|
 
   it { is_expected.to contain_service('sshd').with({
       :ensure  => 'running',
-      :require => 'Package[openssh-server]'
+      :require => [
+        'Package[openssh-server]',
+        'User[sshd]'
+      ]
     })
   }
-
-  it { is_expected.to_not contain_exec('SELinux Allow SSH Port 22') }
 
   os_facts[:ssh_host_keys].each do |host_key|
     it { is_expected.to create_file(host_key).with({
@@ -80,14 +81,6 @@ describe 'ssh::server' do
           }
           it_behaves_like "an ssh server", os_facts
           it { is_expected.to contain_package('openssh-ldap').with_ensure('installed') }
-        end
-
-        context "with a non-standard ssh port" do
-          let(:pre_condition){
-            "class{'ssh::server::conf': port => 22000 }"
-          }
-          it { is_expected.to contain_package('policycoreutils-python').that_comes_before('Exec[SELinux Allow SSH Port 22000]') }
-          it { is_expected.to contain_exec('SELinux Allow SSH Port 22000') }
         end
 
         context "with pki => true" do

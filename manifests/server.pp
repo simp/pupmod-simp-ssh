@@ -78,40 +78,21 @@ class ssh::server (
     enable     => true,
     hasstatus  => true,
     hasrestart => true,
-    require    => Package['openssh-server'],
-    subscribe  => Class['::ssh::server::conf']
-  }
-
-  if $::ssh::server::conf::port != 22 and $facts['selinux_enforced'] {
-    if ! defined(Package['policycoreutils-python']) {
-      package { 'policycoreutils-python':
-        ensure => 'latest',
-        before => Exec["SELinux Allow SSH Port ${::ssh::server::conf::port}"]
-      }
-    }
-
-    # This should really be a custom type...
-    exec { "SELinux Allow SSH Port ${::ssh::server::conf::port}":
-      command => "semanage port -a -t ssh_port_t -p tcp ${::ssh::server::conf::port}",
-      unless  => "semanage port -C -l | /bin/grep -qe 'ssh_port_t[[:space:]]*tcp[[:space:]]*${::ssh::server::conf::port}'",
-      path    => [
-        '/usr/local/sbin',
-        '/usr/local/bin',
-        '/usr/sbin',
-        '/usr/bin'
-      ],
-      notify  => Service['sshd'],
-    }
+    require    => [
+      Package['openssh-server'],
+      User['sshd']
+    ],
+    subscribe  => Class['ssh::server::conf']
   }
 
   # Make sure all ssh keys are managed for permissions per compiance settings
   $facts['ssh_host_keys'].each |$key| {
-    if ($key =~ /ssh_host_rsa_key/) and $::ssh::server::conf::pki {
+    if ($key =~ /ssh_host_rsa_key/) and $ssh::server::conf::pki {
       file { $key:
         owner     => 'root',
         group     => 'root',
         mode      => '0600',
-        source    => "file://${::ssh::server::conf::app_pki_key}",
+        source    => "file://${ssh::server::conf::app_pki_key}",
         subscribe => Pki::Copy['sshd'],
         notify    => [ Exec['gensshpub'], Service['sshd'] ],
       }

@@ -53,8 +53,10 @@ describe 'ssh check oath' do
         it 'configures server with no errors' do
           install_package(client, 'epel-release')
           install_package(client, 'expect')
+
           set_hieradata_on(client, client_hieradata)
           apply_manifest_on(client, client_manifest, expect_changes: true)
+
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest, expect_changes: true)
         end

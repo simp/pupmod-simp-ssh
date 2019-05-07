@@ -208,10 +208,7 @@ describe 'ssh::client::host_config_entry' do
 
         end
 
-        _protocol_sets = [
-          1,
-          '2,1'
-       ]
+        _protocol_sets = [ 1, '2,1' ]
         _protocol_sets.each do |_protocol_set|
           context "with protocol = #{_protocol_set} and both ssh::client::fips and fips_enabled false" do
             let(:facts) do
@@ -227,11 +224,7 @@ describe 'ssh::client::host_config_entry' do
           end
         end
 
-        _protocol_sets = [
-          1,
-          2,
-          '2,1'
-       ]
+        _protocol_sets = [ 1, 2, '2,1' ]
         _protocol_sets.each do |_protocol_set|
           context "with protocol = #{_protocol_set}, simp_options::fips = false, and fips_enabled = true" do
             let(:facts){  os_facts.merge({ :fips_enabled => true }) }
@@ -260,6 +253,9 @@ describe 'ssh::client::host_config_entry' do
             let(:facts){  os_facts.merge({ :fips_enabled => false }) }
             let(:params){{ :protocol => _protocol_set }}
             let(:hieradata) {'global_catalysts_enabled'}
+
+            # This works for a defined type because APL isn't hit.
+            let(:hiera_data) {{ :invalidate => 'cache' }}
 
             it { is_expected.to compile.with_all_deps }
             it {
