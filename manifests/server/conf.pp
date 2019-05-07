@@ -156,7 +156,7 @@
 #   Enables the Pluggable Authentication Module interface.
 #
 # @param manage_pam_sshd
-#   Flag indicating whether or not to mangae the pam stack for sshd. This is
+#   Flag indicating whether or not to manage the pam stack for sshd. This is
 #   required for the oath option to work properly.
 #
 # @param oath
