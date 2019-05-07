@@ -364,11 +364,17 @@ Default value: `undef`
 
 ##### `listenaddress`
 
-Data type: `Simplib::Host`
+Data type: `Optional[Variant[Simplib::Host, Array[Simplib::Host]]]`
 
 Specifies the local addresses sshd should listen on.
 
-Default value: '0.0.0.0'
+* **WARNING:** On EL6 systems, if sshd was listening on both IPv4 and IPv6
+  and you set this to an IPv4-only address (even 0.0.0.0), the service
+  restart will erase the file /var/run/sshd.pid and the service will no
+  longer be manageable from the ``service`` command until either the system
+  is restarted or the pidfile is recreated correctly.
+
+Default value: `undef`
 
 ##### `logingracetime`
 

@@ -525,6 +525,22 @@ class ssh::server::conf (
     recurse => true,
   }
 
+  if $port != 22 and $facts['selinux_enforced'] {
+    simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
+
+    $_policy_pkg_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
+
+    ensure_packages(['policycoreutils-python'], {ensure => $_policy_pkg_ensure} )
+
+    selinux_port { "tcp_${port}-${port}":
+      low_port  => $port,
+      high_port => $port,
+      seltype   => 'ssh_port_t',
+      protocol  => 'tcp',
+      require   => Package['policycoreutils-python']
+    }
+  }
+
   if $firewall {
     simplib::assert_optional_dependency($module_name, 'simp/iptables')
 

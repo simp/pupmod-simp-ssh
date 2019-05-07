@@ -338,6 +338,24 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('X11UseLocalhost').with_value('no') }
           it { is_expected.to contain_sshd_config('X11MaxDisplays').with_value(20) }
         end
+
+        context "with a non-standard ssh port" do
+          let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
+          let(:params) {{ :port => 22000 }}
+
+          it { is_expected.to contain_package('policycoreutils-python') }
+
+          it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").with(
+            {
+              :low_port  => params[:port],
+              :high_port => params[:port],
+              :seltype   => 'ssh_port_t',
+              :protocol  => 'tcp'
+            })
+          }
+
+          it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").that_requires('Package[policycoreutils-python]') }
+        end
       end
     end
   end
