@@ -74,7 +74,7 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
     if ( !File.exists?("#{keydir}/#{username}") )
       begin
         Timeout::timeout(30) do
-          system "/usr/bin/ssh-keygen -N '' -q -t rsa -C '' -b #{key_strength} -f #{keydir}/#{username}"
+          Puppet::Util::Execution.execute("/usr/bin/ssh-keygen -N '' -q -t rsa -C '' -b #{key_strength} -f #{keydir}/#{username}")
           FileUtils.chmod 0640, "#{keydir}/#{username}"
           FileUtils.chmod 0640, "#{keydir}/#{username}.pub"
         end
