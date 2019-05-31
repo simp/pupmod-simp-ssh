@@ -1,3 +1,7 @@
+* Wed May 29 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.7.1-0
+- Replace calls to 'system' with Puppet::Execution.execute in the ssh_autokey
+  and ssh::autokeys functions.
+
 * Mon Apr 29 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.7.0-0
 - Switched to selinux_port type for alternate SSH ports
 - Added the ability for users to set custom sshd config entries via a Hash in
