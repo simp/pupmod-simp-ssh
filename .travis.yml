@@ -5,23 +5,15 @@
 # https://puppet.com/docs/pe/2018.1/overview/getting_support_for_pe.html
 # ------------------------------------------------------------------------------
 # Release       Puppet   Ruby   EOL
-# PE 2017.3     5.3      2.4.5  2018-12-31
-# SIMP 6.3      5.5      2.4.5  TBD***
-# PE 2018.1     5.5      2.4.5  2020-05 (LTS)***
-# PE 2019.0     6.0      2.5.1  2019-08-31^^^
-#
-# *** = Modules created for SIMP 6.3+ are not required to support Puppet < 5.5
+# SIMP 6.3      5.5      2.4    TBD
+# PE 2018.1     5.5      2.4    2020-05 (LTS)
+# PE 2019.0     6.0      2.5    2019-08-31
 
 ---
+
 language: ruby
 cache: bundler
 sudo: false
-
-stages:
-  - check
-  - spec
-  - name: deploy
-    if: 'tag IS present'
 
 bundler_args: --without development system_tests --path .vendor
 
@@ -34,12 +26,27 @@ addons:
       - rpm
 
 before_install:
-  - rm -f Gemfile.lock
   - for x in ${HOME}/.rvm/gems/*; do gem uninstall -I -x -i "${x}" -v '>= 1.17' bundler || true; gem uninstall -I -x -i "${x}@global" -v '>= 1.17' bundler || true; done
   - gem install -v '~> 1.17' bundler
+  - rm -f Gemfile.lock
 
 global:
   - STRICT_VARIABLES=yes
+
+stages:
+  # To check if $GITHUB_OAUTH_TOKEN is able to publish a GitHub release,
+  # trigger a custom TravisCI build for this branch using the CUSTOM CONFIG:
+  #
+  #   env: VALIDATE_TRAVIS=yes
+  #
+  - name: 'validate travis'
+    if: 'env(VALIDATE_TRAVIS) = yes'
+  - name: check
+    if: 'NOT env(VALIDATE_TRAVIS) = yes'
+  - name: spec
+    if: 'NOT env(VALIDATE_TRAVIS) = yes'
+  - name: deploy
+    if: 'tag IS present AND NOT env(VALIDATE_TRAVIS) = yes'
 
 jobs:
   include:
@@ -58,13 +65,6 @@ jobs:
         - bundle exec puppet module build
 
     - stage: spec
-      name: 'Puppet 5.3 (PE 2017.3)'
-      rvm: 2.4.5
-      env: PUPPET_VERSION="~> 5.3.0"
-      script:
-        - bundle exec rake spec
-
-    - stage: spec
       rvm: 2.4.5
       name: 'Puppet 5.5 (SIMP 6.3, PE 2018.1)'
       env: PUPPET_VERSION="~> 5.5.0"
@@ -80,7 +80,7 @@ jobs:
 
     - stage: spec
       name: 'Latest Puppet 6.x'
-      rvm: 2.5.1
+      rvm: 2.5.3
       env: PUPPET_VERSION="~> 6.0"
       script:
         - bundle exec rake spec
@@ -94,16 +94,40 @@ jobs:
         - '[[ $TRAVIS_TAG =~ ^simp-${PUPMOD_METADATA_VERSION}$|^${PUPMOD_METADATA_VERSION}$ ]]'
       deploy:
         - provider: releases
-          api_key:
-            secure: "k9Nx0/6V6FEOzYPhsn8410ZGA7mcYc/H1vR+YH02yDhKLRILI1XWZ8vjXobvY+1bdnhbUj8O8gUjaZv7PIztaRzRqu2FeTJb9R3fFhXpt2Uv9ZY+5Hq+LoOpEj8LaXCtVHlss8EVxU7dXg96NxrMenUeB5WPDrJdQu+lEkcvmNNysCLljmLda9MlGTBlsdpugMsM6b+k6LIF64hovup4ewQSoHq3RxciHN3rjn/K8e7oY3tclD+rISUZOTeLr+fjS3LhAW2R5u+0FjuzIE/Gcq/szuQC5N2CAegVt8H6q7DRjkklVI0L6FXCoAd0t6CHwZ+PlftphAqh4FjYrtTOaUirPpsKWMLfHSWANXneVZ8uhqDiMTNLMYnOewZrTyyLqIh/d7xbEcv6uQuCdbSoWmupZfkXAKvoecMA3+3y4dVJmf/olqlz4KSE7UMKettG/RogtSIZ6YDhfuWiI6P29NZDjzhKHLmmPxl4upaiEVt6XoxDeh2fqKpe3ggURIcG7xv7CbzCmhYz4EZ4a4rd6ieUvjrpGLshke0O3PZBHYXA84fnWiUb5tQCGAX0pE0sJmGqnufHeMzBOi7JDBp8XLZAjEFcIjjn+3Tb9whZh+gw5RVUH768fp2gH+STJKNGfz9ClXyKJkEFb2ZmYboKZ7WptnFMM6TmcC2O4RYT4Yo="
+          api_key: $GITHUB_OAUTH_TOKEN
           skip_cleanup: true
           on:
             tags: true
             condition: '($SKIP_FORGE_PUBLISH != true)'
         - provider: puppetforge
           user: simp
-          password:
-            secure: "bweemJAHZQN8lEEDRqR5JPyyd4+5rgzqWvKfUHsynEtzuwlE2xesQ7MUpqS9O+qOQaltFyjLzjqVvaDhAivxL8hzJPTChBqT26fCCSw5eE36bpZPlXvru8BaThjjEDvgGqZAjSDKOuS8rLwgwRMD6ZiBVHZ7XEQADAEtWtBsV9LsoUJYU6noTTxkGG4MHya5I6erW9GUbyJ90UIvtMSyjQ5pLCirCOgsNUD/RF0wNl8jukAuQbQRRT+LGBNENS3PnvLCk52AeizUpR15bMcrgPv0338WnRfGufz+itRlx4ZU0899COFpuPSBmuLP4WQp1mTRVGa6cMFWzA19yhjzhOX68Pyv/hBgFzlsdsqjLK7XvE9Ux2KravAnCe833K5b6i6kcok5+KDrdjQxvyh0TGBIA+75sLx8VViKTjXqxf2OEL5W1VEgmhxQPCkFh38oBvE1rkcFLexoFVyAU+Jblu6yPrw3fuUUMLGalEkYjyHLqUYU7x+Kd6NotDrQ7OxfVWbfrBwpDC9xn/wVKASs3kkcHzYfc6y1xzpJ5Xlod2nTa+FXo7q2yECUgnjGVu680t/wCDydOY4GtsaDRRbgi5qrIm5I7Ie42sA2fQOmkix/XFIcm/EUsdTx71OllfdWOVteoa+4JiWSVgskm0PG9JEHiVwtScxr26jzVO6UaII="
+          password: $FORGE_PW
           on:
             tags: true
             condition: '($SKIP_FORGE_PUBLISH != true)'
+
+    - stage: 'validate travis'
+      name: validate GitHub OAuth token in TravisCI has sufficient scope to release
+      script:
+      - 'printf "\n===== GITHUB_OAUTH_TOKEN validation
+                 \n(TRAVIS_SECURE_ENV_VARS=%b)\n\n" $TRAVIS_SECURE_ENV_VARS;
+        OWNER="$(echo $TRAVIS_REPO_SLUG | cut -d/ -f1)";
+        curl -H "Authorization: token ${GITHUB_OAUTH_TOKEN}" "https://api.github.com/users/$OWNER"
+        -I | grep ^X-OAuth-Scopes | egrep -w "repo|public_repo" '
+
+    - stage: 'validate travis'
+      name: 'validate that TravisCI Puppet Forge credentials can authenticate'
+      before_script:
+        - 'COOKIE_FILE="$(mktemp)"'
+        - 'HEADERS_FILE="$(mktemp)"'
+      script:
+      - 'printf "\n===== PUPPET_FORGE_PW validation " \
+                "\n(TRAVIS_SECURE_ENV_VARS=%b)\n\n" $TRAVIS_SECURE_ENV_VARS;
+         user_agent=''SimpRelengTravisCI/0.1.0-testing Purpose/forge-credential-test-for-ci-pipeline'';
+         authenticity_token="$(curl -c "$COOKIE_FILE" -L https://forge.puppet.com/login | grep ''input name="authenticity_token"'' | sed -e ''s/^.*value="//'' | cut -d\" -f1)" ;
+         curl -b "$COOKIE_FILE" -D "$HEADERS_FILE" -d
+           "user_name=simp&password=${FORGE_PW}&utf-8=%E2%9C%93&return_to_path=%2F&authenticity_token=${authenticity_token}"
+           -L https://forge.puppet.com/login 2>&1 >/dev/null;
+         grep ''^HTTP/1.1 200 OK'' "$HEADERS_FILE"'
+      after_script:
+        - 'rm -f "$COOKIE_FILE" "$HEADERS_FILE"'
