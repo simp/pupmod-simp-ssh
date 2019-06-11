@@ -9,21 +9,23 @@ HOSTS:
     docker_preserve_image: true
     docker_image_commands:
       # Puppet Deps
+      - 'yum install -y epel-release'
       - 'yum install -y ntpdate rubygems rsync openssl'
       - 'usermod --password $(echo root | openssl passwd -1 -stdin) root'
     yum_repos:
+      epel:
+        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
+        gpgkeys:
+          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
       chef-current:
         baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
         gpgkeys:
           - https://packages.chef.io/chef.asc
-      epel:
-        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
-        gpgkeys:
-          - https://getfedora.org/static/352C64E5.txt
       simpdeps:
         baseurl: https://packagecloud.io/simp-project/6_X_Dependencies/el/$releasever/$basearch
         gpgkeys:
           - https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
           - https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
           - https://yum.puppet.com/RPM-GPG-KEY-puppet
           - https://apt.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG-96
