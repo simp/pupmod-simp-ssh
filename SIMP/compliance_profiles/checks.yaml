@@ -1,0 +1,709 @@
+---
+version: 2.0.0
+checks:
+  oval:com.puppet.forge.simp.ssh.client.add_default_entry:
+    settings:
+      parameter: ssh::client::add_default_entry
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-2:1: true
+      nist_800_53:rev4:AC-6: true
+      nist_800_53:rev4:AC-17:2: true
+      nist_800_53:rev4:IA-7: true
+      nist_800_53:rev4:SC-8: true
+      nist_800_53:rev4:SC-8:1: true
+      nist_800_53:rev4:SC-8:2: true
+      nist_800_53:rev4:SC-23: true
+      disa_stig: true
+      RHEL-07-040260: true
+      SRG-OS-000423-GPOS-00187: true
+      SRG-OS-000423-GPOS-00188: true
+      SRG-OS-000423-GPOS-00189: true
+      SRG-OS-000423-GPOS-00190: true
+      cci:CCI-002418: true
+      cci:CCI-002421: true
+      cci:CCI-002420: true
+      cci:CCI-002422: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-2:1
+      - AC-6
+      - AC-17:2
+      - IA-7
+      - SC-8
+      - SC-8:1
+      - SC-8:2
+      - SC-23
+      disa_stig:
+      - RHEL-07-040260
+      - SRG-OS-000423-GPOS-00187
+      - SRG-OS-000423-GPOS-00188
+      - SRG-OS-000423-GPOS-00189
+      - SRG-OS-000423-GPOS-00190
+      - CCI-002418
+      - CCI-002421
+      - CCI-002420
+      - CCI-002422
+  oval:com.puppet.forge.simp.ssh.server.conf.authorizedkeyscommanduser:
+    settings:
+      parameter: ssh::server::conf::authorizedkeyscommanduser
+      value: nobody
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-1: true
+      disa_stig: true
+      RHEL-07-040600: true
+      SRG-OS-000033-GPOS-00014: true
+      cci:CCI-000068: true
+    identifiers:
+      nist_800_53:rev4:
+      - IA-1
+      disa_stig:
+      - RHEL-07-040600
+      - SRG-OS-000033-GPOS-00014
+      - CCI-000068
+  oval:com.puppet.forge.simp.ssh.server.conf.authorizedkeysfile:
+    settings:
+      parameter: ssh::server::conf::authorizedkeysfile
+      value: "/etc/ssh/local_keys/%u"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:SC-8:1: true
+      nist_800_53:rev4:SC-8:2: true
+      nist_800_53:rev4:SC-23: true
+      disa_stig: true
+      RHEL-07-040600: true
+      SRG-OS-000033-GPOS-00014: true
+      cci:CCI-000068: true
+    identifiers:
+      nist_800_53:rev4:
+      - SC-8:1
+      - SC-8:2
+      - SC-23
+      disa_stig:
+      - RHEL-07-040600
+      - SRG-OS-000033-GPOS-00014
+      - CCI-000068
+  oval:com.puppet.forge.simp.ssh.server.conf.challengeresponseauthentication:
+    settings:
+      parameter: ssh::server::conf::challengeresponseauthentication
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:SC-8:1: true
+      nist_800_53:rev4:SC-8:2: true
+      nist_800_53:rev4:SC-23: true
+    identifiers:
+      nist_800_53:rev4:
+      - SC-8:1
+      - SC-8:2
+      - SC-23
+  oval:com.puppet.forge.simp.ssh.server.conf.fallback_ciphers:
+    settings:
+      parameter: ssh::server::conf::fallback_ciphers
+      value:
+      - aes256-ctr
+      - aes192-ctr
+      - aes128-ctr
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:SC-8:1: true
+      nist_800_53:rev4:SC-8:2: true
+      nist_800_53:rev4:SC-23: true
+    identifiers:
+      nist_800_53:rev4:
+      - SC-8:1
+      - SC-8:2
+      - SC-23
+  oval:com.puppet.forge.simp.ssh.server.conf.gssapiauthentication:
+    settings:
+      parameter: ssh::server::conf::gssapiauthentication
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:SC-8:1: true
+      nist_800_53:rev4:SC-8:2: true
+      nist_800_53:rev4:SC-23: true
+      disa_stig: true
+      RHEL-07-040660: true
+      SRG-OS-000364-GPOS-00151: true
+      cci:CCI-000368: true
+      cci:CCI-000318: true
+      cci:CCI-001812: true
+      cci:CCI-001813: true
+      cci:CCI-001814: true
+    identifiers:
+      nist_800_53:rev4:
+      - SC-8:1
+      - SC-8:2
+      - SC-23
+      disa_stig:
+      - RHEL-07-040660
+      - SRG-OS-000364-GPOS-00151
+      - CCI-000368
+      - CCI-000318
+      - CCI-001812
+      - CCI-001813
+      - CCI-001814
+  oval:com.puppet.forge.simp.ssh.server.conf.permitemptypasswords:
+    settings:
+      parameter: ssh::server::conf::permitemptypasswords
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:IA-5:1:a: true
+      disa_stig: true
+      RHEL-07-010270: true
+      SRG-OS-000106-GPOS-00053: true
+      cci:CCI-000766: true
+    identifiers:
+      nist_800_53:rev4:
+      - IA-5:1:a
+      disa_stig:
+      - RHEL-07-010270
+      - SRG-OS-000106-GPOS-00053
+      - CCI-000766
+    oval-ids:
+    - sshd_disable_empty_passwords
+  oval:com.puppet.forge.simp.ssh.server.conf.permitrootlogin:
+    settings:
+      parameter: ssh::server::conf::permitrootlogin
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-6:2: true
+      nist_800_53:rev4:AC-6:5: true
+      disa_stig: true
+      RHEL-07-040310: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-6:2
+      - AC-6:5
+      disa_stig:
+      - RHEL-07-040310
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    oval-ids:
+    - sshd_disable_root_login
+  oval:com.puppet.forge.simp.ssh.server.conf.syslogfacility:
+    settings:
+      parameter: ssh::server::conf::syslogfacility
+      value: AUTHPRIV
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AU-3:2: true
+      nist_800_53:rev4:AU-4:1: true
+      nist_800_53:rev4:AU-9: true
+      disa_stig: true
+      RHEL-07-030770: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      nist_800_53:rev4:
+      - AU-3:2
+      - AU-4:1
+      - AU-9
+      disa_stig:
+      - RHEL-07-030770
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+  oval:com.puppet.forge.simp.ssh.server.conf.banner.el6:
+    settings:
+      parameter: ssh::server::conf::banner
+      value: "/etc/issue.net"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-8: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-8
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '6'
+  oval:com.puppet.forge.simp.ssh.server.conf.useprivilegeseparation.el6:
+    settings:
+      parameter: ssh::server::conf::useprivilegeseparation
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-3: true
+      nist_800_53:rev4:AC-6: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-3
+      - AC-6
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '6'
+  oval:com.puppet.forge.simp.ssh.server.conf.x11forwarding.el6:
+    settings:
+      parameter: ssh::server::conf::x11forwarding
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:CM-7: true
+    identifiers:
+      nist_800_53:rev4:
+      - CM-7
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '6'
+  oval:com.puppet.forge.simp.ssh.enable_client:
+    settings:
+      parameter: ssh::enable_client
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040260: true
+      SRG-OS-000423-GPOS-00187: true
+      SRG-OS-000423-GPOS-00188: true
+      SRG-OS-000423-GPOS-00189: true
+      SRG-OS-000423-GPOS-00190: true
+      cci:CCI-002418: true
+      cci:CCI-002421: true
+      cci:CCI-002420: true
+      cci:CCI-002422: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040260
+      - SRG-OS-000423-GPOS-00187
+      - SRG-OS-000423-GPOS-00188
+      - SRG-OS-000423-GPOS-00189
+      - SRG-OS-000423-GPOS-00190
+      - CCI-002418
+      - CCI-002421
+      - CCI-002420
+      - CCI-002422
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.enable_server:
+    settings:
+      parameter: ssh::enable_server
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040260: true
+      SRG-OS-000423-GPOS-00187: true
+      SRG-OS-000423-GPOS-00188: true
+      SRG-OS-000423-GPOS-00189: true
+      SRG-OS-000423-GPOS-00190: true
+      cci:CCI-002418: true
+      cci:CCI-002421: true
+      cci:CCI-002420: true
+      cci:CCI-002422: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040260
+      - SRG-OS-000423-GPOS-00187
+      - SRG-OS-000423-GPOS-00188
+      - SRG-OS-000423-GPOS-00189
+      - SRG-OS-000423-GPOS-00190
+      - CCI-002418
+      - CCI-002421
+      - CCI-002420
+      - CCI-002422
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.banner:
+    settings:
+      parameter: ssh::server::conf::banner
+      value: "/etc/issue"
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010030: true
+      SRG-OS-000023-GPOS-00006: true
+      SRG-OS-000024-GPOS-00007: true
+      cci:CCI-000048: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010030
+      - SRG-OS-000023-GPOS-00006
+      - SRG-OS-000024-GPOS-00007
+      - CCI-000048
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_sshd_enable_warning_banner
+    - sshd_enable_warning_banner
+  oval:com.puppet.forge.simp.ssh.server.conf.clientalivecountmax:
+    settings:
+      parameter: ssh::server::conf::clientalivecountmax
+      value: 0
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040340: true
+      SRG-OS-000163-GPOS-00072: true
+      cci:CCI-001133: true
+      cci:CCI-002361: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040340
+      - SRG-OS-000163-GPOS-00072
+      - CCI-001133
+      - CCI-002361
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - sshd_set_keepalive
+  oval:com.puppet.forge.simp.ssh.server.conf.clientaliveinterval:
+    settings:
+      parameter: ssh::server::conf::clientaliveinterval
+      value: 600
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040320: true
+      SRG-OS-000163-GPOS-00072: true
+      SRG-OS-000279-GPOS-00109: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040320
+      - SRG-OS-000163-GPOS-00072
+      - SRG-OS-000279-GPOS-00109
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - sshd_set_idle_timeout
+  oval:com.puppet.forge.simp.ssh.server.conf.compression:
+    settings:
+      parameter: ssh::server::conf::compression
+      value: delayed
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040470: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040470
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.enable_fallback_ciphers:
+    settings:
+      parameter: ssh::server::conf::enable_fallback_ciphers
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040600: true
+      SRG-OS-000033-GPOS-00014: true
+      cci:CCI-000068: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040600
+      - SRG-OS-000033-GPOS-00014
+      - CCI-000068
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_sshd_use_approved_ciphers
+    - sshd_use_approved_ciphers
+  oval:com.puppet.forge.simp.ssh.server.conf.hostbasedauthentication:
+    settings:
+      parameter: ssh::server::conf::hostbasedauthentication
+      value: false
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010470: true
+      SRG-OS-000480-GPOS-00229: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010470
+      - SRG-OS-000480-GPOS-00229
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.ignorerhosts:
+    settings:
+      parameter: ssh::server::conf::ignorerhosts
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040350: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040350
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.ignoreuserknownhosts:
+    settings:
+      parameter: ssh::server::conf::ignoreuserknownhosts
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040380: true
+      SRG-OS-000480-GPOS-00222: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040380
+      - SRG-OS-000480-GPOS-00222
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.kerberosauthentication:
+    settings:
+      parameter: ssh::server::conf::kerberosauthentication
+      value: false
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040440: true
+      SRG-OS-000364-GPOS-00151: true
+      cci:CCI-000318: true
+      cci:CCI-000368: true
+      cci:CCI-001812: true
+      cci:CCI-001813: true
+      cci:CCI-001814: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040440
+      - SRG-OS-000364-GPOS-00151
+      - CCI-000318
+      - CCI-000368
+      - CCI-001812
+      - CCI-001813
+      - CCI-001814
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.macs:
+    settings:
+      parameter: ssh::server::conf::macs
+      value:
+      - hmac-sha2-256
+      - hmac-sha2-512
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040400: true
+      SRG-OS-000250-GPOS-00093: true
+      cci:CCI-001453: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040400
+      - SRG-OS-000250-GPOS-00093
+      - CCI-001453
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.permituserenvironment:
+    settings:
+      parameter: ssh::server::conf::permituserenvironment
+      value: false
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-010460: true
+      SRG-OS-000480-GPOS-00229: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-010460
+      - SRG-OS-000480-GPOS-00229
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.printlastlog:
+    settings:
+      parameter: ssh::server::conf::printlastlog
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      cci:CCI-000366: true
+      SRG-OS-000480-GPOS-00227: true
+    identifiers:
+      disa_stig:
+      - CCI-000366
+      - SRG-OS-000480-GPOS-00227
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_sshd_print_last_log
+    - sshd_print_last_log
+  oval:com.puppet.forge.simp.ssh.server.conf.protocol:
+    settings:
+      parameter: ssh::server::conf::protocol
+      value:
+      - 2
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      cci:CCI-000366: true
+      cci:CCI-000197: true
+      SRG-OS-000074-GPOS-00042: true
+    identifiers:
+      disa_stig:
+      - CCI-000366
+      - CCI-000197
+      - SRG-OS-000074-GPOS-00042
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.rhostsrsaauthentication:
+    settings:
+      parameter: ssh::server::conf::rhostsrsaauthentication
+      value: false
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040330: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040330
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.strictmodes:
+    settings:
+      parameter: ssh::server::conf::strictmodes
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040450: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040450
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.useprivilegeseparation:
+    settings:
+      parameter: ssh::server::conf::useprivilegeseparation
+      value: sandbox
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-020090: true
+      SRG-OS-000324-GPOS-00125: true
+      cci:CCI-002235: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-020090
+      - SRG-OS-000324-GPOS-00125
+      - CCI-002235
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_sshd_use_priv_separation
+    - sshd_use_priv_separation
+  oval:com.puppet.forge.simp.ssh.server.conf.x11forwarding:
+    settings:
+      parameter: ssh::server::conf::x11forwarding
+      value: true
+    type: puppet-class-parameter
+    controls:
+      disa_stig: true
+      RHEL-07-040540: true
+      SRG-OS-000480-GPOS-00227: true
+      cci:CCI-000366: true
+    identifiers:
+      disa_stig:
+      - RHEL-07-040540
+      - SRG-OS-000480-GPOS-00227
+      - CCI-000366
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+    oval-ids:
+    - xccdf_org:ssgproject:content_rule_sshd_enable_x11_forwarding
+    - sshd_enable_x11_forwarding
+  oval:com.puppet.forge.simp.ssh.server.conf.banner.nist_800_53:rev4:
+    settings:
+      parameter: ssh::server::conf::banner
+      value: "/etc/issue.net"
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-8: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-8
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.useprivilegeseparation.nist_800_53:rev4:
+    settings:
+      parameter: ssh::server::conf::useprivilegeseparation
+      value: true
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:AC-3: true
+      nist_800_53:rev4:AC-6: true
+    identifiers:
+      nist_800_53:rev4:
+      - AC-3
+      - AC-6
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
+  oval:com.puppet.forge.simp.ssh.server.conf.x11forwarding.nist_800_53:rev4:
+    settings:
+      parameter: ssh::server::conf::x11forwarding
+      value: false
+    type: puppet-class-parameter
+    controls:
+      nist_800_53:rev4: true
+      nist_800_53:rev4:CM-7: true
+    identifiers:
+      nist_800_53:rev4:
+      - CM-7
+    confine:
+      osfamily: RedHat
+      operatingsystemmajrelease: '7'
