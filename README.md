@@ -193,7 +193,7 @@ ssh::server::conf::port: 2222
 ssh::server::conf::ciphers:
 - 'chacha20-poly1305@openssh.com'
 - 'aes256-ctr'
-- 'aes256-gcm@openssh.com
+- 'aes256-gcm@openssh.com'
 ssh::server::conf::ssh_loglevel: "verbose"
 ssh::server::conf::gssapiauthentication: true
 ```
