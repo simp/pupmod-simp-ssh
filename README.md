@@ -193,9 +193,17 @@ ssh::server::conf::port: 2222
 ssh::server::conf::ciphers:
 - 'chacha20-poly1305@openssh.com'
 - 'aes256-ctr'
-- 'aes256-gcm@openssh.com'
+- 'aes256-gcm@openssh.com
 ssh::server::conf::ssh_loglevel: "verbose"
 ssh::server::conf::gssapiauthentication: true
+```
+
+```puppet
+include 'ssh::server'
+
+# Alternative:
+# if `ssh::enable_server: true`, this will also work
+include 'ssh'
 ```
 
 #### Managing additional server settings
