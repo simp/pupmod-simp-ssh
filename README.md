@@ -173,10 +173,18 @@ class{ 'ssh':
 Including `ssh::server` with the default options will manage the server with
 reasonable settings for each host's environment.
 
-If you want to customize any of these settings, you must edit the parameters of
-`ssh::server::conf` using Hiera or ENC (Automatic Parameter Lookup).  These
-customizations **_cannot be made directly_** using a resource-style
-class declaration; they _must_ be made via APL:
+```puppet
+include 'ssh::server'
+
+# Alternative:
+# if `ssh::enable_server: true`, this will also work
+include 'ssh'
+```
+
+If you want to customize any ``ssh::server`` settings, you must edit the
+parameters of `ssh::server::conf` using Hiera or ENC (Automatic Parameter
+Lookup).  These customizations **_cannot be made directly_** using a
+resource-style class declaration; they _must_ be made via APL:
 
 ```yaml
 ---
@@ -188,14 +196,6 @@ ssh::server::conf::ciphers:
 - 'aes256-gcm@openssh.com'
 ssh::server::conf::ssh_loglevel: "verbose"
 ssh::server::conf::gssapiauthentication: true
-```
-
-```puppet
-include 'ssh::server'
-
-# Alternative:
-# if `ssh::enable_server: true`, this will also work
-include 'ssh'
 ```
 
 #### Managing additional server settings
