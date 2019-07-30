@@ -62,10 +62,22 @@ include 'ssh'
 
 ## Usage
 
-Including `ssh` will manage both the server and the client with "sane" settings:
+Including `ssh` will manage both the server and the client with reasonable
+settings:
 
 ```puppet
 include 'ssh'
+```
+
+The `ssh` class automatically includes both the `ssh::client` and `ssh:server`
+classes. To exclude one or both of these classes, set the appropriate parameter
+to false as shown:
+
+```puppet
+class{ 'ssh':
+  enable_client => false,
+  enable_server => false,
+}
 ```
 
 ### SSH client
@@ -103,9 +115,6 @@ ssh::client::host_config_entry{ '*':
 
 #### Managing client settings for specific hosts
 
-Including `ssh::client` will automatically manage client settings to be used
-with all hosts (`Host *`).
-
 Different settings for particular hosts can be managed by using the defined
 type `ssh::client::host_config_entry`:
 
@@ -119,7 +128,6 @@ ssh::client::host_config_entry { 'ancient.switch.fqdn':
   ciphers => [ 'aes128-cbc', '3des-cbc' ],
 }
 ```
-
 
 #### Managing additional client settings using ``ssh_config``
 
@@ -141,12 +149,10 @@ ssh_config { 'Global RequestTTY':
 }
 ```
 
-
 #### Including the client by itself
 
 ```puppet
 include `ssh::client`
-
 ```
 
 You can prevent all inclusions of `ssh` from inadvertently managing the SSH
@@ -167,10 +173,18 @@ class{ 'ssh':
 Including `ssh::server` with the default options will manage the server with
 reasonable settings for each host's environment.
 
-If you want to customize any of these settings, you must edit the parameters of
-`ssh::server::conf` using Hiera or ENC (Automatic Parameter Lookup).  These
-customizations **_cannot be made directly_** using a resource-style
-class declaration; they _must_ be made via APL:
+```puppet
+include 'ssh::server'
+
+# Alternative:
+# if `ssh::enable_server: true`, this will also work
+include 'ssh'
+```
+
+If you want to customize any ``ssh::server`` settings, you must edit the
+parameters of `ssh::server::conf` using Hiera or ENC (Automatic Parameter
+Lookup).  These customizations **_cannot be made directly_** using a
+resource-style class declaration; they _must_ be made via APL:
 
 ```yaml
 ---
@@ -179,15 +193,9 @@ ssh::server::conf::port: 2222
 ssh::server::conf::ciphers:
 - 'chacha20-poly1305@openssh.com'
 - 'aes256-ctr'
-- 'aes256-gcm@openssh.com
-```
-
-```puppet
-include 'ssh::server'
-
-# Alternative:
-# if `ssh::enable_server: true`, this will also work
-include 'ssh'
+- 'aes256-gcm@openssh.com'
+ssh::server::conf::ssh_loglevel: "verbose"
+ssh::server::conf::gssapiauthentication: true
 ```
 
 #### Managing additional server settings
@@ -200,67 +208,67 @@ Users may specify any undefined **global** ``sshd`` settings using the
 ```yaml
 ---
 ssh::server::conf::custom_entries:
-  AuthorizedPrincipalsCommand: "/usr/local/bin/my_command"
+  GSSAPIKeyExchange: "yes"
+  GSSAPICleanupCredentials: "yes"
 ```
-
-NOTE: This is parameter is **not validated**.  Be careful to only specify
-options that are allowed for your particular SSH daemon. Invalid options may
-cause the ssh service to fail on restart.
-
-##### Using ``sshd_config``
-
-If you need to customize a setting in `/etc/ssh/sshd_config` that the
-`ssh::server` class doesn't manage, use the
-[`sshd_config`][aug_ssh__sshd_config]_ type, provided by
-[augeasproviders_ssh][aug_ssh]
-
-<!--
-   Maintainers: You can validate these examples with the acceptance test
-   "should permit additional settings via the sshd_config type" in
-   spec/acceptance/suites/default/ssh_spec.rb
--->
-
-```puppet
-sshd_config {'LogLevel': value => 'VERBOSE'}
-```
-
-Some configurations may require a combination of `ssh::server::conf` and
-`sshd_config`.  The following example configures the three
-`/etc/ssh/sshd_config` keys **GSSAPIAuthentication**, **GSSAPIKeyExchange**,
-and **GSSAPICleanupCredentials** with a value of "**yes**":
 
 <!--
   This example demonstrates the server side of SIMP-4440 and SIMP-4197.
+-->
+
+NOTE: This is parameter is **not validated**.  Be careful to only specify
+options that are allowed for your particular SSH daemon. Invalid options may
+cause the ssh service to fail on restart. Duplicate settings will result in
+duplicate Puppet resources (i.e., manifest compilation failures).
+
+##### Using ``sshd_config``
+
+Prior to version 6.7.0 of the `simp-ssh` module, undefined ``sshd`` settings
+were managed with [`sshd_config`][aug_ssh__sshd_config]_ type, provided by
+[augeasproviders_ssh][aug_ssh]. Although this functionality has been
+incorporated into ``ssh::server::conf::custom_entries``, it is still available,
+and in some cases such as ``Match`` entries, necessary to call directly.
+
+<!--
+  Maintainers: You can validate these examples with the acceptance test
+  "should permit additional settings via the sshd_config type" in
+  spec/acceptance/suites/default/default_spec.rb
 
   Acceptance test hiera    = :server_hieradata_w_additions
   Acceptance test manifest = :server_manifest_w_additions
 -->
 
-Hiera:
-
-```yaml
----
-ssh::server::conf::gssapiauthentication: true
-
-# GSSAPIKeyExchange + GSSAPICleanupCredentials are managed via sshd_config
-```
+The following examples illustrate ``Match`` entries using `sshd_config`:
 
 Puppet:
 ```puppet
 include 'ssh::server'
 
-sshd_config {
-  default:
-    ensure => 'present',
-    value  => 'yes',
-  ;
-  # GSSAPIAuthentication is managed via `ssh::server::conf::gssapiauthentication`
-  ['GSSAPIKeyExchange', 'GSSAPICleanupCredentials']:
-    # use defaults
-  ;
+sshd_config { 
+  "AllowAgentForwarding":
+    ensure    => present,
+    condition => "Host *.example.net",
+    value     => "yes",
+}
+
+# Specify unique names to avoid duplicate declarations and compilation failures
+sshd_config { 
+  "X11Forwarding foo":
+    ensure    => present,
+    keys      => "X11Forwarding",
+    condition => "Host foo User root",
+    value     => "yes",
 }
 ```
 
+To delete a `sshd_config` entry, simply set `ensure` to absent as shown:
+
+```puppet
+sshd_config {
+  "X11Forwarding foo":
+    ensure => absent,
+}
+```
 
 #### Including the server by itself
 
@@ -345,7 +353,8 @@ ssh::authorized_keys::keys:
   - ssh-rsa sajhgfsaihd...
   - ssh-rsa jrklsahsgfs...
   mike:
-    key: ssh-rsa dlfkjsahh...
+    key: dlfkjsahh...
+    type: ssh-rsa
     user: mlast
     target: /home/gitlab-runner/.ssh/authorized_keys
 ```
