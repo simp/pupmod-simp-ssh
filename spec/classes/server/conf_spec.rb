@@ -54,7 +54,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to contain_sshd_config('IgnoreUserKnownHosts').with_value('yes') }
           it { is_expected.to contain_sshd_config('KerberosAuthentication').with_value('no') }
           it { is_expected.to_not contain_sshd_config('KexAlgorithms') }
-          it { is_expected.to contain_sshd_config('Port').with_value('22') }
+          it { is_expected.to contain_sshd_config('Port').with_value([22]) }
           it { is_expected.to contain_sshd_config('PermitEmptyPasswords').with_value('no') }
           it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
           it { is_expected.to contain_sshd_config('PermitUserEnvironment').with_value('no') }
