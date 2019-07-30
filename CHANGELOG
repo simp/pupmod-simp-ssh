@@ -1,3 +1,10 @@
+* Tue Jul 30 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.8.0-0
+- Add multiple port support
+  - The ssh::server::conf::port entry can now take an Array of ports
+  - `selinux_port` resources are created for each non-standard entry
+- Update the required version of simp-beaker-helpers to work around Highline
+  issues in the compliance acceptance tests.
+
 * Mon Jun 03 2019 Steven Pritchard <steven.pritchard@onyxpoint.com> - 6.8.0-0
 - Add v2 compliance_markup data
 - Add support for puppetlabs-stdlib 6

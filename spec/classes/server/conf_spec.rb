@@ -343,6 +343,7 @@ describe 'ssh::server::conf' do
           let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
           let(:params) {{ :port => 22000 }}
 
+          it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_package('policycoreutils-python') }
 
           it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").with(
@@ -355,6 +356,31 @@ describe 'ssh::server::conf' do
           }
 
           it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").that_requires('Package[policycoreutils-python]') }
+        end
+
+        context "with multiple SSH ports" do
+          let(:facts) { os_facts.merge( { :openssh_version => '7.4'} ) }
+          let(:params) {{ :port => [22000, 22, 22222] }}
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to_not contain_selinux_port("tcp_#{params[:port][1]}-#{params[:port][1]}") }
+
+          it { is_expected.to contain_selinux_port("tcp_#{params[:port].first}-#{params[:port].first}").with(
+            {
+              :low_port  => params[:port].first,
+              :high_port => params[:port].first,
+              :seltype   => 'ssh_port_t',
+              :protocol  => 'tcp'
+            })
+          }
+          it { is_expected.to contain_selinux_port("tcp_#{params[:port].last}-#{params[:port].last}").with(
+            {
+              :low_port  => params[:port].last,
+              :high_port => params[:port].last,
+              :seltype   => 'ssh_port_t',
+              :protocol  => 'tcp'
+            })
+          }
         end
       end
     end
