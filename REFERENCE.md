@@ -31,6 +31,13 @@
 * [`ssh_autokey`](#ssh_autokey): Generates a random RSA SSH private and public key pair for a passed user.
 * [`ssh_global_known_hosts`](#ssh_global_known_hosts): **DEPRECATED**
 
+**Data types**
+
+* [`Ssh::Authentications`](#sshauthentications): Valid SSH Authentication Settings
+* [`Ssh::Loglevel`](#sshloglevel): Valid SSH Loglevels
+* [`Ssh::PermitRootLogin`](#sshpermitrootlogin): Valid Settings for PermitRootLogin
+* [`Ssh::Syslogfacility`](#sshsyslogfacility): Valid SSH Syslog Facility Settings
+
 ## Classes
 
 ### ssh
@@ -85,7 +92,8 @@ ssh::authorized_keys::keys:
   - ssh-rsa sajhgfsaihd...
   - ssh-rsa jrklsahsgfs...
   mike:
-    key: ssh-rsa dlfkjsahh...
+    key: dlfkjsahh...
+    type: ssh-rsa
     user: mlast
     target: /home/gitlab-runner/.ssh/authorized_keys
 ```
@@ -451,7 +459,7 @@ Default value: `false`
 
 ##### `port`
 
-Data type: `Simplib::Port`
+Data type: `Variant[Array[Simplib::Port],Simplib::Port]`
 
 Specifies the port number SSHD listens on.
 
@@ -498,7 +506,7 @@ Default value: `true`
 
 Data type: `String`
 
-Configures and external subsystem for file transfers.
+Configures an external subsystem for file transfers.
 
 Default value: 'sftp /usr/libexec/openssh/sftp-server'
 
@@ -530,7 +538,7 @@ Default value: simplib::lookup('simp_options::pam', { 'default_value' => true })
 
 Data type: `Boolean`
 
-Flag indicating whether or not to mangae the pam stack for sshd. This is
+Flag indicating whether or not to manage the pam stack for sshd. This is
 required for the oath option to work properly.
 
 Default value: $oath
@@ -1675,4 +1683,30 @@ This function takes one argument, expire time which is specified in days.
 Default expire time is 7 days. Set to '0' to never p
 
 Returns: `None`
+
+## Data types
+
+### Ssh::Authentications
+
+Valid SSH Authentication Settings
+
+Alias of `Enum['publickey', 'hostbased', 'keyboard-interactive', 'password', 'gssapi-with-mic']`
+
+### Ssh::Loglevel
+
+Valid SSH Loglevels
+
+Alias of `Enum['QUIET', 'FATAL', 'ERROR', 'INFO', 'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', 'DEBUG3']`
+
+### Ssh::PermitRootLogin
+
+Valid Settings for PermitRootLogin
+
+Alias of `Variant[Boolean, Enum['prohibit-password', 'without-password', 'forced-commands-only']]`
+
+### Ssh::Syslogfacility
+
+Valid SSH Syslog Facility Settings
+
+Alias of `Enum['DAEMON', 'USER', 'AUTH', 'AUTHPRIV', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']`
 

@@ -59,6 +59,8 @@ describe 'ssh check oath' do
 
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest, expect_changes: true)
+          # Work around a bug in augeasproviders_ssh
+          apply_manifest_on(server, server_manifest, catch_failures: true)
         end
 
         it "should configure #{os}-server idempotently" do

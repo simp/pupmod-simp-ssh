@@ -35,7 +35,8 @@ describe 'ssh STIG enforcement' do
 
   let(:hieradata) { <<-EOF
 ---
-ssh::server::conf::app_pki_external_source: '/etc/pki/simp-testing/pki'
+simp_options::pki: true
+simp_options::pki::source: '/etc/pki/simp-testing/pki'
 # This is for Beaker
 ssh::server::conf::permitrootlogin: true
 compliance_markup::enforcement:

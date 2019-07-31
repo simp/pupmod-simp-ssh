@@ -280,7 +280,7 @@ class ssh::server::conf (
   Boolean                                                 $permitemptypasswords            = false,
   Ssh::PermitRootLogin                                    $permitrootlogin                 = false,
   Boolean                                                 $permituserenvironment           = false,
-  Simplib::Port                                           $port                            = 22,
+  Variant[Array[Simplib::Port],Simplib::Port]             $port                            = 22,
   Boolean                                                 $printlastlog                    = false,
   Array[Integer[1,2]]                                     $protocol                        = [2],
   Optional[Boolean]                                       $rhostsrsaauthentication         = $ssh::server::params::rhostsrsaauthentication,
@@ -308,6 +308,8 @@ class ssh::server::conf (
   Simplib::Netlist                                        $trusted_nets                    = ['ALL']
 ) inherits ::ssh::server::params {
   assert_private()
+
+  $_ports = flatten([$port])
 
   $rhel_greater_than_6 = ( $facts['os']['family'] == 'RedHat' ) and ( $facts['os']['release']['major'] > '6' )
 
@@ -495,7 +497,7 @@ class ssh::server::conf (
   sshd_config { 'PermitEmptyPasswords'            : value => ssh::config_bool_translate($permitemptypasswords) }
   sshd_config { 'PermitRootLogin'                 : value => ssh::config_bool_translate($permitrootlogin) }
   sshd_config { 'PermitUserEnvironment'           : value => ssh::config_bool_translate($permituserenvironment) }
-  sshd_config { 'Port'                            : value => String($port) }
+  sshd_config { 'Port'                            : value => $_ports }
   sshd_config { 'PrintLastLog'                    : value => ssh::config_bool_translate($printlastlog) }
   sshd_config { 'Protocol'                        : value => $_protocol }
   if $rhostsrsaauthentication != undef {
@@ -525,19 +527,21 @@ class ssh::server::conf (
     recurse => true,
   }
 
-  if $port != 22 and $facts['selinux_enforced'] {
-    simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
+  $_ports.each |Simplib::Port $sel_port| {
+    if $sel_port != 22 and $facts['selinux_enforced'] {
+      simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
 
-    $_policy_pkg_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
+      $_policy_pkg_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
 
-    ensure_packages(['policycoreutils-python'], {ensure => $_policy_pkg_ensure} )
+      ensure_packages(['policycoreutils-python'], {ensure => $_policy_pkg_ensure} )
 
-    selinux_port { "tcp_${port}-${port}":
-      low_port  => $port,
-      high_port => $port,
-      seltype   => 'ssh_port_t',
-      protocol  => 'tcp',
-      require   => Package['policycoreutils-python']
+      selinux_port { "tcp_${sel_port}-${sel_port}":
+        low_port  => $sel_port,
+        high_port => $sel_port,
+        seltype   => 'ssh_port_t',
+        protocol  => 'tcp',
+        require   => Package['policycoreutils-python']
+      }
     }
   }
 
@@ -549,7 +553,7 @@ class ssh::server::conf (
     iptables::listen::tcp_stateful { 'allow_sshd':
       order        => 8,
       trusted_nets => $trusted_nets,
-      dports       => $port,
+      dports       => $_ports,
     }
   }
 
