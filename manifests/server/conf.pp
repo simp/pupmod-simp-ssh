@@ -109,6 +109,9 @@
 # @param passwordauthentication
 #   Specifies whether password authentication is allowed on the sshd server.
 #
+#   * This setting must be managed by default so that switching to and from
+#     OATH does not lock you out of your system.
+#
 # @param permitemptypasswords
 #   When password authentication is allowed, it specifies whether the server
 #   allows login to accounts with empty password strings.
