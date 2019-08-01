@@ -198,6 +198,14 @@ ssh::server::conf::ssh_loglevel: "verbose"
 ssh::server::conf::gssapiauthentication: true
 ```
 
+```puppet
+include 'ssh::server'
+
+# Alternative:
+# if `ssh::enable_server: true`, this will also work
+include 'ssh'
+```
+
 #### Managing additional server settings
 
 ##### Using Hiera

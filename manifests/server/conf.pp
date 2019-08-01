@@ -107,11 +107,10 @@
 #   connection.
 #
 # @param passwordauthentication
-#   Enable password authentication on the sshd server. If set to undef, this
-#   setting will not be managed.
+#   Specifies whether password authentication is allowed on the sshd server.
 #
-#   * Note: This setting must be managed by default so that switching to and
-#     from OATH does not lock you out of your system.
+#   * This setting must be managed by default so that switching to and from
+#     OATH does not lock you out of your system.
 #
 # @param permitemptypasswords
 #   When password authentication is allowed, it specifies whether the server
@@ -164,10 +163,6 @@
 #   Configures ssh to use pam_oath TOTP in the sshd pam stack.
 #   Also configures sshd_config to use required settings. Inherits from
 #   simp_options::oath, defaults to false if not found.
-#
-#   * WARNING: If this setting is enabled then disabled and
-#     passwordauthentication is unmanaged, this will be set to no
-#     in sshd_config!
 #
 # @param oath_window
 #   Sets the TOTP window (Defined in RFC 6238 section 5.2)
