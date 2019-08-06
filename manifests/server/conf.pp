@@ -526,9 +526,7 @@ class ssh::server::conf (
     if $sel_port != 22 and $facts['selinux_enforced'] {
       simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
 
-      $_policy_pkg_ensure = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })
-
-      ensure_packages(['policycoreutils-python'], {ensure => $_policy_pkg_ensure} )
+      ensure_packages(['policycoreutils-python'])
 
       selinux_port { "tcp_${sel_port}-${sel_port}":
         low_port  => $sel_port,

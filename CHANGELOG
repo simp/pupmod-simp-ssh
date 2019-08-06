@@ -1,3 +1,7 @@
+* Tue Aug 06 2019 Michael Morrone <michael.morrone@@onyxpoint.com> - 6.8.1-0
+- Removed ensure from policycoreutils-python in server config for
+  multiple port support to elimate duplicate declaration
+
 * Tue Jul 30 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.8.0-0
 - Add multiple port support
   - The ssh::server::conf::port entry can now take an Array of ports
