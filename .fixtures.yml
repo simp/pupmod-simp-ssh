@@ -26,9 +26,7 @@ fixtures:
     sshkeys_core:
       repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
       puppet_version: ">= 6.0.0"
-    systemd:
-      repo: https://github.com/simp/puppet-systemd
-      branch: simp-master
+    systemd: https://github.com/simp/puppet-systemd
     vox_selinux:
       repo: https://github.com/simp/pupmod-voxpupuli-selinux
       branch: simp-master
