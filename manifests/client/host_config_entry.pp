@@ -324,7 +324,7 @@ define ssh::client::host_config_entry (
   Optional[String]                                      $smartcarddevice                  = undef,
   Enum['yes','no','ask']                                $stricthostkeychecking            = 'ask',
   Boolean                                               $tcpkeepalive                     = true,
-  Enum['yes','no','point-to-point','ethernet']          $tunnel                           = 'yes',
+  Enum['yes','no','point-to-point','ethernet']          $tunnel                           = 'no',
   Optional[String]                                      $tunneldevice                     = undef,
   Boolean                                               $useprivilegedport                = false,
   Optional[String]                                      $user                             = undef,

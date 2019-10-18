@@ -1,3 +1,6 @@
+* Fri Oct 18 2019 Kendall Moore <kendall.moore@onyxpoint.com> - 6.8.2-0
+- Updated the default Tunnel setting to 'no' in ssh_config to match the man page
+
 * Tue Aug 06 2019 Michael Morrone <michael.morrone@@onyxpoint.com> - 6.8.1-0
 - Removed ensure from policycoreutils-python in server config for
   multiple port support to elimate duplicate declaration
