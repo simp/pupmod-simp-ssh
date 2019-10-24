@@ -1,4 +1,4 @@
-# Taka an ssh pugkey that looks like:
+# Take an ssh pubkey that looks like:
 #   ssh-rsa jdlkfgjsdfo;i... user@domain.com
 # and turn it into a hash, usable in the ssh_authorized_key type
 #

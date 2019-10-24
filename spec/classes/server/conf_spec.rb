@@ -5,7 +5,7 @@ describe 'ssh::server::conf' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       let(:facts) do
-        facts
+        os_facts
       end
 
       context "on os #{os}" do
@@ -381,6 +381,67 @@ describe 'ssh::server::conf' do
               :protocol  => 'tcp'
             })
           }
+        end
+
+        context 'with remove_entries set' do
+          let(:hieradata) { 'remove_entries' }
+
+          it { is_expected.to compile.with_all_deps }
+
+          # entries ssh::server::conf would normally set
+          it { is_expected.to contain_sshd_config('AcceptEnv').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AllowGroups').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AllowUsers').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysFile').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('Banner').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('Ciphers').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('ClientAliveInterval').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('ClientAliveCountMax').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('Compression').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('DenyGroups').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('DenyUsers').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('HostbasedAuthentication').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('KerberosAuthentication').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('KexAlgorithms').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('IgnoreRhosts').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('IgnoreUserKnownHosts').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('ListenAddress').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('LoginGraceTime').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('LogLevel').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('MACs').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('MaxAuthTries').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('PasswordAuthentication').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('PermitEmptyPasswords').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('PermitRootLogin').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('PermitUserEnvironment').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('Port').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('PrintLastLog').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('Protocol').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('RhostsRSAAuthentication').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('StrictModes').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('SyslogFacility').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('UsePAM').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_ensure('absent') }
+          it { is_expected.to contain_sshd_config('X11Forwarding').with_ensure('absent') }
+
+          # other entries
+          it { is_expected.to contain_sshd_config('AuthorizedPrincipalsCommand').with_ensure('absent') }
+
+        end
+
+        context 'with remove_subsystems set' do
+          let(:hieradata) { 'remove_subsystems' }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_sshd_config_subsystem('imap').with_ensure('absent') }
         end
       end
     end

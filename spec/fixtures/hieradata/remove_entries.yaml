@@ -1,0 +1,45 @@
+---
+ssh::server::conf::remove_entries:
+# entries ssh::server::conf would normally set
+  - AcceptEnv
+  - AllowGroups
+  - AllowUsers
+  - AuthorizedKeysCommand
+  - AuthorizedKeysCommandUser
+  # intentional duplicate
+  - AuthorizedKeysCommandUser
+  - AuthorizedKeysFile
+  - Banner
+  - ChallengeResponseAuthentication
+  - Ciphers
+  - ClientAliveInterval
+  - ClientAliveCountMax
+  - Compression
+  - DenyGroups
+  - DenyUsers
+  - GSSAPIAuthentication
+  - HostbasedAuthentication
+  - KerberosAuthentication
+  - KexAlgorithms
+  - IgnoreRhosts
+  - IgnoreUserKnownHosts
+  - ListenAddress
+  - LoginGraceTime
+  - LogLevel
+  - MACs
+  - MaxAuthTries
+  - PasswordAuthentication
+  - PermitEmptyPasswords
+  - PermitRootLogin
+  - PermitUserEnvironment
+  - Port
+  - PrintLastLog
+  - Protocol
+  - RhostsRSAAuthentication
+  - StrictModes
+  - SyslogFacility
+  - UsePAM
+  - UsePrivilegeSeparation
+  - X11Forwarding
+# other entries
+  - AuthorizedPrincipalsCommand

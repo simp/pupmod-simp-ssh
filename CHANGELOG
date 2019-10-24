@@ -1,4 +1,11 @@
-* Fri Oct 18 2019 Kendall Moore <kendall.moore@onyxpoint.com> - 6.8.2-0
+* Thu Oct 24 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 6.9.0-0
+- Added two `ssh::server::conf` parameters to allow users to ensure
+  specific sshd configuration is removed from sshd_config:
+  - `ssh::server::conf::remove_entries`
+  - `ssh::server::conf::remove_subsystems`
+- Allow use of simp-simplib 4.X.
+
+* Fri Oct 18 2019 Kendall Moore <kendall.moore@onyxpoint.com> - 6.9.0-0
 - Updated the default Tunnel setting to 'no' in ssh_config to match the man page
 
 * Tue Aug 06 2019 Michael Morrone <michael.morrone@@onyxpoint.com> - 6.8.1-0
