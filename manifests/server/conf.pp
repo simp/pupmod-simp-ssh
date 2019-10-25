@@ -189,6 +189,16 @@
 #     ssh::server::conf::custom_entries:
 #       AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 #
+# @param remove_entries
+#   List of configuration parameters that will be removed.
+#
+#   * NOTE: Due to complexity, ``Match`` entries are not supported and will
+#     need to be removed using ``sshd_config_match`` resources as described in
+#     ``augeasproviders_ssh``
+#
+# @param remove_subsystems
+#   List of subsystems that will be removed.
+#
 #### SIMP Parameters ####
 #
 # @param app_pki_external_source
@@ -286,6 +296,8 @@ class ssh::server::conf (
   Variant[Boolean,Enum['sandbox']]                        $useprivilegeseparation          = $ssh::server::params::useprivilegeseparation,
   Boolean                                                 $x11forwarding                   = false,
   Optional[Hash[String[1],NotUndef]]                      $custom_entries                  = undef,
+  Optional[Array[String[1]]]                              $remove_entries                  = undef,
+  Optional[Array[String[1]]]                              $remove_subsystems               = undef,
 #### SIMP parameters ####
   String                                                  $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
   Stdlib::Absolutepath                                    $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
@@ -437,13 +449,13 @@ class ssh::server::conf (
     notify => Service['sshd']
   }
 
-  sshd_config { 'AcceptEnv'                       : value => $acceptenv }
-  sshd_config { 'AllowGroups'                     : value => $allowgroups }
-  sshd_config { 'AllowUsers'                      : value => $allowusers }
+  ssh::add_sshd_config('AcceptEnv', $acceptenv, $remove_entries)
+  ssh::add_sshd_config('AllowGroups', $allowgroups, $remove_entries)
+  ssh::add_sshd_config('AllowUsers', $allowusers, $remove_entries)
   if $authorizedkeyscommand {
-    sshd_config { 'AuthorizedKeysCommand'         : value => $authorizedkeyscommand }
+    ssh::add_sshd_config('AuthorizedKeysCommand', $authorizedkeyscommand, $remove_entries)
     if $rhel_greater_than_6 {
-      sshd_config { 'AuthorizedKeysCommandUser'   : value => $authorizedkeyscommanduser }
+      ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
     }
   }
   elsif $sssd {
@@ -451,58 +463,58 @@ class ssh::server::conf (
 
     include 'sssd::install'
 
-    sshd_config { 'AuthorizedKeysCommand'         : value => '/usr/bin/sss_ssh_authorizedkeys' }
+    ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys', $remove_entries)
 
     if $rhel_greater_than_6 {
-      sshd_config { 'AuthorizedKeysCommandUser'   : value => $authorizedkeyscommanduser }
+      ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
     }
   }
   elsif $_use_ldap {
-    sshd_config { 'AuthorizedKeysCommand'         : value => '/usr/libexec/openssh/ssh-ldap-wrapper' }
+    ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper', $remove_entries)
     if $rhel_greater_than_6 {
-      sshd_config { 'AuthorizedKeysCommandUser'   : value => $authorizedkeyscommanduser }
+      ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
     }
   }
-  sshd_config { 'AuthorizedKeysFile'              : value => $authorizedkeysfile }
-  sshd_config { 'Banner'                          : value => $banner }
-  sshd_config { 'ChallengeResponseAuthentication' : value => ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication } ) }
-  sshd_config { 'Ciphers'                         : value => $_ciphers }
-  sshd_config { 'ClientAliveInterval'             : value => String($clientaliveinterval) }
-  sshd_config { 'ClientAliveCountMax'             : value => String($clientalivecountmax) }
-  sshd_config { 'Compression'                     : value => ssh::config_bool_translate($compression) }
-  sshd_config { 'DenyGroups'                      : value => $denygroups }
-  sshd_config { 'DenyUsers'                       : value => $denyusers }
-  sshd_config { 'GSSAPIAuthentication'            : value => ssh::config_bool_translate($gssapiauthentication) }
-  sshd_config { 'HostbasedAuthentication'         : value => ssh::config_bool_translate($hostbasedauthentication) }
-  sshd_config { 'KerberosAuthentication'          : value => ssh::config_bool_translate($kerberosauthentication) }
+  ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
+  ssh::add_sshd_config('Banner', $banner, $remove_entries)
+  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication } ), $remove_entries)
+  ssh::add_sshd_config('Ciphers', $_ciphers, $remove_entries)
+  ssh::add_sshd_config('ClientAliveInterval', String($clientaliveinterval), $remove_entries)
+  ssh::add_sshd_config('ClientAliveCountMax', String($clientalivecountmax), $remove_entries)
+  ssh::add_sshd_config('Compression', ssh::config_bool_translate($compression), $remove_entries)
+  ssh::add_sshd_config('DenyGroups', $denygroups, $remove_entries)
+  ssh::add_sshd_config('DenyUsers', $denyusers, $remove_entries)
+  ssh::add_sshd_config('GSSAPIAuthentication', ssh::config_bool_translate($gssapiauthentication), $remove_entries)
+  ssh::add_sshd_config('HostbasedAuthentication', ssh::config_bool_translate($hostbasedauthentication), $remove_entries)
+  ssh::add_sshd_config('KerberosAuthentication', ssh::config_bool_translate($kerberosauthentication), $remove_entries)
   # Kex should be empty openssl < 5.7, they are not supported.
   if !empty($_kex_algorithms) {
-    sshd_config { 'KexAlgorithms'                 : value => $_kex_algorithms }
+    ssh::add_sshd_config('KexAlgorithms', $_kex_algorithms, $remove_entries)
   }
-  sshd_config { 'IgnoreRhosts'                    : value => ssh::config_bool_translate($ignorerhosts) }
-  sshd_config { 'IgnoreUserKnownHosts'            : value => ssh::config_bool_translate($ignoreuserknownhosts) }
+  ssh::add_sshd_config('IgnoreRhosts', ssh::config_bool_translate($ignorerhosts), $remove_entries)
+  ssh::add_sshd_config('IgnoreUserKnownHosts', ssh::config_bool_translate($ignoreuserknownhosts), $remove_entries)
   if $listenaddress {
-    sshd_config { 'ListenAddress'                 : value => $listenaddress }
+    ssh::add_sshd_config('ListenAddress', $listenaddress, $remove_entries)
   }
-  sshd_config { 'LoginGraceTime'                  : value => $logingracetime }
-  sshd_config { 'LogLevel'                        : value => $ssh_loglevel }
-  sshd_config { 'MACs'                            : value => $_macs }
-  sshd_config { 'MaxAuthTries'                    : value => $maxauthtries }
-  sshd_config { 'PasswordAuthentication'          : value => ssh::config_bool_translate(defined('$_passwordauthentication') ? { true => $_passwordauthentication, default => $passwordauthentication} ) }
-  sshd_config { 'PermitEmptyPasswords'            : value => ssh::config_bool_translate($permitemptypasswords) }
-  sshd_config { 'PermitRootLogin'                 : value => ssh::config_bool_translate($permitrootlogin) }
-  sshd_config { 'PermitUserEnvironment'           : value => ssh::config_bool_translate($permituserenvironment) }
-  sshd_config { 'Port'                            : value => $_ports }
-  sshd_config { 'PrintLastLog'                    : value => ssh::config_bool_translate($printlastlog) }
-  sshd_config { 'Protocol'                        : value => $_protocol }
+  ssh::add_sshd_config('LoginGraceTime', $logingracetime, $remove_entries)
+  ssh::add_sshd_config('LogLevel', $ssh_loglevel, $remove_entries)
+  ssh::add_sshd_config('MACs', $_macs, $remove_entries)
+  ssh::add_sshd_config('MaxAuthTries', $maxauthtries, $remove_entries)
+  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate(defined('$_passwordauthentication') ? { true => $_passwordauthentication, default => $passwordauthentication} ), $remove_entries)
+  ssh::add_sshd_config('PermitEmptyPasswords', ssh::config_bool_translate($permitemptypasswords), $remove_entries)
+  ssh::add_sshd_config('PermitRootLogin', ssh::config_bool_translate($permitrootlogin), $remove_entries)
+  ssh::add_sshd_config('PermitUserEnvironment', ssh::config_bool_translate($permituserenvironment), $remove_entries)
+  ssh::add_sshd_config('Port', $_ports, $remove_entries)
+  ssh::add_sshd_config('PrintLastLog', ssh::config_bool_translate($printlastlog), $remove_entries)
+  ssh::add_sshd_config('Protocol', $_protocol, $remove_entries)
   if $rhostsrsaauthentication != undef {
-    sshd_config { 'RhostsRSAAuthentication'       : value => ssh::config_bool_translate($rhostsrsaauthentication) }
+    ssh::add_sshd_config('RhostsRSAAuthentication', ssh::config_bool_translate($rhostsrsaauthentication), $remove_entries)
   }
-  sshd_config { 'StrictModes'                     : value => ssh::config_bool_translate($strictmodes) }
-  sshd_config { 'SyslogFacility'                  : value => $syslogfacility}
-  sshd_config { 'UsePAM'                          : value => ssh::config_bool_translate(defined('$_usepam') ? { true => $_usepam, default => $usepam } ) }
-  sshd_config { 'UsePrivilegeSeparation'          : value => ssh::config_bool_translate($useprivilegeseparation) }
-  sshd_config { 'X11Forwarding'                   : value => ssh::config_bool_translate($x11forwarding) }
+  ssh::add_sshd_config('StrictModes', ssh::config_bool_translate($strictmodes), $remove_entries)
+  ssh::add_sshd_config('SyslogFacility', $syslogfacility, $remove_entries)
+  ssh::add_sshd_config('UsePAM', ssh::config_bool_translate(defined('$_usepam') ? { true => $_usepam, default => $usepam } ), $remove_entries)
+  ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
+  ssh::add_sshd_config('X11Forwarding', ssh::config_bool_translate($x11forwarding), $remove_entries)
 
   if $custom_entries {
     $custom_entries.each |$key, $value| {
@@ -510,9 +522,18 @@ class ssh::server::conf (
     }
   }
 
-  $subsystem_array = split($subsystem, ' +')
+  if $remove_entries {
+    $remove_entries.unique.each |$key| { sshd_config { $key: ensure => absent } }
+  }
 
+  $subsystem_array = split($subsystem, ' +')
   sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1], ' ') }
+
+  if $remove_subsystems {
+    $remove_subsystems.unique.each |$subsystem| {
+      sshd_config_subsystem { $subsystem: ensure => absent }
+    }
+  }
 
   file { '/etc/ssh/local_keys':
     ensure  => 'directory',

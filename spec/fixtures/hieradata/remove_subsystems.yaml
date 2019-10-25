@@ -1,0 +1,5 @@
+---
+ssh::server::conf::remove_subsystems:
+  - imap
+  # intentional duplicate
+  - imap

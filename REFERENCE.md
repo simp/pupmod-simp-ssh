@@ -23,11 +23,12 @@
 
 **Functions**
 
+* [`ssh::add_sshd_config`](#sshadd_sshd_config): Add a sshd_config entry if it is not in the remove list
 * [`ssh::autokey`](#sshautokey): Generates a random RSA SSH private and public key pair for a passed
 * [`ssh::config_bool_translate`](#sshconfig_bool_translate): Translates true|false or 'true'|'false' to 'yes'|'no', respectively
 * [`ssh::format_host_entry_for_sorting`](#sshformat_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
 * [`ssh::global_known_hosts`](#sshglobal_known_hosts): Update the ssh_known_hosts files for all hosts, purging old files,
-* [`ssh::parse_ssh_pubkey`](#sshparse_ssh_pubkey): Taka an ssh pugkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
+* [`ssh::parse_ssh_pubkey`](#sshparse_ssh_pubkey): Take an ssh pubkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
 * [`ssh_autokey`](#ssh_autokey): Generates a random RSA SSH private and public key pair for a passed user.
 * [`ssh_global_known_hosts`](#ssh_global_known_hosts): **DEPRECATED**
 
@@ -593,6 +594,26 @@ without any validation.
   ---
   ssh::server::conf::custom_entries:
     AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
+
+Default value: `undef`
+
+##### `remove_entries`
+
+Data type: `Optional[Array[String[1]]]`
+
+List of configuration parameters that will be removed.
+
+* NOTE: Due to complexity, ``Match`` entries are not supported and will
+  need to be removed using ``sshd_config_match`` resources as described in
+  ``augeasproviders_ssh``
+
+Default value: `undef`
+
+##### `remove_subsystems`
+
+Data type: `Optional[Array[String[1]]]`
+
+List of subsystems that will be removed.
 
 Default value: `undef`
 
@@ -1331,7 +1352,7 @@ Data type: `Enum['yes','no','point-to-point','ethernet']`
 If 'yes', request device forwarding between the client and
 server.
 
-Default value: 'yes'
+Default value: 'no'
 
 ##### `tunneldevice`
 
@@ -1425,6 +1446,36 @@ namevar
 The file that you wish to prune
 
 ## Functions
+
+### ssh::add_sshd_config
+
+Type: Puppet Language
+
+Add a sshd_config entry if it is not in the remove list
+
+#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys)`
+
+Add a sshd_config entry if it is not in the remove list
+
+Returns: `Nil`
+
+##### `key`
+
+Data type: `String[1]`
+
+The name of the sshd configuration parameter
+
+##### `value`
+
+Data type: `Any`
+
+The value of the sshd configuration parameter
+
+##### `remove_keys`
+
+Data type: `Variant[Array[String[1]],Undef]`
+
+List of sshd configuration parameters to be removed
 
 ### ssh::autokey
 
@@ -1603,13 +1654,13 @@ means never purge
 
 Type: Puppet Language
 
-Taka an ssh pugkey that looks like:
+Take an ssh pubkey that looks like:
   ssh-rsa jdlkfgjsdfo;i... user@domain.com
 and turn it into a hash, usable in the ssh_authorized_key type
 
 #### `ssh::parse_ssh_pubkey(String $key)`
 
-Taka an ssh pugkey that looks like:
+Take an ssh pubkey that looks like:
   ssh-rsa jdlkfgjsdfo;i... user@domain.com
 and turn it into a hash, usable in the ssh_authorized_key type
 
