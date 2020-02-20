@@ -1,5 +1,7 @@
-* Fri Dec 20 2019 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.10.0-0
+* Wed Feb 19 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.10.0-0
 - Added EL8 support
+- Ensure that UsePrivilegeSeparation is removed from sshd_config on platforms
+  that do not support it
 
 * Thu Oct 24 2019 Liz Nemsick <lnemsick.simp@gmail.com> - 6.9.0-0
 - Added two `ssh::server::conf` parameters to allow users to ensure

@@ -150,6 +150,13 @@ describe 'ssh::server::conf' do
           }
         end
 
+        context 'with default parameters, openssh_version=7.5' do
+          let(:facts) { os_facts.merge( { :openssh_version => '7.5' } ) }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_ensure('absent') }
+        end
+
         context 'with enable_fallback_ciphers=false' do
           let(:facts) { os_facts.merge( { :openssh_version => '6.6', :fips_enabled => false } ) }
           let(:hieradata) { 'enable_fallback_ciphers_disabled' }
