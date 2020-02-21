@@ -171,6 +171,8 @@
 #   Specifies whether sshd separates privileges by creating an unprivileged
 #   child process to deal with incoming network traffic.
 #
+#   This option has no effect on OpenSSH >= 7.5.0 due to being deprecated.
+#
 # @param x11forwarding
 #   Specifies whether X11 forwarding is permitted.
 #
@@ -313,7 +315,7 @@ class ssh::server::conf (
   Variant[Enum['simp'],Boolean]                           $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
   Boolean                                                 $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
   Simplib::Netlist                                        $trusted_nets                    = ['ALL']
-) inherits ::ssh::server::params {
+) inherits ssh::server::params {
   assert_private()
 
   $_ports = flatten([$port])
@@ -513,9 +515,17 @@ class ssh::server::conf (
   ssh::add_sshd_config('StrictModes', ssh::config_bool_translate($strictmodes), $remove_entries)
   ssh::add_sshd_config('SyslogFacility', $syslogfacility, $remove_entries)
   ssh::add_sshd_config('UsePAM', ssh::config_bool_translate(defined('$_usepam') ? { true => $_usepam, default => $usepam } ), $remove_entries)
-  ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
   ssh::add_sshd_config('X11Forwarding', ssh::config_bool_translate($x11forwarding), $remove_entries)
 
+  # Version dependent items
+  if versioncmp($facts['openssh_version'], '7.5') < 0 {
+    ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
+  }
+  elsif !$remove_entries or ($remove_entries and !('UsePrivilegeSeparation' in $remove_entries)) {
+    sshd_config { 'UsePrivilegeSeparation': ensure =>  absent }
+  }
+
+  # Custom manipulation
   if $custom_entries {
     $custom_entries.each |$key, $value| {
       sshd_config { $key: value => $value }
