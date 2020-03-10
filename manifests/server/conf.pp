@@ -320,7 +320,7 @@ class ssh::server::conf (
   Integer[0]                                             $oath_window                     = 1,
   Variant[Enum['simp'],Boolean]                          $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
   Boolean                                                $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
-  Variant[Boolean[false],Array[String[1]]]               $ensure_sssd_packages            = ['sssd-common'],
+  Variant[Boolean,Array[String[1]]]                      $ensure_sssd_packages            = ['sssd-common'],
   Simplib::Netlist                                       $trusted_nets                    = ['ALL']
 ) inherits ssh::server::params {
   assert_private()
@@ -469,6 +469,13 @@ class ssh::server::conf (
   }
   elsif $sssd {
     if $ensure_sssd_packages {
+      if $ensure_sssd_packages =~ Array {
+        $_sssd_packages = $ensure_sssd_packages
+      }
+      else {
+        $_sssd_packages = ['sssd-common']
+      }
+
       ensure_packages($ensure_sssd_packages)
     }
 
