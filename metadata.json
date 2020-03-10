@@ -58,10 +58,6 @@
         "version_requirement": ">= 6.3.0 < 7.0.0"
       },
       {
-        "name": "simp/sssd",
-        "version_requirement": ">= 6.1.6 < 7.0.0"
-      },
-      {
         "name": "simp/vox_selinux",
         "version_requirement": ">= 1.6.1 < 4.0.0"
       }

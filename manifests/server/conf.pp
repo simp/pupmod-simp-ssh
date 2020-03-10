@@ -251,70 +251,77 @@
 # @param sssd
 #   If true, use sssd
 #
+# @param ensure_sssd_packages
+#   A list of SSSD-related packages to ensure are installed on the system.
+#
+#   * Set to `false` to prevent package management.
+#
 # @param trusted_nets  The networks to allow to connect to SSH.
 #
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::server::conf (
 #### SSH Parameters ####
-  Array[String]                                           $acceptenv                       = $ssh::server::params::acceptenv,
-  Optional[Array[String]]                                 $allowgroups                     = undef,
-  Optional[Array[String]]                                 $allowusers                      = undef,
-  String                                                  $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
-  Optional[Stdlib::Absolutepath]                          $authorizedkeyscommand           = undef,
-  String                                                  $authorizedkeyscommanduser       = 'nobody',
-  Stdlib::Absolutepath                                    $banner                          = '/etc/issue.net',
-  Boolean                                                 $challengeresponseauthentication = false,
-  Optional[Array[String]]                                 $ciphers                         = undef,
-  Integer                                                 $clientalivecountmax             = 0,
-  Integer                                                 $clientaliveinterval             = 600,
-  Variant[Boolean,Enum['delayed']]                        $compression                     = 'delayed',
-  Optional[Array[String]]                                 $denygroups                      = undef,
-  Optional[Array[String]]                                 $denyusers                       = undef,
-  Boolean                                                 $gssapiauthentication            = $ssh::server::params::gssapiauthentication,
-  Boolean                                                 $hostbasedauthentication         = false,
-  Boolean                                                 $ignorerhosts                    = true,
-  Boolean                                                 $ignoreuserknownhosts            = true,
-  Boolean                                                 $kerberosauthentication          = false,
-  Optional[Array[String]]                                 $kex_algorithms                  = undef,
-  Optional[Variant[Simplib::Host, Array[Simplib::Host]]]  $listenaddress                   = undef,
-  Integer[0]                                              $logingracetime                  = 120,
-  Optional[Ssh::Loglevel]                                 $ssh_loglevel                    = undef,
-  Optional[Array[String]]                                 $macs                            = undef,
-  Integer[1]                                              $maxauthtries                    = 6,
-  Boolean                                                 $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
-  Boolean                                                 $passwordauthentication          = true,
-  Boolean                                                 $permitemptypasswords            = false,
-  Ssh::PermitRootLogin                                    $permitrootlogin                 = false,
-  Boolean                                                 $permituserenvironment           = false,
-  Variant[Array[Simplib::Port],Simplib::Port]             $port                            = 22,
-  Boolean                                                 $printlastlog                    = false,
-  Array[Integer[1,2]]                                     $protocol                        = [2],
-  Optional[Boolean]                                       $rhostsrsaauthentication         = $ssh::server::params::rhostsrsaauthentication,
-  Boolean                                                 $strictmodes                     = true,
-  String                                                  $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
-  Ssh::Syslogfacility                                     $syslogfacility                  = 'AUTHPRIV',
-  Boolean                                                 $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
-  Variant[Boolean,Enum['sandbox']]                        $useprivilegeseparation          = $ssh::server::params::useprivilegeseparation,
-  Boolean                                                 $x11forwarding                   = false,
-  Optional[Hash[String[1],NotUndef]]                      $custom_entries                  = undef,
-  Optional[Array[String[1]]]                              $remove_entries                  = undef,
-  Optional[Array[String[1]]]                              $remove_subsystems               = undef,
+  Array[String]                                          $acceptenv                       = $ssh::server::params::acceptenv,
+  Optional[Array[String]]                                $allowgroups                     = undef,
+  Optional[Array[String]]                                $allowusers                      = undef,
+  String                                                 $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
+  Optional[Stdlib::Absolutepath]                         $authorizedkeyscommand           = undef,
+  String                                                 $authorizedkeyscommanduser       = 'nobody',
+  Stdlib::Absolutepath                                   $banner                          = '/etc/issue.net',
+  Boolean                                                $challengeresponseauthentication = false,
+  Optional[Array[String]]                                $ciphers                         = undef,
+  Integer                                                $clientalivecountmax             = 0,
+  Integer                                                $clientaliveinterval             = 600,
+  Variant[Boolean,Enum['delayed']]                       $compression                     = 'delayed',
+  Optional[Array[String]]                                $denygroups                      = undef,
+  Optional[Array[String]]                                $denyusers                       = undef,
+  Boolean                                                $gssapiauthentication            = $ssh::server::params::gssapiauthentication,
+  Boolean                                                $hostbasedauthentication         = false,
+  Boolean                                                $ignorerhosts                    = true,
+  Boolean                                                $ignoreuserknownhosts            = true,
+  Boolean                                                $kerberosauthentication          = false,
+  Optional[Array[String]]                                $kex_algorithms                  = undef,
+  Optional[Variant[Simplib::Host, Array[Simplib::Host]]] $listenaddress                   = undef,
+  Integer[0]                                             $logingracetime                  = 120,
+  Optional[Ssh::Loglevel]                                $ssh_loglevel                    = undef,
+  Optional[Array[String]]                                $macs                            = undef,
+  Integer[1]                                             $maxauthtries                    = 6,
+  Boolean                                                $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
+  Boolean                                                $passwordauthentication          = true,
+  Boolean                                                $permitemptypasswords            = false,
+  Ssh::PermitRootLogin                                   $permitrootlogin                 = false,
+  Boolean                                                $permituserenvironment           = false,
+  Variant[Array[Simplib::Port],Simplib::Port]            $port                            = 22,
+  Boolean                                                $printlastlog                    = false,
+  Array[Integer[1,2]]                                    $protocol                        = [2],
+  Optional[Boolean]                                      $rhostsrsaauthentication         = $ssh::server::params::rhostsrsaauthentication,
+  Boolean                                                $strictmodes                     = true,
+  String                                                 $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
+  Ssh::Syslogfacility                                    $syslogfacility                  = 'AUTHPRIV',
+  Boolean                                                $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
+  Variant[Boolean,Enum['sandbox']]                       $useprivilegeseparation          = $ssh::server::params::useprivilegeseparation,
+  Boolean                                                $x11forwarding                   = false,
+  Optional[Hash[String[1],NotUndef]]                     $custom_entries                  = undef,
+  Optional[Array[String[1]]]                             $remove_entries                  = undef,
+  Optional[Array[String[1]]]                             $remove_subsystems               = undef,
+
 #### SIMP parameters ####
-  String                                                  $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
-  Stdlib::Absolutepath                                    $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
-  Boolean                                                 $enable_fallback_ciphers         = true,
-  Array[String]                                           $fallback_ciphers                = $ssh::server::params::fallback_ciphers,
-  Boolean                                                 $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Boolean                                                 $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Boolean                                                 $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                                                 $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
-  Boolean                                                 $oath                            = simplib::lookup('simp_options::oath', { 'default_value' => false }),
-  Boolean                                                 $manage_pam_sshd                 = $oath,
-  Integer[0]                                              $oath_window                     = 1,
-  Variant[Enum['simp'],Boolean]                           $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
-  Boolean                                                 $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
-  Simplib::Netlist                                        $trusted_nets                    = ['ALL']
+  String                                                 $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  Stdlib::Absolutepath                                   $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
+  Boolean                                                $enable_fallback_ciphers         = true,
+  Array[String]                                          $fallback_ciphers                = $ssh::server::params::fallback_ciphers,
+  Boolean                                                $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
+  Boolean                                                $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
+  Boolean                                                $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
+  Boolean                                                $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
+  Boolean                                                $oath                            = simplib::lookup('simp_options::oath', { 'default_value' => false }),
+  Boolean                                                $manage_pam_sshd                 = $oath,
+  Integer[0]                                             $oath_window                     = 1,
+  Variant[Enum['simp'],Boolean]                          $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
+  Boolean                                                $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
+  Variant[Boolean[false],Array[String[1]]]               $ensure_sssd_packages            = ['sssd-common'],
+  Simplib::Netlist                                       $trusted_nets                    = ['ALL']
 ) inherits ssh::server::params {
   assert_private()
 
@@ -461,9 +468,9 @@ class ssh::server::conf (
     }
   }
   elsif $sssd {
-    simplib::assert_optional_dependency($module_name, 'simp/sssd')
-
-    include 'sssd::install'
+    if $ensure_sssd_packages {
+      ensure_packages($ensure_sssd_packages)
+    }
 
     ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys', $remove_entries)
 

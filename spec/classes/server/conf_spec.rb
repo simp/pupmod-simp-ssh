@@ -262,7 +262,7 @@ describe 'ssh::server::conf' do
           let(:params) {{ :app_pki_external_source => 'ldap_and_sssd' }}
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_class('sssd::install') }
+          it { is_expected.to contain_package('sssd-common') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/bin/sss_ssh_authorizedkeys') }
           it {
             if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
@@ -282,7 +282,7 @@ describe 'ssh::server::conf' do
           let(:params) {{ :app_pki_external_source => 'ldap_only' }}
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to_not contain_class('sssd::install') }
+          it { is_expected.to_not contain_package('sssd-common') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/libexec/openssh/ssh-ldap-wrapper') }
           it {
             if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
