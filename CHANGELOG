@@ -1,4 +1,5 @@
-* Mon Mar 09 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.10.1-0
+* Mon Apr 06 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.10.1-0
+- Fix EL8 support when setting server::conf::manage_pam_sshd to `true`
 - Remove dependency on the simp/sssd module
 - Ensure that the sssd-common package is installed if required and allow the
   user to disable this if necessary
