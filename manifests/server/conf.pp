@@ -433,20 +433,17 @@ class ssh::server::conf (
     }
 
     if $manage_pam_sshd {
-      if $facts['os']['release']['major'] == '6'{
+      if $facts['os']['release']['major'] < '7'{
         file { '/etc/pam.d/sshd':
           ensure  => file,
           content => epp('ssh/etc/pam.d/sshd_el6.epp'),
         }
       }
-      elsif $facts['os']['release']['major'] == '7'{
+      else {
         file { '/etc/pam.d/sshd':
           ensure  => file,
-          content => epp('ssh/etc/pam.d/sshd_el7.epp'),
+          content => epp('ssh/etc/pam.d/sshd.epp'),
         }
-      }
-      else {
-        fail("Unsupported EL version ${facts['os']['release']['major']}!")
       }
     }
   }
