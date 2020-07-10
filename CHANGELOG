@@ -1,8 +1,9 @@
-* Mon Apr 06 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.10.1-0
+* Tue Jul 07 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.0-0
 - Fix EL8 support when setting server::conf::manage_pam_sshd to `true`
 - Remove dependency on the simp/sssd module
 - Ensure that the sssd-common package is installed if required and allow the
   user to disable this if necessary
+- Remove the Puppet 3 functions that were marked as deprecated in 2017
 
 * Wed Feb 19 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.10.0-0
 - Added EL8 support

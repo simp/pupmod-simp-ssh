@@ -29,8 +29,6 @@
 * [`ssh::format_host_entry_for_sorting`](#sshformat_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
 * [`ssh::global_known_hosts`](#sshglobal_known_hosts): Update the ssh_known_hosts files for all hosts, purging old files,
 * [`ssh::parse_ssh_pubkey`](#sshparse_ssh_pubkey): Take an ssh pubkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
-* [`ssh_autokey`](#ssh_autokey): Generates a random RSA SSH private and public key pair for a passed user.
-* [`ssh_global_known_hosts`](#ssh_global_known_hosts): **DEPRECATED**
 
 **Data types**
 
@@ -569,6 +567,8 @@ Data type: `Variant[Boolean,Enum['sandbox']]`
 Specifies whether sshd separates privileges by creating an unprivileged
 child process to deal with incoming network traffic.
 
+This option has no effect on OpenSSH >= 7.5.0 due to being deprecated.
+
 Default value: $ssh::server::params::useprivilegeseparation
 
 ##### `x11forwarding`
@@ -715,6 +715,16 @@ Data type: `Boolean`
 If true, use sssd
 
 Default value: simplib::lookup('simp_options::sssd', { 'default_value' => false })
+
+##### `ensure_sssd_packages`
+
+Data type: `Variant[Boolean,Array[String[1]]]`
+
+A list of SSSD-related packages to ensure are installed on the system.
+
+* Set to `false` to prevent package management.
+
+Default value: ['sssd-common']
 
 ##### `trusted_nets`
 
@@ -1671,64 +1681,6 @@ Returns: `Hash`
 Data type: `String`
 
 The ssh key, can be pasted from ~/.ssh/id_rsa.pub or similar
-
-### ssh_autokey
-
-Type: Ruby 3.x API
-
-Keys are stored in "Puppet[:vardir]/simp/environments/<environment>/simp_autofiles/ssh_autokeys"
-
-Arguments: username, [option_hash|integer], [return_private]
-  * If an integer is the second argument, it will be used as the key strength
-
-  * If a third option is passed AND the second option is not a Hash, the function will return the private key
-
-  * option_hash
-    * If option_hash is passed (as a Hash) then the following options are supported:
-      - 'key_strength' => Integer
-      - 'return_private' => Boolean (Anything but false|nil will be treated as 'true')
-
-  NOTE: A minimum key strength of 1024 will be enforc
-
-#### `ssh_autokey()`
-
-Keys are stored in "Puppet[:vardir]/simp/environments/<environment>/simp_autofiles/ssh_autokeys"
-
-Arguments: username, [option_hash|integer], [return_private]
-  * If an integer is the second argument, it will be used as the key strength
-
-  * If a third option is passed AND the second option is not a Hash, the function will return the private key
-
-  * option_hash
-    * If option_hash is passed (as a Hash) then the following options are supported:
-      - 'key_strength' => Integer
-      - 'return_private' => Boolean (Anything but false|nil will be treated as 'true')
-
-  NOTE: A minimum key strength of 1024 will be enforc
-
-Returns: `String` The public cert of the passed user or the private key if requested.
-
-### ssh_global_known_hosts
-
-Type: Ruby 3.x API
-
-This function updates the ssh_known_hosts file for all hosts and updates
-any new ones that are found.
-
-This function takes one argument, expire time which is specified in days.
-
-Default expire time is 7 days. Set to '0' to never p
-
-#### `ssh_global_known_hosts()`
-
-This function updates the ssh_known_hosts file for all hosts and updates
-any new ones that are found.
-
-This function takes one argument, expire time which is specified in days.
-
-Default expire time is 7 days. Set to '0' to never p
-
-Returns: `None`
 
 ## Data types
 
