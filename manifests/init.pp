@@ -8,6 +8,7 @@
 #
 class ssh (
   Boolean $enable_client = true,
+  Boolean $junk = true,
   Boolean $enable_server = true
 ){
 

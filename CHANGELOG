@@ -1,3 +1,6 @@
+* Tue Jul 28 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 7.0.0-0
+- junk pushed up by jeanne to test gitlab chris's gitlab fix.
+
 * Tue Jul 07 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.0-0
 - Fix EL8 support when setting server::conf::manage_pam_sshd to `true`
 - Remove dependency on the simp/sssd module
