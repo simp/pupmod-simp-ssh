@@ -565,17 +565,22 @@ class ssh::server::conf (
   }
 
   $_ports.each |Simplib::Port $sel_port| {
-    if $sel_port != 22 and $facts['selinux_enforced'] {
-      simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
+    if ($sel_port != 22) and $facts['selinux_enforced'] {
+      if simplib::module_exist('simp/selinux') {
+        simplib::assert_optional_dependency($module_name, 'simp/selinux')
+        simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
 
-      ensure_packages(['policycoreutils-python'])
+        include selinux::install
+      }
+      else {
+        simplib::assert_optional_dependency($module_name, 'puppet/selinux')
+      }
 
       selinux_port { "tcp_${sel_port}-${sel_port}":
         low_port  => $sel_port,
         high_port => $sel_port,
         seltype   => 'ssh_port_t',
-        protocol  => 'tcp',
-        require   => Package['policycoreutils-python']
+        protocol  => 'tcp'
       }
     }
   }

@@ -1,3 +1,8 @@
+* Thu Nov 19 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.1-0
+- Migrate to the updated version of simp/selinux that allows for isolated
+  package installation in support of the SELinux native types.
+- Allow users to use the 'puppet/selinux' module instead of SIMP components.
+
 * Tue Jul 07 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.0-0
 - Fix EL8 support when setting server::conf::manage_pam_sshd to `true`
 - Remove dependency on the simp/sssd module

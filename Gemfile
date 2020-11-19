@@ -5,12 +5,12 @@ ENV['PDK_DISABLE_ANALYTICS'] ||= 'true'
 gem_sources.each { |gem_source| source gem_source }
 
 group :test do
-  puppet_version = ENV['PUPPET_VERSION'] || '~> 5.5'
+  puppet_version = ENV['PUPPET_VERSION'] || '~> 6.18'
   major_puppet_version = puppet_version.scan(/(\d+)(?:\.|\Z)/).flatten.first.to_i
   gem 'rake'
   gem 'puppet', puppet_version
   gem 'rspec'
-  gem 'rspec-puppet'
+  gem 'rspec-puppet', '~> 2.8.0'
   gem 'hiera-puppet-helper'
   gem 'puppetlabs_spec_helper'
   gem 'metadata-json-lint'
