@@ -566,12 +566,6 @@ class ssh::server::conf (
 
   $_ports.each |Simplib::Port $sel_port| {
     if ($sel_port != 22) and $facts['selinux_enforced'] {
-      # This is a basic pattern for ensuring that the SELinux requirements are
-      # met for the providers.
-      #
-      # If you aren't using the SIMP SELinux stack then there currently is no
-      # way to ensure that the necessary packages are installed in the correct
-      # order so users should `require 'selinux'` early in their stack.
       if simplib::module_exist('simp/selinux') {
         simplib::assert_optional_dependency($module_name, 'simp/selinux')
         simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
