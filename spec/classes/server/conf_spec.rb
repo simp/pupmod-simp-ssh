@@ -360,7 +360,7 @@ describe 'ssh::server::conf' do
           let(:params) {{ :port => 22000 }}
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_package('policycoreutils-python') }
+          it { is_expected.to include_class('selinux::install') }
 
           it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").with(
             {
@@ -371,7 +371,7 @@ describe 'ssh::server::conf' do
             })
           }
 
-          it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").that_requires('Package[policycoreutils-python]') }
+          it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}") }
         end
 
         context "with multiple SSH ports" do
