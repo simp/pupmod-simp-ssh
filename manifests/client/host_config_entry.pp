@@ -244,7 +244,7 @@
 # @param xauthlocation Specifies the full pathname of the xauth
 #   program.
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 define ssh::client::host_config_entry (
   Stdlib::Absolutepath                                  $target                           = '/etc/ssh/ssh_config',
@@ -278,7 +278,7 @@ define ssh::client::host_config_entry (
   Boolean                                               $gssapitrustdns                   = false,
   Boolean                                               $hashknownhosts                   = true,
   Boolean                                               $hostbasedauthentication          = false,
-  Array[String]                                         $hostkeyalgorithms                = ['ssh-rsa','ssh-dss'],
+  Optional[Array[String]]                               $hostkeyalgorithms                = undef,
   Optional[String]                                      $hostkeyalias                     = undef,
   Optional[Simplib::Host]                               $hostname                         = undef,
   Boolean                                               $identitiesonly                   = false,
@@ -494,10 +494,6 @@ define ssh::client::host_config_entry (
       key   => 'HostbasedAuthentication',
       value => ssh::config_bool_translate($hostbasedauthentication),
     ;
-    "${_name}__HostKeyAlgorithms":
-      key   => 'HostKeyAlgorithms',
-      value => $hostkeyalgorithms,
-    ;
     "${_name}__IdentitiesOnly":
       key   => 'IdentitiesOnly',
       value => ssh::config_bool_translate($identitiesonly),
@@ -632,6 +628,15 @@ define ssh::client::host_config_entry (
     ssh_config{ "${_name}__GlobalKnownHostsFile":
       key    => 'GlobalKnownHostsFile',
       value  => $globalknownhostsfile.join(' '),
+      host   => $name,
+      target => $target,
+    }
+  }
+
+  if $hostkeyalgorithms{
+    ssh_config { "${_name}__HostKeyAlgorithms":
+      key   => 'HostKeyAlgorithms',
+      value => $hostkeyalgorithms,
       host   => $name,
       target => $target,
     }

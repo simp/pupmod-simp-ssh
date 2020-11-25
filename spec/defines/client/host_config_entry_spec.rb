@@ -53,7 +53,6 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__GSSAPITrustDns').with_value('no')
             is_expected.to contain_ssh_config('new_run__HashKnownHosts').with_value('yes')
             is_expected.to contain_ssh_config('new_run__HostbasedAuthentication').with_value('no')
-            is_expected.to contain_ssh_config('new_run__HostKeyAlgorithms').with_value(['ssh-rsa','ssh-dss'])
             is_expected.to contain_ssh_config('new_run__IdentitiesOnly').with_value('no')
             is_expected.to contain_ssh_config('new_run__KbdInteractiveAuthentication').with_value('yes')
             is_expected.to contain_ssh_config('new_run__LogLevel').with_value('INFO')
@@ -121,6 +120,7 @@ describe 'ssh::client::host_config_entry' do
             :dynamicforward        => '1.2.3.4:1022',
             :globalknownhostsfile  => ['/some/hosts/file1', '/some/hosts/file2'],
             :hostkeyalias          => 'some.alias',
+            :hostkeyalgorithms     => ['ssh-rsa', 'ssh-dss'],
             :hostname              => 'some.hostname',
             :identityfile          => '/some/identity/file',
             :kbdinteractivedevices => ['bsdauth','pam'],

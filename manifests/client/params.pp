@@ -1,6 +1,6 @@
 # @summary Default parameters for the SSH client
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::client::params {
 

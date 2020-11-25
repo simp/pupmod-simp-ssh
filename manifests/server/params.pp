@@ -3,7 +3,7 @@
 # * ``KexAlgorithm`` configuration was not added until openssh 5.7
 # * ``Curve`` exchange was not fully supported until openssh 6.5
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::server::params {
 
