@@ -1054,12 +1054,12 @@ Default value: ``false``
 
 ##### `hostkeyalgorithms`
 
-Data type: `Array[String]`
+Data type: `Optional[Array[String]]`
 
 Specifies the host key algorithms that the
 client wants to use in order of preference.
 
-Default value: `['ssh-rsa','ssh-dss']`
+Default value: ``undef``
 
 ##### `hostkeyalias`
 

@@ -28,6 +28,8 @@
 #
 # @see https://puppet.com/docs/puppet/5.5/types/ssh_authorized_key.html
 #
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
+#
 class ssh::authorized_keys (
   Hash $keys = {},
 ) {

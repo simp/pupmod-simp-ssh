@@ -4,7 +4,7 @@
 #
 # @param enable_server  If true, set up an SSH server on the system.
 #
-# @author Trevor Vaughan <mailto:tvaughan@onyxpoint.com>
+# @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh (
   Boolean $enable_client = true,

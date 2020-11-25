@@ -1,3 +1,6 @@
+* Wed Nov 25 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.2-0
+- No longer set HostKeyAlgorithms on the client configuration by default
+
 * Thu Nov 19 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.1-0
 - Migrate to the updated version of simp/selinux that allows for isolated
   package installation in support of the SELinux native types.
