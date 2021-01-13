@@ -1,6 +1,6 @@
 {
   "name": "simp-ssh",
-  "version": "6.11.2",
+  "version": "6.11.3",
   "author": "SIMP Team",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
@@ -75,7 +75,6 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "6",
         "7",
         "8"
       ]
@@ -83,7 +82,6 @@
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "6",
         "7",
         "8"
       ]
@@ -91,7 +89,6 @@
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "6",
         "7",
         "8"
       ]

@@ -279,25 +279,21 @@ describe 'ssh class' do
 
         it 'should coexist with additional settings via the ssh_config type' do
           # Ensure the client is using the default test setup
-          # It appears as though RequestTTY is not a valid ssh_config option
-          # on CentOS 6.9 with openssh 5.3
-          os_major_release = os
+          os_major_release = os.dup
           os_major_release.delete!("^0-9")
-          if os_major_release != nil
-            if os_major_release.to_i >= 7
-              on(client, 'echo > /etc/ssh/ssh_config')
-              apply_manifest_on(client, client_manifest)
-              _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+          if os_major_release
+            on(client, 'echo > /etc/ssh/ssh_config')
+            apply_manifest_on(client, client_manifest)
+            _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
-              # Create the new test setup
-              apply_manifest_on(client, client_manifest_w_ssh_config)
-              _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+            # Create the new test setup
+            apply_manifest_on(client, client_manifest_w_ssh_config)
+            _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
-              # Compare the results
-              expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
-                'RequestTTY auto'
-              ]
-            end
+            # Compare the results
+            expect( (_custom_ssh_conf - _normal_ssh_conf).sort ).to eq [
+              'RequestTTY auto'
+            ]
           end
         end
       end
