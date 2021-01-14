@@ -1,3 +1,6 @@
+* Wed Jan 13 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.11.3
+- Removed EL6 from supported OSes
+
 * Wed Nov 25 2020 Trevor Vaughan <tvaughan@onyxpoint.com> - 6.11.2-0
 - No longer set HostKeyAlgorithms on the client configuration by default
 
