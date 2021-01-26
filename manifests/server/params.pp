@@ -85,8 +85,8 @@ class ssh::server::params {
   }
 
   if (
-    ($facts['os']['name'] in ['RedHat','CentOS','OracleLinux'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
-    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
+    ($facts.dig('os', 'name') in ['RedHat','CentOS','OracleLinux'] and versioncmp($facts.dig('os','release','major'),'7') >= 0) or
+    ($facts.dig('os','name') in ['Fedora'] and versioncmp($facts.dig('os','release','major'),'22') >= 0)
   ) {
     # FIPS mode not enabled, stay within the bounds but expand the options
 
@@ -127,14 +127,6 @@ class ssh::server::params {
     }
     $macs = $_fallback_macs
     $ciphers = $fallback_ciphers
-  }
-
-  # This setting should only be set to true on EL6
-  if $facts['os']['release']['major'] == '6' {
-    $useprivilegeseparation = true
-  }
-  else {
-    $useprivilegeseparation = 'sandbox'
   }
 
   # This setting is only present in old openssh versions

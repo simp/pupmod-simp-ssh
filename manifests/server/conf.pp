@@ -84,12 +84,6 @@
 # @param listenaddress
 #   Specifies the local addresses sshd should listen on.
 #
-#   * **WARNING:** On EL6 systems, if sshd was listening on both IPv4 and IPv6
-#     and you set this to an IPv4-only address (even 0.0.0.0), the service
-#     restart will erase the file /var/run/sshd.pid and the service will no
-#     longer be manageable from the ``service`` command until either the system
-#     is restarted or the pidfile is recreated correctly.
-#
 # @param logingracetime
 #   The max number of seconds the server will wait for a successful login
 #   before disconnecting. If the value is 0, there is no limit.
@@ -300,7 +294,7 @@ class ssh::server::conf (
   String                                                 $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
   Ssh::Syslogfacility                                    $syslogfacility                  = 'AUTHPRIV',
   Boolean                                                $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
-  Variant[Boolean,Enum['sandbox']]                       $useprivilegeseparation          = $ssh::server::params::useprivilegeseparation,
+  Variant[Boolean,Enum['sandbox']]                       $useprivilegeseparation          = 'sandbox',
   Boolean                                                $x11forwarding                   = false,
   Optional[Hash[String[1],NotUndef]]                     $custom_entries                  = undef,
   Optional[Array[String[1]]]                             $remove_entries                  = undef,
@@ -327,14 +321,6 @@ class ssh::server::conf (
 
   $_ports = flatten([$port])
 
-  $rhel_greater_than_6 = ( $facts['os']['family'] == 'RedHat' ) and ( $facts['os']['release']['major'] > '6' )
-
-  unless $rhel_greater_than_6 {
-    if $permitrootlogin == 'prohibit-password' {
-      fail('$permitrootlogin may not be "prohibit-password" on EL6')
-    }
-  }
-
   if $haveged {
     simplib::assert_optional_dependency($module_name, 'simp/haveged')
 
@@ -342,10 +328,8 @@ class ssh::server::conf (
   }
 
   if $authorizedkeyscommand {
-    if $rhel_greater_than_6 {
-      if !$authorizedkeyscommanduser or empty($authorizedkeyscommanduser) {
-        fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
-      }
+    if !$authorizedkeyscommanduser or empty($authorizedkeyscommanduser) {
+      fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
     }
   }
 
@@ -433,17 +417,9 @@ class ssh::server::conf (
     }
 
     if $manage_pam_sshd {
-      if $facts['os']['release']['major'] < '7'{
-        file { '/etc/pam.d/sshd':
-          ensure  => file,
-          content => epp('ssh/etc/pam.d/sshd_el6.epp'),
-        }
-      }
-      else {
-        file { '/etc/pam.d/sshd':
-          ensure  => file,
-          content => epp('ssh/etc/pam.d/sshd.epp'),
-        }
+      file { '/etc/pam.d/sshd':
+        ensure  => file,
+        content => epp('ssh/etc/pam.d/sshd.epp'),
       }
     }
   }
@@ -460,9 +436,7 @@ class ssh::server::conf (
   ssh::add_sshd_config('AllowUsers', $allowusers, $remove_entries)
   if $authorizedkeyscommand {
     ssh::add_sshd_config('AuthorizedKeysCommand', $authorizedkeyscommand, $remove_entries)
-    if $rhel_greater_than_6 {
-      ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
-    }
+    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
   elsif $sssd {
     if $ensure_sssd_packages {
@@ -477,16 +451,11 @@ class ssh::server::conf (
     }
 
     ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys', $remove_entries)
-
-    if $rhel_greater_than_6 {
-      ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
-    }
+    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
   elsif $_use_ldap {
     ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper', $remove_entries)
-    if $rhel_greater_than_6 {
-      ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
-    }
+    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
   ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
   ssh::add_sshd_config('Banner', $banner, $remove_entries)
