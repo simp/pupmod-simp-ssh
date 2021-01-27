@@ -32,12 +32,7 @@ class ssh::server::params {
     'aes128-ctr'
   ]
 
-  ## Private Variables ##
-
-  # These are all that are supported on RHEL6
-  $_fallback_kex_algorithms = [ 'diffie-hellman-group-exchange-sha256' ]
-  $_fallback_macs = [ 'hmac-sha1' ]
-  $_primary_ciphers = [
+  $ciphers = [
     'aes256-gcm@openssh.com',
     'aes128-gcm@openssh.com',
     'aes256-ctr',
@@ -45,89 +40,53 @@ class ssh::server::params {
     'aes128-ctr'
   ]
 
-  if (
-    ($facts['os']['name'] in ['RedHat','CentOS','OracleLinux'] and versioncmp($facts['os']['release']['major'],'7') >= 0) or
-    ($facts['os']['name'] in ['Fedora'] and versioncmp($facts['os']['release']['major'],'22') >= 0)
-  ) {
-
-    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
-      $fips_kex_algorithms = [
-        'ecdh-sha2-nistp521',
-        'ecdh-sha2-nistp384',
-        'ecdh-sha2-nistp256',
-        'diffie-hellman-group-exchange-sha256'
-      ]
-    }
-    else {
-      $fips_kex_algorithms = []
-    }
-    $fips_macs = [
-      'hmac-sha2-256',
-      'hmac-sha1'
-    ]
-    $fips_ciphers = [
-      'aes256-ctr',
-      'aes192-ctr',
-      'aes128-ctr'
+  if versioncmp($facts['openssh_version'], '5.7') >= 0 {
+    $fips_kex_algorithms = [
+      'ecdh-sha2-nistp521',
+      'ecdh-sha2-nistp384',
+      'ecdh-sha2-nistp256',
+      'diffie-hellman-group-exchange-sha256'
     ]
   }
   else {
-    # Don't know what OS this is so fall back to whatever should work with
-    # FIPS 140-2 in all cases.
-    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
-      $fips_kex_algorithms = $_fallback_kex_algorithms
-    }
-    else {
-      $fips_kex_algorithms = []
-    }
-    $fips_macs = $_fallback_macs
-    $fips_ciphers = $fallback_ciphers
+    $fips_kex_algorithms = []
   }
+  $fips_macs = [
+    'hmac-sha2-256',
+    'hmac-sha1'
+  ]
+  $fips_ciphers = [
+    'aes256-ctr',
+    'aes192-ctr',
+    'aes128-ctr'
+  ]
 
-  if (
-    ($facts.dig('os', 'name') in ['RedHat','CentOS','OracleLinux'] and versioncmp($facts.dig('os','release','major'),'7') >= 0) or
-    ($facts.dig('os','name') in ['Fedora'] and versioncmp($facts.dig('os','release','major'),'22') >= 0)
-  ) {
-    # FIPS mode not enabled, stay within the bounds but expand the options
+  # FIPS mode not enabled, stay within the bounds but expand the options
 
-    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
-      $base_kex_algorithms = [
-        'ecdh-sha2-nistp521',
-        'ecdh-sha2-nistp384',
-        'ecdh-sha2-nistp256',
-        'diffie-hellman-group-exchange-sha256'
-      ]
-      if versioncmp($facts['openssh_version'], '6.5') >= 0 {
-        $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
-      }
-      else {
-        $additional_kex_algorithms = []
-      }
-      $kex_algorithms = concat($additional_kex_algorithms,$base_kex_algorithms)
+  if versioncmp($facts['openssh_version'], '5.7') >= 0 {
+    $base_kex_algorithms = [
+      'ecdh-sha2-nistp521',
+      'ecdh-sha2-nistp384',
+      'ecdh-sha2-nistp256',
+      'diffie-hellman-group-exchange-sha256'
+    ]
+    if versioncmp($facts['openssh_version'], '6.5') >= 0 {
+      $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
     }
     else {
-      $kex_algorithms = []
+      $additional_kex_algorithms = []
     }
-    $macs = [
-      'hmac-sha2-512-etm@openssh.com',
-      'hmac-sha2-256-etm@openssh.com',
-      'hmac-sha2-512',
-      'hmac-sha2-256'
-    ]
-    $ciphers = $_primary_ciphers
+    $kex_algorithms = concat($additional_kex_algorithms, $base_kex_algorithms)
   }
   else {
-    # Don't know what OS this is so fall back to whatever should work with
-    # FIPS 140-2 in all cases.
-    if versioncmp($facts['openssh_version'], '5.7') >= 0 {
-      $kex_algorithms = $_fallback_kex_algorithms
-    }
-    else {
-      $kex_algorithms = []
-    }
-    $macs = $_fallback_macs
-    $ciphers = $fallback_ciphers
+    $kex_algorithms = []
   }
+  $macs = [
+    'hmac-sha2-512-etm@openssh.com',
+    'hmac-sha2-256-etm@openssh.com',
+    'hmac-sha2-512',
+    'hmac-sha2-256'
+  ]
 
   # This setting is only present in old openssh versions
   if versioncmp($facts['openssh_version'], '7.4') >= 0 {
