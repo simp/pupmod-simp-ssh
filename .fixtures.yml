@@ -10,6 +10,7 @@ fixtures:
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub
     compliance_markup: https://github.com/simp/pupmod-simp-compliance_markup
     concat: https://github.com/simp/puppetlabs-concat
+    firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld
     haveged: https://github.com/simp/pupmod-simp-haveged
     iptables: https://github.com/simp/pupmod-simp-iptables
     logrotate: https://github.com/simp/pupmod-simp-logrotate
@@ -23,6 +24,7 @@ fixtures:
     stdlib: https://github.com/simp/puppetlabs-stdlib
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers
     selinux: https://github.com/simp/pupmod-simp-selinux
+    simp_firewalld: https://github.com/simp/pupmod-simp-simp_firewalld
     sshkeys_core:
       repo: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
       puppet_version: ">= 6.0.0"

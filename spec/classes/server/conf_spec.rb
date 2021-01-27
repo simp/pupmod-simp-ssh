@@ -29,21 +29,16 @@ describe 'ssh::server::conf' do
             it { is_expected.to contain_sshd_config('Banner').with_value('/etc/issue.net') }
             it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('no') }
             it {
-              if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-                (facts[:os][:release][:major].to_s >= '7')
-                expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com',
-                                    'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-                expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
-                 'hmac-sha2-512', 'hmac-sha2-256' ]
-                is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox')
-              else
-                expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-                expected_macs = [ 'hmac-sha1' ]
-                is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('yes')
-              end
 
-              is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
-              is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
+            expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com',
+                                'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
+            expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
+             'hmac-sha2-512', 'hmac-sha2-256' ]
+            is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox')
+
+            is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
+            is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
+
             }
             it { is_expected.to contain_sshd_config('Compression').with_value('delayed') }
             it { is_expected.to contain_sshd_config('ClientAliveCountMax').with_value(0) }
@@ -77,23 +72,14 @@ describe 'ssh::server::conf' do
 
             it { is_expected.to compile.with_all_deps }
             it {
-              if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-                (facts[:os][:release][:major].to_s >= '7')
-                expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
-                 'aes192-ctr', 'aes128-ctr' ]
+              expected_ciphers = [ 'aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr',
+               'aes192-ctr', 'aes128-ctr' ]
 
-                expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
-                 'hmac-sha2-512', 'hmac-sha2-256' ]
+              expected_macs = [ 'hmac-sha2-512-etm@openssh.com', 'hmac-sha2-256-etm@openssh.com',
+               'hmac-sha2-512', 'hmac-sha2-256' ]
 
-                expected_kex_algorithms = [ 'curve25519-sha256@libssh.org', 'ecdh-sha2-nistp521',
-                  'ecdh-sha2-nistp384', 'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
-                expected_useprivilegeseparation = 'sandbox'
-              else
-                expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-                expected_macs = [ 'hmac-sha1' ]
-                expected_kex_algorithms = ['diffie-hellman-group-exchange-sha256']
-                expected_useprivilegeseparation = true 
-              end
+              expected_kex_algorithms = [ 'curve25519-sha256@libssh.org', 'ecdh-sha2-nistp521',
+                'ecdh-sha2-nistp384', 'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
 
               is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
               is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
@@ -110,15 +96,8 @@ describe 'ssh::server::conf' do
 
             it { is_expected.to compile }
             it {
-              if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-                (facts[:os][:release][:major].to_s >= '7')
-                expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-
-                expected_macs = [ 'hmac-sha2-256', 'hmac-sha1' ]
-              else
-                expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-                expected_macs = [ 'hmac-sha1' ]
-              end
+              expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
+              expected_macs = [ 'hmac-sha2-256', 'hmac-sha1' ]
 
               is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
               is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
@@ -131,19 +110,12 @@ describe 'ssh::server::conf' do
 
             it { is_expected.to compile.with_all_deps }
             it {
-              if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-                (facts[:os][:release][:major].to_s >= '7')
-                expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
+              expected_ciphers = [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
 
-                expected_macs = [ 'hmac-sha2-256', 'hmac-sha1' ]
+              expected_macs = [ 'hmac-sha2-256', 'hmac-sha1' ]
 
-                expected_kex_algorithms = [ 'ecdh-sha2-nistp521', 'ecdh-sha2-nistp384',
-                  'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
-              else
-                expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-                expected_macs = [ 'hmac-sha1' ]
-                expected_kex_algorithms = ['diffie-hellman-group-exchange-sha256']
-              end
+              expected_kex_algorithms = [ 'ecdh-sha2-nistp521', 'ecdh-sha2-nistp384',
+                'ecdh-sha2-nistp256', 'diffie-hellman-group-exchange-sha256']
 
               is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
               is_expected.to contain_sshd_config('MACs').with_value(expected_macs)
@@ -172,13 +144,8 @@ describe 'ssh::server::conf' do
 
           it { is_expected.to compile.with_all_deps }
           it {
-            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-              (facts[:os][:release][:major].to_s >= '7')
-              expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com',
-                                  'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-            else
-              expected_ciphers = ['aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
-            end
+            expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com',
+                                'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ]
             is_expected.to contain_sshd_config('Ciphers').with_value(expected_ciphers)
           }
         end
@@ -203,10 +170,6 @@ describe 'ssh::server::conf' do
               elsif value == false
                 it { is_expected.to compile.with_all_deps }
                 it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no') }
-              elsif value == 'prohibit-password' &&
-                             (['RedHat', 'CentOS', 'OracleLinux'].include?(os_facts[:os][:name])) &&
-                             (os_facts[:os][:release][:major].to_s < '7')
-                it { is_expected.to compile.and_raise_error(%r{permitrootlogin may not be}) }
               else
                 it { is_expected.to compile.with_all_deps }
                 it { is_expected.to contain_sshd_config('PermitRootLogin').with_value(value) }
@@ -223,14 +186,7 @@ describe 'ssh::server::conf' do
 
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/some/command') }
-          it {
-            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-              (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
-            else
-              is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
-            end
-          }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') }
         end
 
         context 'with authorizedkeyscommand set but authorizedkeyscommanduser empty' do
@@ -240,14 +196,7 @@ describe 'ssh::server::conf' do
             :authorizedkeyscommanduser => ''
           }}
 
-          it {
-            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-              (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to_not compile.with_all_deps
-            else
-              is_expected.to compile.with_all_deps
-            end
-          }
+          it { is_expected.to_not compile.with_all_deps }
         end
 
         context 'with useprivilegeseparation' do
@@ -273,14 +222,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_package('sssd-common') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/bin/sss_ssh_authorizedkeys') }
-          it {
-            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-              (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
-            else
-              is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
-            end
-          }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') }
         end
 
         context 'with simp_options::ldap = true, but simp_options::ssd = false' do
@@ -293,14 +235,7 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to_not contain_package('sssd-common') }
           it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_value('/usr/libexec/openssh/ssh-ldap-wrapper') }
-          it {
-            if (['RedHat', 'CentOS', 'OracleLinux'].include?(facts[:os][:name])) and
-              (facts[:os][:release][:major].to_s >= '7')
-              is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody')
-            else
-              is_expected.to_not contain_sshd_config('AuthorizedKeysCommandUser')
-            end
-          }
+          it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') }
         end
 
         context 'with firewall, haveged, pam, and tcpwrappers global catalysts enabled' do
