@@ -51,7 +51,7 @@ describe 'ssh check oath' do
 
       context 'with default parameters' do
         it 'configures server with no errors' do
-          install_package(client, 'epel-release')
+          enable_epel_on(client)
           install_package(client, 'expect')
 
           set_hieradata_on(client, client_hieradata)

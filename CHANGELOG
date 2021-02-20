@@ -1,3 +1,9 @@
+* Fri Feb 19 2021 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.11.2
+- Openssh dropped support for SSH protocol 1 in version 8.0.
+  EL8 installs openssh v8 by default.
+  This fix checks the version of openssh when creating ssh_config host
+  entries and removes those values that are no longer used.
+
 * Wed Jan 13 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.11.2
 - Removed EL6 from supported OSes
 

@@ -21,7 +21,7 @@ spawn ssh -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=1 $host -l $use
 match_max 100000
 expect -exact "$user@$host's password: "
 send -- "$pass\r"
-expect -re "UNIX password: "
+expect -re "UNIX|Current password: "
 send -- "$pass\r"
 expect -exact "\r
 New password: "

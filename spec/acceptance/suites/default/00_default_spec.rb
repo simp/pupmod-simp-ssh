@@ -41,8 +41,8 @@ describe 'ssh class' do
 
       context 'with default parameters' do
         it 'should configure server with no errors' do
-          install_package(server, 'epel-release')
-          install_package(client, 'epel-release')
+          enable_epel_on(server)
+          enable_epel_on(client)
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest, expect_changes: true)
         end
@@ -111,31 +111,29 @@ describe 'ssh class' do
         end
 
         it 'should not accept old ciphers when not enabled' do
-          disable_fallback_hieradata = server_hieradata.merge(
-            { 'ssh::server::conf::enable_fallback_ciphers' => false }
-          )
-          set_hieradata_on(server, disable_fallback_hieradata)
-          apply_manifest_on(server, server_manifest)
-
-          # FIXME: This doesn't prove what it claims to.
-          #
-          # aes*-cbc aren't in the fallback ciphers, so they won't be accepted
-          # whether enable_fallback_ciphers is enabled or not
-          if fact_on(server, 'operatingsystem') == 'CentOS' && fact_on(server, 'operatingsystemmajrelease') == '6'
-            on(client,
-               "#{ssh_cmd} -o Ciphers=3des-cbc echo Logged in successfully",
-               acceptable_exit_codes: [255])
+          if fact_on(server, 'operatingsystemmajrelease').to_s >= '8'
+            skip("Because of global cipher settings this won't work on el8.  See SIMP-9412 for details")
           else
-            on(client,
-               "#{ssh_cmd} -o Ciphers=aes128-cbc,aes192-cbc,aes256-cbc echo Logged in successfully",
-               acceptable_exit_codes: [255])
-          end
+            disable_fallback_hieradata = server_hieradata.merge(
+              { 'ssh::server::conf::enable_fallback_ciphers' => false }
+            )
+            set_hieradata_on(server, disable_fallback_hieradata)
+            apply_manifest_on(server, server_manifest)
 
-          dump_sshd_ciphers(server,'fallback-ciphers-disabled', '`ssh::server::conf::enable_fallback_ciphers: false`')
+            # FIXME: This doesn't prove what it claims to.
+            #
+            # aes*-cbc aren't in the fallback ciphers, so they won't be accepted
+            # whether enable_fallback_ciphers is enabled or not
+            on(client,
+              "#{ssh_cmd} -o Ciphers=aes128-cbc,aes192-cbc,aes256-cbc echo Logged in successfully",
+              acceptable_exit_codes: [255])
+
+            dump_sshd_ciphers(server,'fallback-ciphers-disabled', '`ssh::server::conf::enable_fallback_ciphers: false`')
+          end
         end
 
         it 'should prompt user to change password if expired and logging in with cert' do
-          # reset and expire testuser password
+            # reset and expire testuser password
           hosts.each do |host|
             on(host, 'echo password | passwd testuser --stdin')
             on(host, 'chage -d 0 testuser')
@@ -154,7 +152,7 @@ describe 'ssh class' do
           # reset and expire testuser password
           on(hosts, 'echo password | passwd testuser --stdin')
           on(hosts, 'chage -d 0 testuser')
-          # remove publc key from server
+          # remove public key from server
           on(server, 'rm -f /etc/ssh/local_keys/testuser')
 
           on(client, '/usr/local/bin/ssh_test_script_change_pass testuser ' \
