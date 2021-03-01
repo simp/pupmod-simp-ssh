@@ -29,7 +29,6 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Ciphers').with_value(expected_ciphers)
             is_expected.to contain_ssh_config('new_run__ClearAllForwardings').with_value('no')
             is_expected.to contain_ssh_config('new_run__Compression').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('6')
             is_expected.to contain_ssh_config('new_run__ConnectionAttempts').with_value('1')
             is_expected.to contain_ssh_config('new_run__ConnectTimeout').with_value('0')
             is_expected.to contain_ssh_config('new_run__ControlMaster').with_value('no')
@@ -58,20 +57,39 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Port').with_value('22')
             is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
             is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('no')
-            is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_value('yes')
             is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG','LC_CTYPE','LC_NUMERIC','LC_TIME','LC_COLLATE','LC_MONETARY','LC_MESSAGES','LC_PAPER','LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION' ,'LC_ALL'])
             is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
             is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
             is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
             is_expected.to contain_ssh_config('new_run__TCPKeepAlive').with_value('yes')
             is_expected.to contain_ssh_config('new_run__Tunnel').with_value('no')
-            is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('no')
             is_expected.to contain_ssh_config('new_run__VerifyHostKeyDNS').with_value('no')
             is_expected.to contain_ssh_config('new_run__VisualHostKey').with_value('no')
             is_expected.to contain_ssh_config('new_run__XAuthLocation').with_value('/usr/bin/xauth')
           }
 
+          context 'when  openssh_version < 8.0' do
+            let(:facts)  {
+              super().merge!({ :openssh_version => '7.4' })
+            }
+            it {
+              is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('no')
+              is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('no')
+              is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_value('yes')
+              is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('6')
+            }
+          end
+          context 'when  openssh_version >= 8.0' do
+            let(:facts)  {
+              super().merge!({ :openssh_version => '8.0' })
+            }
+            it {
+              is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_ensure('absent')
+              is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_ensure('absent')
+              is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_ensure('absent')
+              is_expected.to contain_ssh_config('new_run__CompressionLevel').with_ensure('absent')
+            }
+          end
           context 'when connected to an IPA domain' do
             let(:facts) {
               super().merge!(
@@ -139,7 +157,6 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Ciphers').with_value(['aes128-ctr','aes192-ctr'])
             is_expected.to contain_ssh_config('new_run__ClearAllForwardings').with_value('no')
             is_expected.to contain_ssh_config('new_run__Compression').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('6')
             is_expected.to contain_ssh_config('new_run__ConnectionAttempts').with_value('1')
             is_expected.to contain_ssh_config('new_run__ConnectTimeout').with_value('0')
             is_expected.to contain_ssh_config('new_run__ControlMaster').with_value('no')
@@ -169,15 +186,12 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Port').with_value('22')
             is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
             is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('no')
-            is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_value('yes')
             is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG','LC_CTYPE','LC_NUMERIC','LC_TIME','LC_COLLATE','LC_MONETARY','LC_MESSAGES','LC_PAPER','LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION' ,'LC_ALL'])
             is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
             is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
             is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
             is_expected.to contain_ssh_config('new_run__TCPKeepAlive').with_value('yes')
             is_expected.to contain_ssh_config('new_run__Tunnel').with_value('no')
-            is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('no')
             is_expected.to contain_ssh_config('new_run__VerifyHostKeyDNS').with_value('no')
             is_expected.to contain_ssh_config('new_run__VisualHostKey').with_value('no')
             is_expected.to contain_ssh_config('new_run__XAuthLocation').with_value('/usr/bin/xauth')
@@ -200,6 +214,23 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__UserKnownHostsFile').with_value('/some/hosts/file3 /some/hosts/file4')
           }
 
+        end
+        context 'when  openssh_version < 8.0 and param set' do
+          let(:facts)  {
+            os_facts.merge({ :openssh_version => '7.4' })
+          }
+          let(:params) {{
+            :useprivilegedport       => true,
+            :rhostsrsaauthentication => true,
+            :rsaauthentication       => false,
+            :compressionlevel        => 2,
+          }}
+          it {
+            is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('yes')
+            is_expected.to contain_ssh_config('new_run__RSAAuthentication').with_value('no')
+            is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('2')
+          }
         end
 
         _protocol_sets = [ 1, '2,1' ]

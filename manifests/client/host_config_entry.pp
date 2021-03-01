@@ -381,8 +381,6 @@ define ssh::client::host_config_entry (
     $_gssapiauthentication = false
   }
 
-  $_value = ssh::config_bool_translate($useprivilegedport)
-
   $_name = ssh::format_host_entry_for_sorting($name)
 
   ssh_config{
@@ -421,10 +419,6 @@ define ssh::client::host_config_entry (
     "${_name}__Compression":
       key   => 'Compression',
       value => ssh::config_bool_translate($compression),
-    ;
-    "${_name}__CompressionLevel":
-      key   => 'CompressionLevel',
-      value => String($compressionlevel),
     ;
     "${_name}__ConnectionAttempts":
       key   => 'ConnectionAttempts',
@@ -538,14 +532,6 @@ define ssh::client::host_config_entry (
       key   => 'PubkeyAuthentication',
       value => ssh::config_bool_translate($pubkeyauthentication),
     ;
-    "${_name}__RhostsRSAAuthentication":
-      key   => 'RhostsRSAAuthentication',
-      value => ssh::config_bool_translate($rhostsrsaauthentication),
-    ;
-    "${_name}__RSAAuthentication":
-      key   => 'RSAAuthentication',
-      value => ssh::config_bool_translate($rsaauthentication),
-    ;
     "${_name}__SendEnv":
       key   => 'SendEnv',
       value => $sendenv,
@@ -570,10 +556,6 @@ define ssh::client::host_config_entry (
       key   => 'Tunnel',
       value => $tunnel,
     ;
-    "${_name}__UsePrivilegedPort":
-      key   => 'UsePrivilegedPort',
-      value => ssh::config_bool_translate($useprivilegedport),
-    ;
     "${_name}__VerifyHostKeyDNS":
       key   => 'VerifyHostKeyDNS',
       value => $verifyhostkeydns,
@@ -585,6 +567,36 @@ define ssh::client::host_config_entry (
     "${_name}__XAuthLocation":
       key   => 'XAuthLocation',
       value => $xauthlocation,
+    ;
+  }
+
+  # The following options have been removed in openssh 8.0
+  if versioncmp($facts['openssh_version'], '8.0') <  0 {
+    $_ensure = 'present'
+  } else {
+    $_ensure = 'absent'
+  }
+  ssh_config{
+    default:
+      host   => $name,
+      target => $target,
+      ensure => $_ensure
+    ;
+    "${_name}__CompressionLevel":
+      key   => 'CompressionLevel',
+      value => String($compressionlevel),
+    ;
+    "${_name}__RhostsRSAAuthentication":
+      key   => 'RhostsRSAAuthentication',
+      value => ssh::config_bool_translate($rhostsrsaauthentication),
+    ;
+    "${_name}__RSAAuthentication":
+      key   => 'RSAAuthentication',
+      value => ssh::config_bool_translate($rsaauthentication),
+    ;
+    "${_name}__UsePrivilegedPort":
+        key   => 'UsePrivilegedPort',
+        value => ssh::config_bool_translate($useprivilegedport),
     ;
   }
 
