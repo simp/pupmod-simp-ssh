@@ -7,11 +7,7 @@ describe 'ssh class' do
 
   target_ports = [22, 2222, 22222]
 
-  # NOTE: by default, include 'ssh' will automatically include the ssh_server
-  # NOTE: Temporary including vox_selinux so the packages required for the selinux_port
-  #  custom type are installed.  See SIMP-9425 for more detail.
-  let(:server_manifest) { "include 'ssh::server'
-                           include vox_selinux" }
+  let(:server_manifest) { "include 'ssh::server'"}
 
   let(:server_hieradata) do
     {
