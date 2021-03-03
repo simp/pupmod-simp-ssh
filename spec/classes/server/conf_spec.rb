@@ -295,7 +295,7 @@ describe 'ssh::server::conf' do
           let(:params) {{ :port => 22000 }}
 
           it { is_expected.to compile.with_all_deps }
-          it { is_expected.to contain_class('selinux::install') }
+          it { is_expected.to contain_class('vox_selinux') }
 
           it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").with(
             {

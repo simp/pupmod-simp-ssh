@@ -27,6 +27,8 @@ HOSTS:
     platform: el-8-x86_64
     box: centos/8
     hypervisor: <%= hypervisor %>
+    options:
+      memory: 1024
 
   el8-client:
     roles:
@@ -34,6 +36,8 @@ HOSTS:
     platform: el-8-x86_64
     box: centos/8
     hypervisor: <%= hypervisor %>
+    options:
+      memory: 1024
 
 CONFIG:
   log_level: verbose
