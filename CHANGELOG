@@ -1,3 +1,10 @@
+* Tue Mar 02 2021 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.11.2
+- Updated server::conf to include the voxpupuli selinux module when
+  calling selinux_port.  This will ensure the packages that selinux_port
+  needs are installed.
+- Added memory to the testing nodesets for EL8 because running selinux_port
+  was giving an out of memory error.
+
 * Fri Feb 19 2021 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.11.2
 - Openssh dropped support for SSH protocol 1 in version 8.0.
   EL8 installs openssh v8 by default.
