@@ -148,18 +148,26 @@
 # @param usepam
 #   Enables the Pluggable Authentication Module interface.
 #
-# @param manage_pam_sshd
-#   Flag indicating whether or not to manage the pam stack for sshd. This is
-#   required for the oath option to work properly.
-#
 # @param oath
 #   **EXPERIMENTAL FEATURE**
 #   Configures ssh to use pam_oath TOTP in the sshd pam stack.
 #   Also configures sshd_config to use required settings. Inherits from
 #   simp_options::oath, defaults to false if not found.
 #
+# @param manage_pam_sshd
+#   Flag indicating whether or not to manage the pam stack for sshd. This is
+#   required for the `oath` option to work properly.
+#
 # @param oath_window
 #   Sets the TOTP window (Defined in RFC 6238 section 5.2)
+#
+# @param oath_key_only_users
+#   Users in this list will bypass the password prompt and be prompted for an
+#   OATH token followed by authentication using their SSH key.
+#
+# @param oath_key_only_groups
+#   Groups in this list will bypass the password prompt and be prompted for an
+#   OATH token followed by authentication using their SSH key.
 #
 # @param useprivilegeseparation
 #   Specifies whether sshd separates privileges by creating an unprivileged
@@ -312,6 +320,8 @@ class ssh::server::conf (
   Boolean                                                $oath                            = simplib::lookup('simp_options::oath', { 'default_value' => false }),
   Boolean                                                $manage_pam_sshd                 = $oath,
   Integer[0]                                             $oath_window                     = 1,
+  Array[String[1]]                                       $oath_key_only_users             = [],
+  Array[String[1]]                                       $oath_key_only_groups            = [],
   Variant[Enum['simp'],Boolean]                          $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
   Boolean                                                $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
   Variant[Boolean,Array[String[1]]]                      $ensure_sssd_packages            = ['sssd-common'],
@@ -414,12 +424,51 @@ class ssh::server::conf (
 
       $_challengeresponseauthentication = true
       $_passwordauthentication = false
+
+      unless empty($oath_key_only_groups) {
+        file { '/etc/liboath/ssh_pubkey_groups.oath':
+          ensure  => 'file',
+          content => "${oath_key_only_groups.sort.join("\n")}\n"
+        }
+
+        $_key_only_group_match = "Group ${oath_key_only_groups.join(',')}"
+
+        sshd_config_match { $_key_only_group_match: ensure => 'present' }
+        sshd_config { 'AuthenticationMethods for OATH Key Groups':
+          ensure    => 'present',
+          condition => $_key_only_group_match,
+          key       => 'AuthenticationMethods',
+          value     => 'publickey,keyboard-interactive'
+        }
+      }
+
+      unless empty($oath_key_only_users) {
+        file { '/etc/liboath/ssh_pubkey_users.oath':
+          ensure  => 'file',
+          content => "${oath_key_only_users.sort.join("\n")}\n"
+        }
+
+        $_key_only_user_match = "User ${oath_key_only_users.join(',')}"
+
+        sshd_config_match { $_key_only_user_match: ensure => 'present' }
+        sshd_config { 'AuthenticationMethods for OATH Key Users':
+          ensure    => 'present',
+          condition => $_key_only_user_match,
+          key       => 'AuthenticationMethods',
+          value     => 'publickey,keyboard-interactive'
+        }
+      }
     }
 
     if $manage_pam_sshd {
       file { '/etc/pam.d/sshd':
         ensure  => file,
-        content => epp('ssh/etc/pam.d/sshd.epp'),
+        content => epp('ssh/etc/pam.d/sshd.epp',
+          {
+            'enable_oath' => $oath,
+            'oath_window' => $oath_window
+          }
+        )
       }
     }
   }

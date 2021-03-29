@@ -1,21 +1,13 @@
-<%- |
-  Boolean $enable_oath = false,
-  Integer $oath_window = 1
-| -%>
 #%PAM-1.0
 auth       required     pam_sepermit.so
-<% if $enable_oath { -%>
 auth       [success=5 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/exclude_groups.oath quiet
 auth       [success=4 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/exclude_users.oath quiet
-auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=<%= $oath_window %>
+auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=1
 auth       requisite    pam_deny.so
 auth       [success=2 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/ssh_pubkey_groups.oath quiet
 auth       [success=1 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/ssh_pubkey_users.oath quiet
-<% } -%>
 auth       substack     password-auth
-<% if $enable_oath { -%>
 auth       required     pam_env.so
-<% } -%>
 auth       include      postlogin
 # Used with polkit to reauthorize users in remote sessions
 -auth      optional     pam_reauthorize.so prepare
