@@ -470,7 +470,7 @@ describe 'ssh::server::conf' do
             end
 
             let(:key_only_user_match) do
-              "Group #{params[:oath_key_only_users].join(',')}"
+              "User #{params[:oath_key_only_users].join(',')}"
             end
 
             it { is_expected.to compile.with_all_deps }
