@@ -394,6 +394,100 @@ describe 'ssh::server::conf' do
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_sshd_config_subsystem('imap').with_ensure('absent') }
         end
+
+        context 'with oath enabled' do
+          let(:params) do
+            {
+              :oath => true
+            }
+          end
+
+          let(:pam_content) do
+            File.read("#{File.join(__dir__, File.basename(__FILE__, '.rb'))}_fixtures/pam_sshd_with_oath")
+          end
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to create_class('oath') }
+          it { is_expected.not_to create_file('/etc/liboath/ssh_pubkey_users.oath') }
+          it { is_expected.not_to create_file('/etc/liboath/ssh_pubkey_groups.oath') }
+          it {
+            is_expected.to create_file('/etc/pam.d/sshd')
+              .with_ensure('file')
+              .with_content(pam_content)
+          }
+
+          context 'oath_window=3' do
+            let(:params) do
+              {
+                :oath => true,
+                :oath_window => 3
+              }
+            end
+
+            it { is_expected.to compile.with_all_deps }
+            it {
+              window_mod = pam_content.gsub(/window=\d/, 'window=3')
+
+              is_expected.to create_file('/etc/pam.d/sshd')
+                .with_ensure('file')
+                .with_content(window_mod)
+            }
+          end
+
+          context 'key only groups' do
+            let(:params) do
+              {
+                :oath => true,
+                :oath_key_only_groups => ['foo', 'bar']
+              }
+            end
+
+            let(:key_only_group_match) do
+              "Group #{params[:oath_key_only_groups].join(',')}"
+            end
+
+            it { is_expected.to compile.with_all_deps }
+            it {
+              is_expected.to create_file('/etc/liboath/ssh_pubkey_groups.oath')
+                .with_content(%(#{params[:oath_key_only_groups].sort.join("\n")}\n))
+            }
+            it { is_expected.to create_sshd_config_match(key_only_group_match).with_ensure('present') }
+            it {
+              is_expected.to create_sshd_config('AuthenticationMethods for OATH Key Groups')
+                .with_ensure('present')
+                .with_condition(key_only_group_match)
+                .with_key('AuthenticationMethods')
+                .with_value('publickey,keyboard-interactive')
+            }
+          end
+
+          context 'key only users' do
+            let(:params) do
+              {
+                :oath => true,
+                :oath_key_only_users => ['bar', 'baz']
+              }
+            end
+
+            let(:key_only_user_match) do
+              "User #{params[:oath_key_only_users].join(',')}"
+            end
+
+            it { is_expected.to compile.with_all_deps }
+            it {
+              is_expected.to create_file('/etc/liboath/ssh_pubkey_users.oath')
+                .with_content(%(#{params[:oath_key_only_users].sort.join("\n")}\n))
+            }
+            it { is_expected.to create_sshd_config_match(key_only_user_match).with_ensure('present') }
+            it {
+              is_expected.to create_sshd_config('AuthenticationMethods for OATH Key Users')
+                .with_ensure('present')
+                .with_condition(key_only_user_match)
+                .with_key('AuthenticationMethods')
+                .with_value('publickey,keyboard-interactive')
+            }
+          end
+        end
       end
     end
   end
