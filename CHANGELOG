@@ -1,3 +1,13 @@
+* Tue Apr 20 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 6.11.2
+- Fixed a bug where some changes to sshd configuration did not cause the
+  sshd service to restart.
+  - `sshd_config` resources created by `ssh::add_sshd_config()` did not
+    notify `Service[sshd]`.
+- Fixed a bug that caused a compilation error when
+  `ssh::conf::ensure_sshd_packages` was set to `true`.
+- Removed sshd configuration logic pertaining to OpenSSH versions used
+  in EL6.
+
 * Tue Mar 02 2021 Jeanne Greulich <jeanne.greulich@onyxpoint.com> - 6.11.2
 - Updated server::conf to include the voxpupuli selinux module when
   calling selinux_port.  This will ensure the packages that selinux_port

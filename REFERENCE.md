@@ -803,8 +803,8 @@ Default value: `['ALL']`
 
 ### <a name="sshserverparams"></a>`ssh::server::params`
 
-* ``KexAlgorithm`` configuration was not added until openssh 5.7
 * ``Curve`` exchange was not fully supported until openssh 6.5
+* RhostsRSAAuthentication was removed in openssh 7.4
 
 ## Defined types
 
@@ -1608,7 +1608,7 @@ Type: Puppet Language
 
 Add a sshd_config entry if it is not in the remove list
 
-#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys)`
+#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [ Service['sshd'] ])`
 
 Add a sshd_config entry if it is not in the remove list
 
@@ -1631,6 +1631,13 @@ The value of the sshd configuration parameter
 Data type: `Variant[Array[String[1]],Undef]`
 
 List of sshd configuration parameters to be removed
+
+##### `resources_to_notify`
+
+Data type: `Array[Type[Catalogentry]]`
+
+Catalog resources to notify when the sshd
+configuration has changed
 
 ### <a name="sshautokey"></a>`ssh::autokey`
 

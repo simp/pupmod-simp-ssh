@@ -1,7 +1,7 @@
 # @summary Default parameters for the SSH Server
 #
-# * ``KexAlgorithm`` configuration was not added until openssh 5.7
 # * ``Curve`` exchange was not fully supported until openssh 6.5
+# * RhostsRSAAuthentication was removed in openssh 7.4
 #
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
@@ -40,17 +40,13 @@ class ssh::server::params {
     'aes128-ctr'
   ]
 
-  if versioncmp($facts['openssh_version'], '5.7') >= 0 {
-    $fips_kex_algorithms = [
-      'ecdh-sha2-nistp521',
-      'ecdh-sha2-nistp384',
-      'ecdh-sha2-nistp256',
-      'diffie-hellman-group-exchange-sha256'
-    ]
-  }
-  else {
-    $fips_kex_algorithms = []
-  }
+  $fips_kex_algorithms = [
+    'ecdh-sha2-nistp521',
+    'ecdh-sha2-nistp384',
+    'ecdh-sha2-nistp256',
+    'diffie-hellman-group-exchange-sha256'
+  ]
+
   $fips_macs = [
     'hmac-sha2-256',
     'hmac-sha1'
@@ -63,24 +59,20 @@ class ssh::server::params {
 
   # FIPS mode not enabled, stay within the bounds but expand the options
 
-  if versioncmp($facts['openssh_version'], '5.7') >= 0 {
-    $base_kex_algorithms = [
+  $base_kex_algorithms = [
       'ecdh-sha2-nistp521',
       'ecdh-sha2-nistp384',
       'ecdh-sha2-nistp256',
       'diffie-hellman-group-exchange-sha256'
-    ]
-    if versioncmp($facts['openssh_version'], '6.5') >= 0 {
-      $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
-    }
-    else {
-      $additional_kex_algorithms = []
-    }
-    $kex_algorithms = concat($additional_kex_algorithms, $base_kex_algorithms)
+  ]
+  if versioncmp($facts['openssh_version'], '6.5') >= 0 {
+    $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
   }
   else {
-    $kex_algorithms = []
+    $additional_kex_algorithms = []
   }
+  $kex_algorithms = concat($additional_kex_algorithms, $base_kex_algorithms)
+
   $macs = [
     'hmac-sha2-512-etm@openssh.com',
     'hmac-sha2-256-etm@openssh.com',
