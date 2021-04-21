@@ -328,7 +328,7 @@ class ssh::server::conf (
   }
 
   if $authorizedkeyscommand {
-    if !$authorizedkeyscommanduser or empty($authorizedkeyscommanduser) {
+    if empty($authorizedkeyscommanduser) {
       fail('$authorizedkeyscommanduser must be set if $authorizedkeyscommand is set')
     }
   }
@@ -366,6 +366,9 @@ class ssh::server::conf (
     }
   }
 
+  # sshd_config resource does not treat Protocol as an array
+  # NOTE: This appears to be only for openssh 6.x (early CentOS 7), but has not
+  # yet been rejected by openssh > 6.
   $_protocol = $protocol.unique.join(',')
 
   if $ciphers and !empty($ciphers) {
@@ -447,7 +450,7 @@ class ssh::server::conf (
         $_sssd_packages = ['sssd-common']
       }
 
-      ensure_packages($ensure_sssd_packages)
+      ensure_packages($_sssd_packages)
     }
 
     ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys', $remove_entries)
@@ -461,20 +464,17 @@ class ssh::server::conf (
   ssh::add_sshd_config('Banner', $banner, $remove_entries)
   ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication } ), $remove_entries)
   ssh::add_sshd_config('Ciphers', $_ciphers, $remove_entries)
-  ssh::add_sshd_config('ClientAliveInterval', String($clientaliveinterval), $remove_entries)
   ssh::add_sshd_config('ClientAliveCountMax', String($clientalivecountmax), $remove_entries)
+  ssh::add_sshd_config('ClientAliveInterval', String($clientaliveinterval), $remove_entries)
   ssh::add_sshd_config('Compression', ssh::config_bool_translate($compression), $remove_entries)
   ssh::add_sshd_config('DenyGroups', $denygroups, $remove_entries)
   ssh::add_sshd_config('DenyUsers', $denyusers, $remove_entries)
   ssh::add_sshd_config('GSSAPIAuthentication', ssh::config_bool_translate($gssapiauthentication), $remove_entries)
   ssh::add_sshd_config('HostbasedAuthentication', ssh::config_bool_translate($hostbasedauthentication), $remove_entries)
-  ssh::add_sshd_config('KerberosAuthentication', ssh::config_bool_translate($kerberosauthentication), $remove_entries)
-  # Kex should be empty openssl < 5.7, they are not supported.
-  if !empty($_kex_algorithms) {
-    ssh::add_sshd_config('KexAlgorithms', $_kex_algorithms, $remove_entries)
-  }
   ssh::add_sshd_config('IgnoreRhosts', ssh::config_bool_translate($ignorerhosts), $remove_entries)
   ssh::add_sshd_config('IgnoreUserKnownHosts', ssh::config_bool_translate($ignoreuserknownhosts), $remove_entries)
+  ssh::add_sshd_config('KerberosAuthentication', ssh::config_bool_translate($kerberosauthentication), $remove_entries)
+  ssh::add_sshd_config('KexAlgorithms', $_kex_algorithms, $remove_entries)
   if $listenaddress {
     ssh::add_sshd_config('ListenAddress', $listenaddress, $remove_entries)
   }
@@ -494,7 +494,7 @@ class ssh::server::conf (
   }
   ssh::add_sshd_config('StrictModes', ssh::config_bool_translate($strictmodes), $remove_entries)
   ssh::add_sshd_config('SyslogFacility', $syslogfacility, $remove_entries)
-  ssh::add_sshd_config('UsePAM', ssh::config_bool_translate(defined('$_usepam') ? { true => $_usepam, default => $usepam } ), $remove_entries)
+  ssh::add_sshd_config('UsePAM', ssh::config_bool_translate($_usepam), $remove_entries)
   ssh::add_sshd_config('X11Forwarding', ssh::config_bool_translate($x11forwarding), $remove_entries)
 
   # Version dependent items

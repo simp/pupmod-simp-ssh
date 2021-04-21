@@ -15,10 +15,11 @@ key_info = {
         value = key_value[1]
         is_expected.to run.with_params(key, value, nil)
 
-         # verify resource exists
-         resource = catalogue.resource('Sshd_config', key)
-         expect(resource).to_not be_nil
-         expect(resource.to_hash[:value]).to eq(value)
+        # verify resource exists
+        resource = catalogue.resource('Sshd_config', key)
+        expect(resource).to_not be_nil
+        expect(resource[:value]).to eq(value)
+        expect(resource[:notify].to_s).to eq('[Service[sshd]{:name=>"sshd"}]')
       end
     end
   end
@@ -31,7 +32,8 @@ key_info = {
       is_expected.to run.with_params(key, value, remove_keys)
       resource = catalogue.resource('Sshd_config', key)
       expect(resource).to_not be_nil
-      expect(resource.to_hash[:value]).to eq(value)
+      expect(resource[:value]).to eq(value)
+      expect(resource[:notify].to_s).to eq('[Service[sshd]{:name=>"sshd"}]')
     end
   end
 
@@ -43,6 +45,18 @@ key_info = {
       is_expected.to run.with_params(key, value, remove_keys)
       resource = catalogue.resource('Sshd_config', key)
       expect(resource).to be_nil
+    end
+  end
+
+  context 'with no resource notification specified' do
+    it 'should create sshd_config resource without notify' do
+      key = 'ClientAliveCountMax'
+      value = 1
+      is_expected.to run.with_params(key, value, nil, [])
+      resource = catalogue.resource('Sshd_config', key)
+      expect(resource).to_not be_nil
+      expect(resource[:value]).to eq(value)
+      expect(resource[:notify].to_s).to eq('[]')
     end
   end
 end

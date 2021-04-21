@@ -1,2 +1,0 @@
----
-ssh::server::conf::enable_fallback_ciphers : false

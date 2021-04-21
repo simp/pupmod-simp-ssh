@@ -1,6 +1,6 @@
 #%PAM-1.0
 auth       required     pam_sepermit.so
-<% if $ssh::server::conf::oath { %>
+<% if $ssh::server::conf::oath { -%>
 auth       [success=3 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/exclude_groups.oath
 auth       [success=2 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/exclude_users.oath
 auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=<%= $ssh::server::conf::oath_window %>
