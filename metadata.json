@@ -1,6 +1,6 @@
 {
   "name": "simp-ssh",
-  "version": "6.11.3",
+  "version": "6.12.0",
   "author": "SIMP Team",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
@@ -24,7 +24,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 4.13.1 < 7.0.0"
+      "version_requirement": ">= 6.18.0 < 8.0.0"
     },
     {
       "name": "simp/simplib",
@@ -97,7 +97,7 @@
   "requirements": [
     {
       "name": "puppet",
-      "version_requirement": ">= 5.0.0 < 8.0.0"
+      "version_requirement": ">= 6.22.1 < 8.0.0"
     }
   ]
 }

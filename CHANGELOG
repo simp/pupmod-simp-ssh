@@ -1,4 +1,8 @@
-* Tue Apr 20 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 6.11.3
+* Thu Jun 17 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.12.0
+- Removed support for Puppet 5
+- Ensured support for Puppet 7 in requirements and stdlib
+
+* Tue Apr 20 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 6.12.0
 - Update to augeasproviders_ssh < 5.0.0
 
 * Tue Apr 20 2021 Liz Nemsick <lnemsick.simp@gmail.com> - 6.11.2
