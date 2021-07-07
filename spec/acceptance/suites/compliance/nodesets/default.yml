@@ -7,23 +7,32 @@ HOSTS:
     box:        centos/7
     hypervisor: vagrant
     yum_repos:
-      epel:
-        mirrorlist: 'https://mirrors.fedoraproject.org/metalink?repo=epel-7&arch=$basearch'
-        gpgkeys:
-          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-7
       chef-current:
         baseurl: 'https://packages.chef.io/repos/yum/current/el/7/$basearch'
         gpgkeys:
           - https://packages.chef.io/chef.asc
-      simpdeps:
-        baseurl: https://packagecloud.io/simp-project/6_X_Dependencies/el/$releasever/$basearch
+      simp:
+        baseurl: https://download.simp-project.com/simp/yum/rolling/6/el/$releasever/$basearch/simp
         gpgkeys:
-          - https://raw.githubusercontent.com/NationalSecurityAgency/SIMP/master/GPGKEYS/RPM-GPG-KEY-SIMP
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP
           - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-6
-          - https://yum.puppet.com/RPM-GPG-KEY-puppetlabs
-          - https://yum.puppet.com/RPM-GPG-KEY-puppet
-          - https://apt.postgresql.org/pub/repos/yum/RPM-GPG-KEY-PGDG-96
-          - https://dl.fedoraproject.org/pub/epel/RPM-GPG-KEY-EPEL-$releasever
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-SIMP-UNSTABLE
+      simp_epel:
+        baseurl: https://download.simp-project.com/simp/yum/rolling/6/el/$releasever/$basearch/epel
+        gpgkeys:
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-CentOS-$releasever
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-redhat-release
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-EPEL-$releasever
+      simp_postgresql:
+        baseurl: https://download.simp-project.com/simp/yum/rolling/6/el/$releasever/$basearch/postgresql
+        gpgkeys:
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-PGDG-96
+      simp_puppet:
+        baseurl: https://download.simp-project.com/simp/yum/rolling/6/el/$releasever/$basearch/puppet
+        gpgkeys:
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-puppet
+          - https://download.simp-project.com/simp/GPGKEYS/RPM-GPG-KEY-puppetlabs
+
 CONFIG:
   log_level: verbose
   type:      aio
