@@ -3,7 +3,6 @@ require 'spec_helper'
 describe 'ssh::client::host_config_entry' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
-
       context "on #{os}" do
         let(:title) {'new_run'}
 
@@ -269,7 +268,10 @@ describe 'ssh::client::host_config_entry' do
 
         _protocol_sets.each do |_protocol_set|
           context "with protocol = #{_protocol_set}, simp_options::fips = true, and fips_enabled = false" do
-            let(:facts){  os_facts.merge({ :fips_enabled => false }) }
+            #  haveged__rngd_enabled is set as workaround for containers in gitlab
+            let(:facts){  os_facts.merge({ :fips_enabled => false,
+                                           :haveged__rngd_enabled => false })
+            }
             let(:params){{ :protocol => _protocol_set }}
             let(:hieradata) {'global_catalysts_enabled'}
 
