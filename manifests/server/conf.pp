@@ -18,6 +18,10 @@
 #   A list of user name patterns. If specified, login is allowed only for users
 #   whose name matches one of the patterns.
 #
+# @param manage_authorizedkeysfile
+#   This will allow users to opt out of puppet managing their ssh authorized 
+#   keys file. If set to false, authorizedkeysfile will be ignored.
+#
 # @param authorizedkeysfile
 #   This is set to a non-standard location to provide for increased control
 #   over who can log in as a given user.
@@ -259,6 +263,7 @@ class ssh::server::conf (
   Array[String]                                          $acceptenv                       = $ssh::server::params::acceptenv,
   Optional[Array[String]]                                $allowgroups                     = undef,
   Optional[Array[String]]                                $allowusers                      = undef,
+  Boolean                                                $manage_authorizedkeysfile       = true,
   String                                                 $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
   Optional[Stdlib::Absolutepath]                         $authorizedkeyscommand           = undef,
   String                                                 $authorizedkeyscommanduser       = 'nobody',
@@ -460,7 +465,9 @@ class ssh::server::conf (
     ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper', $remove_entries)
     ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
-  ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
+  if $manage_authorizedkeysfile {
+    ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
+  }
   ssh::add_sshd_config('Banner', $banner, $remove_entries)
   ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication } ), $remove_entries)
   ssh::add_sshd_config('Ciphers', $_ciphers, $remove_entries)

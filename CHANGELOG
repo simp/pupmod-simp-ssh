@@ -1,3 +1,7 @@
+* Mon Nov 29 2021 Mike Riddle <mike@sicura.us> - 6.13.0
+- Added an option to turn off managing the AuthorizedKeysFile parameter
+  in /etc/ssh/sshd_config
+
 * Thu Jun 17 2021 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.12.0
 - Removed support for Puppet 5
 - Ensured support for Puppet 7 in requirements and stdlib
