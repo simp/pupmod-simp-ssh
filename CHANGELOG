@@ -1,3 +1,6 @@
+* Sat Oct 15 2022 Trevor Vaughan <trevor@sicura.us> - 6.13.1
+- Remove unnecessary augeasproviders_core module dependency
+
 * Mon Nov 29 2021 Mike Riddle <mike@sicura.us> - 6.13.0
 - Added an option to turn off managing the AuthorizedKeysFile parameter
   in /etc/ssh/sshd_config
