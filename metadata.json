@@ -83,6 +83,13 @@
       ]
     },
     {
+      "operatingsystem": "Rocky",
+      "operatingsystemrelease": [
+        "7",
+        "8"
+      ]
+    },
+    {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
         "7",
