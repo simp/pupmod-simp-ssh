@@ -60,16 +60,6 @@ describe 'ssh class' do
         end
       end
 
-      context 'with turning off AuthorizedKeysFile management'
-        disable_manage_authorizedkeysfile = server_hieradata.merge(
-          { 'ssh::server::conf::manage_authorizedkeysfile' => false,
-            'ssh::server::conf::authorizedkeysfile'        => '/foo/bar' }
-        )
-        set_hieradata_on(server, disable_fallback_hieradata)
-        apply_manifest_on(server, disable_manage_authorizedkeysfile, catch_changes: true)
-        File.read('/etc/ssh/sshd_config').should_not match('AuthorizedKeysFile\s*/foo/bar')
-      end
-
       context 'logging into machines as root' do
 
         it 'should set the root password' do
@@ -303,6 +293,19 @@ describe 'ssh class' do
               'RequestTTY auto'
             ]
           end
+        end
+
+        it 'should be able to disable AuthorizedKeysFile management' do
+          disable_manage_authorizedkeysfile = server_hieradata.merge(
+            { 'ssh::server::conf::manage_authorizedkeysfile' => false,
+              'ssh::server::conf::authorizedkeysfile'        => '/foo/bar'
+            }
+          )
+
+          set_hieradata_on(server, disable_manage_authorizedkeysfile)
+          apply_manifest_on(server, server_manifest, catch_changes: true)
+
+          expect(file_content_on(server, '/etc/ssh/sshd_config').strip).to_not match('AuthorizedKeysFile\s*/foo/bar')
         end
       end
     end
