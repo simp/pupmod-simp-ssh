@@ -504,6 +504,13 @@ describe 'ssh::server::conf' do
           :openssh_version  => latest_openssh_version,
           :selinux_enforced => true
         } )
+        os_facts[:selinux] = true
+        os_facts[:os][:selinux][:config_mode] = 'enforcing'
+        os_facts[:os][:selinux][:config_policy] = 'targeted'
+        os_facts[:os][:selinux][:current_mode] = 'enforcing'
+        os_facts[:os][:selinux][:enabled] = true
+        os_facts[:os][:selinux][:enforced] = true
+        os_facts
       }
 
       context 'with a non-standard ssh port' do

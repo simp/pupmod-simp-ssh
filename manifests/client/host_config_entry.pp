@@ -578,9 +578,9 @@ define ssh::client::host_config_entry (
   }
   ssh_config{
     default:
-      host   => $name,
+      ensure => $_ensure,
       target => $target,
-      ensure => $_ensure
+      host   => $name,
     ;
     "${_name}__CompressionLevel":
       key   => 'CompressionLevel',
@@ -647,8 +647,8 @@ define ssh::client::host_config_entry (
 
   if $hostkeyalgorithms{
     ssh_config { "${_name}__HostKeyAlgorithms":
-      key   => 'HostKeyAlgorithms',
-      value => $hostkeyalgorithms,
+      key    => 'HostKeyAlgorithms',
+      value  => $hostkeyalgorithms,
       host   => $name,
       target => $target,
     }
