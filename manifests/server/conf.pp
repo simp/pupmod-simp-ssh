@@ -307,7 +307,7 @@ class ssh::server::conf (
 
 #### SIMP parameters ####
   String                                                 $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
-  Stdlib::Absolutepath                                   $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem",
+  Stdlib::Absolutepath                                   $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['networking']['fqdn']}.pem",
   Boolean                                                $enable_fallback_ciphers         = true,
   Array[String]                                          $fallback_ciphers                = $ssh::server::params::fallback_ciphers,
   Boolean                                                $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
@@ -541,7 +541,7 @@ class ssh::server::conf (
   }
 
   $_ports.each |Simplib::Port $sel_port| {
-    if ($sel_port != 22) and $facts['selinux_enforced'] {
+    if ($sel_port != 22) and $facts['os']['selinux']['enforced'] {
       if simplib::module_exist('simp/selinux') {
         simplib::assert_optional_dependency($module_name, 'simp/selinux')
         simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
