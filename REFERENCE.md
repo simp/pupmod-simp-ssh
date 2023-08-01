@@ -7,16 +7,16 @@
 ### Classes
 
 * [`ssh`](#ssh): Sets up files for ssh.
-* [`ssh::authorized_keys`](#sshauthorized_keys): Add `ssh_authorized_keys` via hiera in a loop
-* [`ssh::client`](#sshclient): Sets up a ssh client and creates /etc/ssh/ssh_config.
-* [`ssh::client::params`](#sshclientparams): Default parameters for the SSH client
-* [`ssh::server`](#sshserver): Sets up a ssh server and starts sshd.
-* [`ssh::server::conf`](#sshserverconf): Sets up sshd_config and adds an iptables rule if iptables is being used.
-* [`ssh::server::params`](#sshserverparams): Default parameters for the SSH Server
+* [`ssh::authorized_keys`](#ssh--authorized_keys): Add `ssh_authorized_keys` via hiera in a loop
+* [`ssh::client`](#ssh--client): Sets up a ssh client and creates /etc/ssh/ssh_config.
+* [`ssh::client::params`](#ssh--client--params): Default parameters for the SSH client
+* [`ssh::server`](#ssh--server): Sets up a ssh server and starts sshd.
+* [`ssh::server::conf`](#ssh--server--conf): Sets up sshd_config and adds an iptables rule if iptables is being used.
+* [`ssh::server::params`](#ssh--server--params): Default parameters for the SSH Server
 
 ### Defined types
 
-* [`ssh::client::host_config_entry`](#sshclienthost_config_entry): Creates a host entry to ssh_config
+* [`ssh::client::host_config_entry`](#ssh--client--host_config_entry): Creates a host entry to ssh_config
 
 ### Resource types
 
@@ -24,19 +24,19 @@
 
 ### Functions
 
-* [`ssh::add_sshd_config`](#sshadd_sshd_config): Add a sshd_config entry if it is not in the remove list
-* [`ssh::autokey`](#sshautokey): Generates a random RSA SSH private and public key pair for a passed
-* [`ssh::config_bool_translate`](#sshconfig_bool_translate): Translates true|false or 'true'|'false' to 'yes'|'no', respectively
-* [`ssh::format_host_entry_for_sorting`](#sshformat_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
-* [`ssh::global_known_hosts`](#sshglobal_known_hosts): Update the ssh_known_hosts files for all hosts, purging old files,
-* [`ssh::parse_ssh_pubkey`](#sshparse_ssh_pubkey): Take an ssh pubkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
+* [`ssh::add_sshd_config`](#ssh--add_sshd_config): Add a sshd_config entry if it is not in the remove list
+* [`ssh::autokey`](#ssh--autokey): Generates a random RSA SSH private and public key pair for a passed
+* [`ssh::config_bool_translate`](#ssh--config_bool_translate): Translates true|false or 'true'|'false' to 'yes'|'no', respectively
+* [`ssh::format_host_entry_for_sorting`](#ssh--format_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
+* [`ssh::global_known_hosts`](#ssh--global_known_hosts): Update the ssh_known_hosts files for all hosts, purging old files,
+* [`ssh::parse_ssh_pubkey`](#ssh--parse_ssh_pubkey): Take an ssh pubkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
 
 ### Data types
 
-* [`Ssh::Authentications`](#sshauthentications): Valid SSH Authentication Settings
-* [`Ssh::Loglevel`](#sshloglevel): Valid SSH Loglevels
-* [`Ssh::PermitRootLogin`](#sshpermitrootlogin): Valid Settings for PermitRootLogin
-* [`Ssh::Syslogfacility`](#sshsyslogfacility): Valid SSH Syslog Facility Settings
+* [`Ssh::Authentications`](#Ssh--Authentications): Valid SSH Authentication Settings
+* [`Ssh::Loglevel`](#Ssh--Loglevel): Valid SSH Loglevels
+* [`Ssh::PermitRootLogin`](#Ssh--PermitRootLogin): Valid Settings for PermitRootLogin
+* [`Ssh::Syslogfacility`](#Ssh--Syslogfacility): Valid SSH Syslog Facility Settings
 
 ## Classes
 
@@ -48,26 +48,26 @@ Sets up files for ssh.
 
 The following parameters are available in the `ssh` class:
 
-* [`enable_client`](#enable_client)
-* [`enable_server`](#enable_server)
+* [`enable_client`](#-ssh--enable_client)
+* [`enable_server`](#-ssh--enable_server)
 
-##### <a name="enable_client"></a>`enable_client`
+##### <a name="-ssh--enable_client"></a>`enable_client`
 
 Data type: `Boolean`
 
 If true, set up the SSH client configuration files.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="enable_server"></a>`enable_server`
+##### <a name="-ssh--enable_server"></a>`enable_server`
 
 Data type: `Boolean`
 
 If true, set up an SSH server on the system.
 
-Default value: ``true``
+Default value: `true`
 
-### <a name="sshauthorized_keys"></a>`ssh::authorized_keys`
+### <a name="ssh--authorized_keys"></a>`ssh::authorized_keys`
 
 This class was designed so you can just paste the output of the ssh pubkey into
 hiera and it will work. See the example below for details.
@@ -105,9 +105,9 @@ ssh::authorized_keys::keys:
 
 The following parameters are available in the `ssh::authorized_keys` class:
 
-* [`keys`](#keys)
+* [`keys`](#-ssh--authorized_keys--keys)
 
-##### <a name="keys"></a>`keys`
+##### <a name="-ssh--authorized_keys--keys"></a>`keys`
 
 Data type: `Hash`
 
@@ -115,7 +115,7 @@ The hash to generate key resouces from
 
 Default value: `{}`
 
-### <a name="sshclient"></a>`ssh::client`
+### <a name="ssh--client"></a>`ssh::client`
 
 Sets up a ssh client and creates /etc/ssh/ssh_config.
 
@@ -123,21 +123,21 @@ Sets up a ssh client and creates /etc/ssh/ssh_config.
 
 The following parameters are available in the `ssh::client` class:
 
-* [`add_default_entry`](#add_default_entry)
-* [`fips`](#fips)
-* [`haveged`](#haveged)
-* [`package_ensure`](#package_ensure)
+* [`add_default_entry`](#-ssh--client--add_default_entry)
+* [`fips`](#-ssh--client--fips)
+* [`haveged`](#-ssh--client--haveged)
+* [`package_ensure`](#-ssh--client--package_ensure)
 
-##### <a name="add_default_entry"></a>`add_default_entry`
+##### <a name="-ssh--client--add_default_entry"></a>`add_default_entry`
 
 Data type: `Boolean`
 
 Set this if you wish to automatically
 have the '*' Host entry set up with some sane defaults.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="fips"></a>`fips`
+##### <a name="-ssh--client--fips"></a>`fips`
 
 Data type: `Boolean`
 
@@ -145,7 +145,7 @@ If set or FIPS is already enabled, adjust for FIPS mode.
 
 Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
 
-##### <a name="haveged"></a>`haveged`
+##### <a name="-ssh--client--haveged"></a>`haveged`
 
 Data type: `Boolean`
 
@@ -153,7 +153,7 @@ If true, include the haveged module to assist with entropy generation.
 
 Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
 
-##### <a name="package_ensure"></a>`package_ensure`
+##### <a name="-ssh--client--package_ensure"></a>`package_ensure`
 
 Data type: `String`
 
@@ -161,11 +161,11 @@ The ensure status the openssh-clients package
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
-### <a name="sshclientparams"></a>`ssh::client::params`
+### <a name="ssh--client--params"></a>`ssh::client::params`
 
 Default parameters for the SSH client
 
-### <a name="sshserver"></a>`ssh::server`
+### <a name="ssh--server"></a>`ssh::server`
 
 Sets up a ssh server and starts sshd.
 
@@ -173,10 +173,10 @@ Sets up a ssh server and starts sshd.
 
 The following parameters are available in the `ssh::server` class:
 
-* [`server_ensure`](#server_ensure)
-* [`ldap_ensure`](#ldap_ensure)
+* [`server_ensure`](#-ssh--server--server_ensure)
+* [`ldap_ensure`](#-ssh--server--ldap_ensure)
 
-##### <a name="server_ensure"></a>`server_ensure`
+##### <a name="-ssh--server--server_ensure"></a>`server_ensure`
 
 Data type: `String`
 
@@ -184,7 +184,7 @@ The ensure status of the openssh-server package
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
-##### <a name="ldap_ensure"></a>`ldap_ensure`
+##### <a name="-ssh--server--ldap_ensure"></a>`ldap_ensure`
 
 Data type: `String`
 
@@ -192,7 +192,7 @@ The ensure status of the openssh-ldap package
 
 Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
 
-### <a name="sshserverconf"></a>`ssh::server::conf`
+### <a name="ssh--server--conf"></a>`ssh::server::conf`
 
 ``sshd`` configuration variables can be set using Augeas outside of this
 class with no adverse effects.
@@ -207,66 +207,67 @@ SIMP Parameters ####
 
 The following parameters are available in the `ssh::server::conf` class:
 
-* [`acceptenv`](#acceptenv)
-* [`allowgroups`](#allowgroups)
-* [`allowusers`](#allowusers)
-* [`authorizedkeysfile`](#authorizedkeysfile)
-* [`authorizedkeyscommand`](#authorizedkeyscommand)
-* [`authorizedkeyscommanduser`](#authorizedkeyscommanduser)
-* [`banner`](#banner)
-* [`challengeresponseauthentication`](#challengeresponseauthentication)
-* [`ciphers`](#ciphers)
-* [`clientalivecountmax`](#clientalivecountmax)
-* [`clientaliveinterval`](#clientaliveinterval)
-* [`compression`](#compression)
-* [`denygroups`](#denygroups)
-* [`denyusers`](#denyusers)
-* [`gssapiauthentication`](#gssapiauthentication)
-* [`hostbasedauthentication`](#hostbasedauthentication)
-* [`ignorerhosts`](#ignorerhosts)
-* [`ignoreuserknownhosts`](#ignoreuserknownhosts)
-* [`kerberosauthentication`](#kerberosauthentication)
-* [`kex_algorithms`](#kex_algorithms)
-* [`listenaddress`](#listenaddress)
-* [`logingracetime`](#logingracetime)
-* [`ssh_loglevel`](#ssh_loglevel)
-* [`macs`](#macs)
-* [`maxauthtries`](#maxauthtries)
-* [`passwordauthentication`](#passwordauthentication)
-* [`permitemptypasswords`](#permitemptypasswords)
-* [`permitrootlogin`](#permitrootlogin)
-* [`permituserenvironment`](#permituserenvironment)
-* [`port`](#port)
-* [`printlastlog`](#printlastlog)
-* [`protocol`](#protocol)
-* [`rhostsrsaauthentication`](#rhostsrsaauthentication)
-* [`strictmodes`](#strictmodes)
-* [`subsystem`](#subsystem)
-* [`syslogfacility`](#syslogfacility)
-* [`tcpwrappers`](#tcpwrappers)
-* [`usepam`](#usepam)
-* [`manage_pam_sshd`](#manage_pam_sshd)
-* [`oath`](#oath)
-* [`oath_window`](#oath_window)
-* [`useprivilegeseparation`](#useprivilegeseparation)
-* [`x11forwarding`](#x11forwarding)
-* [`custom_entries`](#custom_entries)
-* [`remove_entries`](#remove_entries)
-* [`remove_subsystems`](#remove_subsystems)
-* [`app_pki_external_source`](#app_pki_external_source)
-* [`app_pki_key`](#app_pki_key)
-* [`enable_fallback_ciphers`](#enable_fallback_ciphers)
-* [`fallback_ciphers`](#fallback_ciphers)
-* [`fips`](#fips)
-* [`firewall`](#firewall)
-* [`haveged`](#haveged)
-* [`ldap`](#ldap)
-* [`pki`](#pki)
-* [`sssd`](#sssd)
-* [`ensure_sssd_packages`](#ensure_sssd_packages)
-* [`trusted_nets`](#trusted_nets)
+* [`acceptenv`](#-ssh--server--conf--acceptenv)
+* [`allowgroups`](#-ssh--server--conf--allowgroups)
+* [`allowusers`](#-ssh--server--conf--allowusers)
+* [`manage_authorizedkeysfile`](#-ssh--server--conf--manage_authorizedkeysfile)
+* [`authorizedkeysfile`](#-ssh--server--conf--authorizedkeysfile)
+* [`authorizedkeyscommand`](#-ssh--server--conf--authorizedkeyscommand)
+* [`authorizedkeyscommanduser`](#-ssh--server--conf--authorizedkeyscommanduser)
+* [`banner`](#-ssh--server--conf--banner)
+* [`challengeresponseauthentication`](#-ssh--server--conf--challengeresponseauthentication)
+* [`ciphers`](#-ssh--server--conf--ciphers)
+* [`clientalivecountmax`](#-ssh--server--conf--clientalivecountmax)
+* [`clientaliveinterval`](#-ssh--server--conf--clientaliveinterval)
+* [`compression`](#-ssh--server--conf--compression)
+* [`denygroups`](#-ssh--server--conf--denygroups)
+* [`denyusers`](#-ssh--server--conf--denyusers)
+* [`gssapiauthentication`](#-ssh--server--conf--gssapiauthentication)
+* [`hostbasedauthentication`](#-ssh--server--conf--hostbasedauthentication)
+* [`ignorerhosts`](#-ssh--server--conf--ignorerhosts)
+* [`ignoreuserknownhosts`](#-ssh--server--conf--ignoreuserknownhosts)
+* [`kerberosauthentication`](#-ssh--server--conf--kerberosauthentication)
+* [`kex_algorithms`](#-ssh--server--conf--kex_algorithms)
+* [`listenaddress`](#-ssh--server--conf--listenaddress)
+* [`logingracetime`](#-ssh--server--conf--logingracetime)
+* [`ssh_loglevel`](#-ssh--server--conf--ssh_loglevel)
+* [`macs`](#-ssh--server--conf--macs)
+* [`maxauthtries`](#-ssh--server--conf--maxauthtries)
+* [`passwordauthentication`](#-ssh--server--conf--passwordauthentication)
+* [`permitemptypasswords`](#-ssh--server--conf--permitemptypasswords)
+* [`permitrootlogin`](#-ssh--server--conf--permitrootlogin)
+* [`permituserenvironment`](#-ssh--server--conf--permituserenvironment)
+* [`port`](#-ssh--server--conf--port)
+* [`printlastlog`](#-ssh--server--conf--printlastlog)
+* [`protocol`](#-ssh--server--conf--protocol)
+* [`rhostsrsaauthentication`](#-ssh--server--conf--rhostsrsaauthentication)
+* [`strictmodes`](#-ssh--server--conf--strictmodes)
+* [`subsystem`](#-ssh--server--conf--subsystem)
+* [`syslogfacility`](#-ssh--server--conf--syslogfacility)
+* [`tcpwrappers`](#-ssh--server--conf--tcpwrappers)
+* [`usepam`](#-ssh--server--conf--usepam)
+* [`manage_pam_sshd`](#-ssh--server--conf--manage_pam_sshd)
+* [`oath`](#-ssh--server--conf--oath)
+* [`oath_window`](#-ssh--server--conf--oath_window)
+* [`useprivilegeseparation`](#-ssh--server--conf--useprivilegeseparation)
+* [`x11forwarding`](#-ssh--server--conf--x11forwarding)
+* [`custom_entries`](#-ssh--server--conf--custom_entries)
+* [`remove_entries`](#-ssh--server--conf--remove_entries)
+* [`remove_subsystems`](#-ssh--server--conf--remove_subsystems)
+* [`app_pki_external_source`](#-ssh--server--conf--app_pki_external_source)
+* [`app_pki_key`](#-ssh--server--conf--app_pki_key)
+* [`enable_fallback_ciphers`](#-ssh--server--conf--enable_fallback_ciphers)
+* [`fallback_ciphers`](#-ssh--server--conf--fallback_ciphers)
+* [`fips`](#-ssh--server--conf--fips)
+* [`firewall`](#-ssh--server--conf--firewall)
+* [`haveged`](#-ssh--server--conf--haveged)
+* [`ldap`](#-ssh--server--conf--ldap)
+* [`pki`](#-ssh--server--conf--pki)
+* [`sssd`](#-ssh--server--conf--sssd)
+* [`ensure_sssd_packages`](#-ssh--server--conf--ensure_sssd_packages)
+* [`trusted_nets`](#-ssh--server--conf--trusted_nets)
 
-##### <a name="acceptenv"></a>`acceptenv`
+##### <a name="-ssh--server--conf--acceptenv"></a>`acceptenv`
 
 Data type: `Array[String]`
 
@@ -275,7 +276,7 @@ the sessions environment.
 
 Default value: `$ssh::server::params::acceptenv`
 
-##### <a name="allowgroups"></a>`allowgroups`
+##### <a name="-ssh--server--conf--allowgroups"></a>`allowgroups`
 
 Data type: `Optional[Array[String]]`
 
@@ -283,18 +284,27 @@ A list of group name patterns. If specified, login is allowed only for
 users whose primary or supplementary group list matches one of the
 patterns.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="allowusers"></a>`allowusers`
+##### <a name="-ssh--server--conf--allowusers"></a>`allowusers`
 
 Data type: `Optional[Array[String]]`
 
 A list of user name patterns. If specified, login is allowed only for users
 whose name matches one of the patterns.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="authorizedkeysfile"></a>`authorizedkeysfile`
+##### <a name="-ssh--server--conf--manage_authorizedkeysfile"></a>`manage_authorizedkeysfile`
+
+Data type: `Boolean`
+
+This will allow users to opt out of puppet managing their ssh authorized
+keys file. If set to false, authorizedkeysfile will be ignored.
+
+Default value: `true`
+
+##### <a name="-ssh--server--conf--authorizedkeysfile"></a>`authorizedkeysfile`
 
 Data type: `String`
 
@@ -303,15 +313,15 @@ over who can log in as a given user.
 
 Default value: `'/etc/ssh/local_keys/%u'`
 
-##### <a name="authorizedkeyscommand"></a>`authorizedkeyscommand`
+##### <a name="-ssh--server--conf--authorizedkeyscommand"></a>`authorizedkeyscommand`
 
 Data type: `Optional[Stdlib::Absolutepath]`
 
 Specifies a program to be used for lookup of the user's public keys.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="authorizedkeyscommanduser"></a>`authorizedkeyscommanduser`
+##### <a name="-ssh--server--conf--authorizedkeyscommanduser"></a>`authorizedkeyscommanduser`
 
 Data type: `String`
 
@@ -319,7 +329,7 @@ Specifies the user under whose account the AuthorizedKeysCommand is run.
 
 Default value: `'nobody'`
 
-##### <a name="banner"></a>`banner`
+##### <a name="-ssh--server--conf--banner"></a>`banner`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -328,15 +338,15 @@ authentication is allowed.
 
 Default value: `'/etc/issue.net'`
 
-##### <a name="challengeresponseauthentication"></a>`challengeresponseauthentication`
+##### <a name="-ssh--server--conf--challengeresponseauthentication"></a>`challengeresponseauthentication`
 
 Data type: `Boolean`
 
 Specifies whether challenge-response authentication is allowed.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="ciphers"></a>`ciphers`
+##### <a name="-ssh--server--conf--ciphers"></a>`ciphers`
 
 Data type: `Optional[Array[String]]`
 
@@ -344,9 +354,9 @@ Specifies the ciphers allowed for protocol version 2.  When unset, a strong
 set of ciphers is automatically selected by this class, taking into account
 whether the server is in FIPS mode.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="clientalivecountmax"></a>`clientalivecountmax`
+##### <a name="-ssh--server--conf--clientalivecountmax"></a>`clientalivecountmax`
 
 Data type: `Integer`
 
@@ -354,7 +364,7 @@ Data type: `Integer`
 
 Default value: `0`
 
-##### <a name="clientaliveinterval"></a>`clientaliveinterval`
+##### <a name="-ssh--server--conf--clientaliveinterval"></a>`clientaliveinterval`
 
 Data type: `Integer`
 
@@ -362,7 +372,7 @@ Data type: `Integer`
 
 Default value: `600`
 
-##### <a name="compression"></a>`compression`
+##### <a name="-ssh--server--conf--compression"></a>`compression`
 
 Data type: `Variant[Boolean,Enum['delayed']]`
 
@@ -371,25 +381,25 @@ authenticated successfully.
 
 Default value: `'delayed'`
 
-##### <a name="denygroups"></a>`denygroups`
+##### <a name="-ssh--server--conf--denygroups"></a>`denygroups`
 
 Data type: `Optional[Array[String]]`
 
 A list of group name patterns.  If specified, login is disallowed for users
 whose primary or supplementary group list matches one of the patterns.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="denyusers"></a>`denyusers`
+##### <a name="-ssh--server--conf--denyusers"></a>`denyusers`
 
 Data type: `Optional[Array[String]]`
 
 A list of user name patterns.  If specified, login is disallowed for users
 whose name matches one of the patterns.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="gssapiauthentication"></a>`gssapiauthentication`
+##### <a name="-ssh--server--conf--gssapiauthentication"></a>`gssapiauthentication`
 
 Data type: `Boolean`
 
@@ -399,39 +409,39 @@ on the existance of the `ipa` fact.
 
 Default value: `$ssh::server::params::gssapiauthentication`
 
-##### <a name="hostbasedauthentication"></a>`hostbasedauthentication`
+##### <a name="-ssh--server--conf--hostbasedauthentication"></a>`hostbasedauthentication`
 
 Data type: `Boolean`
 
 @see man page for sshd_config
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="ignorerhosts"></a>`ignorerhosts`
-
-Data type: `Boolean`
-
-@see man page for sshd_config
-
-Default value: ``true``
-
-##### <a name="ignoreuserknownhosts"></a>`ignoreuserknownhosts`
+##### <a name="-ssh--server--conf--ignorerhosts"></a>`ignorerhosts`
 
 Data type: `Boolean`
 
 @see man page for sshd_config
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="kerberosauthentication"></a>`kerberosauthentication`
+##### <a name="-ssh--server--conf--ignoreuserknownhosts"></a>`ignoreuserknownhosts`
 
 Data type: `Boolean`
 
 @see man page for sshd_config
 
-Default value: ``false``
+Default value: `true`
 
-##### <a name="kex_algorithms"></a>`kex_algorithms`
+##### <a name="-ssh--server--conf--kerberosauthentication"></a>`kerberosauthentication`
+
+Data type: `Boolean`
+
+@see man page for sshd_config
+
+Default value: `false`
+
+##### <a name="-ssh--server--conf--kex_algorithms"></a>`kex_algorithms`
 
 Data type: `Optional[Array[String]]`
 
@@ -440,17 +450,17 @@ set of algorithms is automatically selected by this class, taking into
 account whether the server is in FIPS mode and whether the version of
 openssh installed supports this feature.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="listenaddress"></a>`listenaddress`
+##### <a name="-ssh--server--conf--listenaddress"></a>`listenaddress`
 
 Data type: `Optional[Variant[Simplib::Host, Array[Simplib::Host]]]`
 
 Specifies the local addresses sshd should listen on.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="logingracetime"></a>`logingracetime`
+##### <a name="-ssh--server--conf--logingracetime"></a>`logingracetime`
 
 Data type: `Integer[0]`
 
@@ -459,15 +469,15 @@ before disconnecting. If the value is 0, there is no limit.
 
 Default value: `120`
 
-##### <a name="ssh_loglevel"></a>`ssh_loglevel`
+##### <a name="-ssh--server--conf--ssh_loglevel"></a>`ssh_loglevel`
 
 Data type: `Optional[Ssh::Loglevel]`
 
 Specifies the verbosity level that is used when logging messages from sshd.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="macs"></a>`macs`
+##### <a name="-ssh--server--conf--macs"></a>`macs`
 
 Data type: `Optional[Array[String]]`
 
@@ -475,9 +485,9 @@ Specifies the available MAC algorithms. When unset, a strong set of ciphers
 is automatically selected by this class, taking into account whether the
 server is in FIPS mode.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="maxauthtries"></a>`maxauthtries`
+##### <a name="-ssh--server--conf--maxauthtries"></a>`maxauthtries`
 
 Data type: `Integer[1]`
 
@@ -486,7 +496,7 @@ connection.
 
 Default value: `6`
 
-##### <a name="passwordauthentication"></a>`passwordauthentication`
+##### <a name="-ssh--server--conf--passwordauthentication"></a>`passwordauthentication`
 
 Data type: `Boolean`
 
@@ -495,34 +505,34 @@ Specifies whether password authentication is allowed on the sshd server.
 * This setting must be managed by default so that switching to and from
   OATH does not lock you out of your system.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="permitemptypasswords"></a>`permitemptypasswords`
+##### <a name="-ssh--server--conf--permitemptypasswords"></a>`permitemptypasswords`
 
 Data type: `Boolean`
 
 When password authentication is allowed, it specifies whether the server
 allows login to accounts with empty password strings.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="permitrootlogin"></a>`permitrootlogin`
+##### <a name="-ssh--server--conf--permitrootlogin"></a>`permitrootlogin`
 
 Data type: `Ssh::PermitRootLogin`
 
 Specifies whether root can log in using SSH.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="permituserenvironment"></a>`permituserenvironment`
+##### <a name="-ssh--server--conf--permituserenvironment"></a>`permituserenvironment`
 
 Data type: `Boolean`
 
 @see man page for sshd_config
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="port"></a>`port`
+##### <a name="-ssh--server--conf--port"></a>`port`
 
 Data type: `Variant[Array[Simplib::Port],Simplib::Port]`
 
@@ -530,16 +540,16 @@ Specifies the port number SSHD listens on.
 
 Default value: `22`
 
-##### <a name="printlastlog"></a>`printlastlog`
+##### <a name="-ssh--server--conf--printlastlog"></a>`printlastlog`
 
 Data type: `Boolean`
 
 Specifies whether SSHD should print the date and time of the last user
 login when a user logs in interactively.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="protocol"></a>`protocol`
+##### <a name="-ssh--server--conf--protocol"></a>`protocol`
 
 Data type: `Array[Integer[1,2]]`
 
@@ -547,7 +557,7 @@ Data type: `Array[Integer[1,2]]`
 
 Default value: `[2]`
 
-##### <a name="rhostsrsaauthentication"></a>`rhostsrsaauthentication`
+##### <a name="-ssh--server--conf--rhostsrsaauthentication"></a>`rhostsrsaauthentication`
 
 Data type: `Optional[Boolean]`
 
@@ -559,15 +569,15 @@ satisfy an outdated, STIG check.
 
 Default value: `$ssh::server::params::rhostsrsaauthentication`
 
-##### <a name="strictmodes"></a>`strictmodes`
+##### <a name="-ssh--server--conf--strictmodes"></a>`strictmodes`
 
 Data type: `Boolean`
 
 @see man page for sshd_config
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="subsystem"></a>`subsystem`
+##### <a name="-ssh--server--conf--subsystem"></a>`subsystem`
 
 Data type: `String`
 
@@ -575,7 +585,7 @@ Configures an external subsystem for file transfers.
 
 Default value: `'sftp /usr/libexec/openssh/sftp-server'`
 
-##### <a name="syslogfacility"></a>`syslogfacility`
+##### <a name="-ssh--server--conf--syslogfacility"></a>`syslogfacility`
 
 Data type: `Ssh::Syslogfacility`
 
@@ -583,7 +593,7 @@ Gives the facility code that is used when logging messages.
 
 Default value: `'AUTHPRIV'`
 
-##### <a name="tcpwrappers"></a>`tcpwrappers`
+##### <a name="-ssh--server--conf--tcpwrappers"></a>`tcpwrappers`
 
 Data type: `Boolean`
 
@@ -591,7 +601,7 @@ If true, enable sshd tcpwrappers.
 
 Default value: `simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })`
 
-##### <a name="usepam"></a>`usepam`
+##### <a name="-ssh--server--conf--usepam"></a>`usepam`
 
 Data type: `Boolean`
 
@@ -599,7 +609,7 @@ Enables the Pluggable Authentication Module interface.
 
 Default value: `simplib::lookup('simp_options::pam', { 'default_value' => true })`
 
-##### <a name="manage_pam_sshd"></a>`manage_pam_sshd`
+##### <a name="-ssh--server--conf--manage_pam_sshd"></a>`manage_pam_sshd`
 
 Data type: `Boolean`
 
@@ -608,7 +618,7 @@ required for the oath option to work properly.
 
 Default value: `$oath`
 
-##### <a name="oath"></a>`oath`
+##### <a name="-ssh--server--conf--oath"></a>`oath`
 
 Data type: `Boolean`
 
@@ -619,7 +629,7 @@ simp_options::oath, defaults to false if not found.
 
 Default value: `simplib::lookup('simp_options::oath', { 'default_value' => false })`
 
-##### <a name="oath_window"></a>`oath_window`
+##### <a name="-ssh--server--conf--oath_window"></a>`oath_window`
 
 Data type: `Integer[0]`
 
@@ -627,7 +637,7 @@ Sets the TOTP window (Defined in RFC 6238 section 5.2)
 
 Default value: `1`
 
-##### <a name="useprivilegeseparation"></a>`useprivilegeseparation`
+##### <a name="-ssh--server--conf--useprivilegeseparation"></a>`useprivilegeseparation`
 
 Data type: `Variant[Boolean,Enum['sandbox']]`
 
@@ -638,15 +648,15 @@ This option has no effect on OpenSSH >= 7.5.0 due to being deprecated.
 
 Default value: `'sandbox'`
 
-##### <a name="x11forwarding"></a>`x11forwarding`
+##### <a name="-ssh--server--conf--x11forwarding"></a>`x11forwarding`
 
 Data type: `Boolean`
 
 Specifies whether X11 forwarding is permitted.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="custom_entries"></a>`custom_entries`
+##### <a name="-ssh--server--conf--custom_entries"></a>`custom_entries`
 
 Data type: `Optional[Hash[String[1],NotUndef]]`
 
@@ -662,9 +672,9 @@ without any validation.
   ssh::server::conf::custom_entries:
     AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="remove_entries"></a>`remove_entries`
+##### <a name="-ssh--server--conf--remove_entries"></a>`remove_entries`
 
 Data type: `Optional[Array[String[1]]]`
 
@@ -674,17 +684,17 @@ List of configuration parameters that will be removed.
   need to be removed using ``sshd_config_match`` resources as described in
   ``augeasproviders_ssh``
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="remove_subsystems"></a>`remove_subsystems`
+##### <a name="-ssh--server--conf--remove_subsystems"></a>`remove_subsystems`
 
 Data type: `Optional[Array[String[1]]]`
 
 List of subsystems that will be removed.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="app_pki_external_source"></a>`app_pki_external_source`
+##### <a name="-ssh--server--conf--app_pki_external_source"></a>`app_pki_external_source`
 
 Data type: `String`
 
@@ -695,16 +705,16 @@ Data type: `String`
 
 Default value: `simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' })`
 
-##### <a name="app_pki_key"></a>`app_pki_key`
+##### <a name="-ssh--server--conf--app_pki_key"></a>`app_pki_key`
 
 Data type: `Stdlib::Absolutepath`
 
 Path and name of the private SSL key file. This key file is used to generate
 the system SSH certificates for consistency.
 
-Default value: `"/etc/pki/simp_apps/sshd/x509/private/${facts['fqdn']}.pem"`
+Default value: `"/etc/pki/simp_apps/sshd/x509/private/${facts['networking']['fqdn']}.pem"`
 
-##### <a name="enable_fallback_ciphers"></a>`enable_fallback_ciphers`
+##### <a name="-ssh--server--conf--enable_fallback_ciphers"></a>`enable_fallback_ciphers`
 
 Data type: `Boolean`
 
@@ -712,9 +722,9 @@ If true, add the fallback ciphers from ssh::server::params to the cipher
 list. This is intended to provide compatibility with non-SIMP systems in a
 way that properly supports FIPS 140-2.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="fallback_ciphers"></a>`fallback_ciphers`
+##### <a name="-ssh--server--conf--fallback_ciphers"></a>`fallback_ciphers`
 
 Data type: `Array[String]`
 
@@ -723,7 +733,7 @@ This is used when $ssh::server::conf::enable_fallback_ciphers is enabled.
 
 Default value: `$ssh::server::params::fallback_ciphers`
 
-##### <a name="fips"></a>`fips`
+##### <a name="-ssh--server--conf--fips"></a>`fips`
 
 Data type: `Boolean`
 
@@ -731,7 +741,7 @@ If set or FIPS is already enabled, adjust for FIPS mode.
 
 Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
 
-##### <a name="firewall"></a>`firewall`
+##### <a name="-ssh--server--conf--firewall"></a>`firewall`
 
 Data type: `Boolean`
 
@@ -739,7 +749,7 @@ If true, use the SIMP iptables class.
 
 Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
 
-##### <a name="haveged"></a>`haveged`
+##### <a name="-ssh--server--conf--haveged"></a>`haveged`
 
 Data type: `Boolean`
 
@@ -747,7 +757,7 @@ If true, include the haveged module to assist with entropy generation.
 
 Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
 
-##### <a name="ldap"></a>`ldap`
+##### <a name="-ssh--server--conf--ldap"></a>`ldap`
 
 Data type: `Boolean`
 
@@ -757,7 +767,7 @@ ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
 
 Default value: `simplib::lookup('simp_options::ldap', { 'default_value' => false })`
 
-##### <a name="pki"></a>`pki`
+##### <a name="-ssh--server--conf--pki"></a>`pki`
 
 Data type: `Variant[Enum['simp'],Boolean]`
 
@@ -775,7 +785,7 @@ Data type: `Variant[Enum['simp'],Boolean]`
 
 Default value: `simplib::lookup('simp_options::pki', { 'default_value' => false })`
 
-##### <a name="sssd"></a>`sssd`
+##### <a name="-ssh--server--conf--sssd"></a>`sssd`
 
 Data type: `Boolean`
 
@@ -783,7 +793,7 @@ If true, use sssd
 
 Default value: `simplib::lookup('simp_options::sssd', { 'default_value' => false })`
 
-##### <a name="ensure_sssd_packages"></a>`ensure_sssd_packages`
+##### <a name="-ssh--server--conf--ensure_sssd_packages"></a>`ensure_sssd_packages`
 
 Data type: `Variant[Boolean,Array[String[1]]]`
 
@@ -793,7 +803,7 @@ A list of SSSD-related packages to ensure are installed on the system.
 
 Default value: `['sssd-common']`
 
-##### <a name="trusted_nets"></a>`trusted_nets`
+##### <a name="-ssh--server--conf--trusted_nets"></a>`trusted_nets`
 
 Data type: `Simplib::Netlist`
 
@@ -801,14 +811,14 @@ The networks to allow to connect to SSH.
 
 Default value: `['ALL']`
 
-### <a name="sshserverparams"></a>`ssh::server::params`
+### <a name="ssh--server--params"></a>`ssh::server::params`
 
 * ``Curve`` exchange was not fully supported until openssh 6.5
 * RhostsRSAAuthentication was removed in openssh 7.4
 
 ## Defined types
 
-### <a name="sshclienthost_config_entry"></a>`ssh::client::host_config_entry`
+### <a name="ssh--client--host_config_entry"></a>`ssh::client::host_config_entry`
 
 GSSAPI may be used.
 
@@ -832,77 +842,77 @@ ssh::client::host_config_entry { '*':
 
 The following parameters are available in the `ssh::client::host_config_entry` defined type:
 
-* [`target`](#target)
-* [`address_family`](#address_family)
-* [`batchmode`](#batchmode)
-* [`bindaddress`](#bindaddress)
-* [`challengeresponseauthentication`](#challengeresponseauthentication)
-* [`checkhostip`](#checkhostip)
-* [`cipher`](#cipher)
-* [`ciphers`](#ciphers)
-* [`clearallforwardings`](#clearallforwardings)
-* [`compression`](#compression)
-* [`compressionlevel`](#compressionlevel)
-* [`connectionattempts`](#connectionattempts)
-* [`connecttimeout`](#connecttimeout)
-* [`controlmaster`](#controlmaster)
-* [`controlpath`](#controlpath)
-* [`dynamicforward`](#dynamicforward)
-* [`enablesshkeysign`](#enablesshkeysign)
-* [`escapechar`](#escapechar)
-* [`exitonforwardfailure`](#exitonforwardfailure)
-* [`forwardagent`](#forwardagent)
-* [`forwardx11`](#forwardx11)
-* [`forwardx11trusted`](#forwardx11trusted)
-* [`gatewayports`](#gatewayports)
-* [`globalknownhostsfile`](#globalknownhostsfile)
-* [`gssapiauthentication`](#gssapiauthentication)
-* [`gssapidelegatecredentials`](#gssapidelegatecredentials)
-* [`gssapikeyexchange`](#gssapikeyexchange)
-* [`gssapirenewalforcesrekey`](#gssapirenewalforcesrekey)
-* [`gssapitrustdns`](#gssapitrustdns)
-* [`hashknownhosts`](#hashknownhosts)
-* [`hostbasedauthentication`](#hostbasedauthentication)
-* [`hostkeyalgorithms`](#hostkeyalgorithms)
-* [`hostkeyalias`](#hostkeyalias)
-* [`hostname`](#hostname)
-* [`identitiesonly`](#identitiesonly)
-* [`identityfile`](#identityfile)
-* [`kbdinteractiveauthentication`](#kbdinteractiveauthentication)
-* [`kbdinteractivedevices`](#kbdinteractivedevices)
-* [`localcommand`](#localcommand)
-* [`localforward`](#localforward)
-* [`ssh_loglevel`](#ssh_loglevel)
-* [`macs`](#macs)
-* [`nohostauthenticationforlocalhost`](#nohostauthenticationforlocalhost)
-* [`numberofpasswordprompts`](#numberofpasswordprompts)
-* [`passwordauthentication`](#passwordauthentication)
-* [`permitlocalcommand`](#permitlocalcommand)
-* [`port`](#port)
-* [`preferredauthentications`](#preferredauthentications)
-* [`protocol`](#protocol)
-* [`proxycommand`](#proxycommand)
-* [`pubkeyauthentication`](#pubkeyauthentication)
-* [`rekeylimit`](#rekeylimit)
-* [`remoteforward`](#remoteforward)
-* [`rhostsrsaauthentication`](#rhostsrsaauthentication)
-* [`rsaauthentication`](#rsaauthentication)
-* [`sendenv`](#sendenv)
-* [`serveralivecountmax`](#serveralivecountmax)
-* [`serveraliveinterval`](#serveraliveinterval)
-* [`smartcarddevice`](#smartcarddevice)
-* [`stricthostkeychecking`](#stricthostkeychecking)
-* [`tcpkeepalive`](#tcpkeepalive)
-* [`tunnel`](#tunnel)
-* [`tunneldevice`](#tunneldevice)
-* [`useprivilegedport`](#useprivilegedport)
-* [`user`](#user)
-* [`userknownhostsfile`](#userknownhostsfile)
-* [`verifyhostkeydns`](#verifyhostkeydns)
-* [`visualhostkey`](#visualhostkey)
-* [`xauthlocation`](#xauthlocation)
+* [`target`](#-ssh--client--host_config_entry--target)
+* [`address_family`](#-ssh--client--host_config_entry--address_family)
+* [`batchmode`](#-ssh--client--host_config_entry--batchmode)
+* [`bindaddress`](#-ssh--client--host_config_entry--bindaddress)
+* [`challengeresponseauthentication`](#-ssh--client--host_config_entry--challengeresponseauthentication)
+* [`checkhostip`](#-ssh--client--host_config_entry--checkhostip)
+* [`cipher`](#-ssh--client--host_config_entry--cipher)
+* [`ciphers`](#-ssh--client--host_config_entry--ciphers)
+* [`clearallforwardings`](#-ssh--client--host_config_entry--clearallforwardings)
+* [`compression`](#-ssh--client--host_config_entry--compression)
+* [`compressionlevel`](#-ssh--client--host_config_entry--compressionlevel)
+* [`connectionattempts`](#-ssh--client--host_config_entry--connectionattempts)
+* [`connecttimeout`](#-ssh--client--host_config_entry--connecttimeout)
+* [`controlmaster`](#-ssh--client--host_config_entry--controlmaster)
+* [`controlpath`](#-ssh--client--host_config_entry--controlpath)
+* [`dynamicforward`](#-ssh--client--host_config_entry--dynamicforward)
+* [`enablesshkeysign`](#-ssh--client--host_config_entry--enablesshkeysign)
+* [`escapechar`](#-ssh--client--host_config_entry--escapechar)
+* [`exitonforwardfailure`](#-ssh--client--host_config_entry--exitonforwardfailure)
+* [`forwardagent`](#-ssh--client--host_config_entry--forwardagent)
+* [`forwardx11`](#-ssh--client--host_config_entry--forwardx11)
+* [`forwardx11trusted`](#-ssh--client--host_config_entry--forwardx11trusted)
+* [`gatewayports`](#-ssh--client--host_config_entry--gatewayports)
+* [`globalknownhostsfile`](#-ssh--client--host_config_entry--globalknownhostsfile)
+* [`gssapiauthentication`](#-ssh--client--host_config_entry--gssapiauthentication)
+* [`gssapidelegatecredentials`](#-ssh--client--host_config_entry--gssapidelegatecredentials)
+* [`gssapikeyexchange`](#-ssh--client--host_config_entry--gssapikeyexchange)
+* [`gssapirenewalforcesrekey`](#-ssh--client--host_config_entry--gssapirenewalforcesrekey)
+* [`gssapitrustdns`](#-ssh--client--host_config_entry--gssapitrustdns)
+* [`hashknownhosts`](#-ssh--client--host_config_entry--hashknownhosts)
+* [`hostbasedauthentication`](#-ssh--client--host_config_entry--hostbasedauthentication)
+* [`hostkeyalgorithms`](#-ssh--client--host_config_entry--hostkeyalgorithms)
+* [`hostkeyalias`](#-ssh--client--host_config_entry--hostkeyalias)
+* [`hostname`](#-ssh--client--host_config_entry--hostname)
+* [`identitiesonly`](#-ssh--client--host_config_entry--identitiesonly)
+* [`identityfile`](#-ssh--client--host_config_entry--identityfile)
+* [`kbdinteractiveauthentication`](#-ssh--client--host_config_entry--kbdinteractiveauthentication)
+* [`kbdinteractivedevices`](#-ssh--client--host_config_entry--kbdinteractivedevices)
+* [`localcommand`](#-ssh--client--host_config_entry--localcommand)
+* [`localforward`](#-ssh--client--host_config_entry--localforward)
+* [`ssh_loglevel`](#-ssh--client--host_config_entry--ssh_loglevel)
+* [`macs`](#-ssh--client--host_config_entry--macs)
+* [`nohostauthenticationforlocalhost`](#-ssh--client--host_config_entry--nohostauthenticationforlocalhost)
+* [`numberofpasswordprompts`](#-ssh--client--host_config_entry--numberofpasswordprompts)
+* [`passwordauthentication`](#-ssh--client--host_config_entry--passwordauthentication)
+* [`permitlocalcommand`](#-ssh--client--host_config_entry--permitlocalcommand)
+* [`port`](#-ssh--client--host_config_entry--port)
+* [`preferredauthentications`](#-ssh--client--host_config_entry--preferredauthentications)
+* [`protocol`](#-ssh--client--host_config_entry--protocol)
+* [`proxycommand`](#-ssh--client--host_config_entry--proxycommand)
+* [`pubkeyauthentication`](#-ssh--client--host_config_entry--pubkeyauthentication)
+* [`rekeylimit`](#-ssh--client--host_config_entry--rekeylimit)
+* [`remoteforward`](#-ssh--client--host_config_entry--remoteforward)
+* [`rhostsrsaauthentication`](#-ssh--client--host_config_entry--rhostsrsaauthentication)
+* [`rsaauthentication`](#-ssh--client--host_config_entry--rsaauthentication)
+* [`sendenv`](#-ssh--client--host_config_entry--sendenv)
+* [`serveralivecountmax`](#-ssh--client--host_config_entry--serveralivecountmax)
+* [`serveraliveinterval`](#-ssh--client--host_config_entry--serveraliveinterval)
+* [`smartcarddevice`](#-ssh--client--host_config_entry--smartcarddevice)
+* [`stricthostkeychecking`](#-ssh--client--host_config_entry--stricthostkeychecking)
+* [`tcpkeepalive`](#-ssh--client--host_config_entry--tcpkeepalive)
+* [`tunnel`](#-ssh--client--host_config_entry--tunnel)
+* [`tunneldevice`](#-ssh--client--host_config_entry--tunneldevice)
+* [`useprivilegedport`](#-ssh--client--host_config_entry--useprivilegedport)
+* [`user`](#-ssh--client--host_config_entry--user)
+* [`userknownhostsfile`](#-ssh--client--host_config_entry--userknownhostsfile)
+* [`verifyhostkeydns`](#-ssh--client--host_config_entry--verifyhostkeydns)
+* [`visualhostkey`](#-ssh--client--host_config_entry--visualhostkey)
+* [`xauthlocation`](#-ssh--client--host_config_entry--xauthlocation)
 
-##### <a name="target"></a>`target`
+##### <a name="-ssh--client--host_config_entry--target"></a>`target`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -910,7 +920,7 @@ Absolute path to the ssh_config file to manage.
 
 Default value: `'/etc/ssh/ssh_config'`
 
-##### <a name="address_family"></a>`address_family`
+##### <a name="-ssh--client--host_config_entry--address_family"></a>`address_family`
 
 Data type: `Enum['any', 'inet', 'inet6']`
 
@@ -919,7 +929,7 @@ Valid options: 'any', 'inet', 'inet6'.
 
 Default value: `'any'`
 
-##### <a name="batchmode"></a>`batchmode`
+##### <a name="-ssh--client--host_config_entry--batchmode"></a>`batchmode`
 
 Data type: `Boolean`
 
@@ -927,9 +937,9 @@ If set to true, passphrase/password querying will
 be disabled. This option is useful in scripts and other batch jobs where no
 user is present to supply the password.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="bindaddress"></a>`bindaddress`
+##### <a name="-ssh--client--host_config_entry--bindaddress"></a>`bindaddress`
 
 Data type: `Optional[Simplib::Host]`
 
@@ -938,18 +948,18 @@ the source address of the connection. Only useful on systems with more than
 one address. Note that this option does not work if UsePrivilegedPort is set
 to false.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="challengeresponseauthentication"></a>`challengeresponseauthentication`
+##### <a name="-ssh--client--host_config_entry--challengeresponseauthentication"></a>`challengeresponseauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to use
 challenge-response authentication.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="checkhostip"></a>`checkhostip`
+##### <a name="-ssh--client--host_config_entry--checkhostip"></a>`checkhostip`
 
 Data type: `Boolean`
 
@@ -959,9 +969,9 @@ ssh to detect if a host key changed due to DNS spoofing and will add
 addresses of destination hosts to ~/.ssh/known_hosts in the process,
 regardless of the setting of StrictHostKeyChecking.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="cipher"></a>`cipher`
+##### <a name="-ssh--client--host_config_entry--cipher"></a>`cipher`
 
 Data type: `Enum['blowfish', '3des', 'des']`
 
@@ -970,7 +980,7 @@ in protocol version 1. Valid Options: 'blowfish', '3des', 'des'.
 
 Default value: `'3des'`
 
-##### <a name="ciphers"></a>`ciphers`
+##### <a name="-ssh--client--host_config_entry--ciphers"></a>`ciphers`
 
 Data type: `Optional[Array[String]]`
 
@@ -979,9 +989,9 @@ order of preference. When unset, a strong set of ciphers is
 automatically selected by this class, taking into account whether
 the server is in FIPS mode.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="clearallforwardings"></a>`clearallforwardings`
+##### <a name="-ssh--client--host_config_entry--clearallforwardings"></a>`clearallforwardings`
 
 Data type: `Boolean`
 
@@ -989,17 +999,17 @@ Specifies that all local, remote, and
 dynamic port forwardings specified in the configuration files or on the
 command line be cleared.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="compression"></a>`compression`
+##### <a name="-ssh--client--host_config_entry--compression"></a>`compression`
 
 Data type: `Boolean`
 
 Specifies whether to use compression.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="compressionlevel"></a>`compressionlevel`
+##### <a name="-ssh--client--host_config_entry--compressionlevel"></a>`compressionlevel`
 
 Data type: `Integer[1,9]`
 
@@ -1008,7 +1018,7 @@ compression is enabled.
 
 Default value: `6`
 
-##### <a name="connectionattempts"></a>`connectionattempts`
+##### <a name="-ssh--client--host_config_entry--connectionattempts"></a>`connectionattempts`
 
 Data type: `Integer[1]`
 
@@ -1017,7 +1027,7 @@ second) to make before exiting.
 
 Default value: `1`
 
-##### <a name="connecttimeout"></a>`connecttimeout`
+##### <a name="-ssh--client--host_config_entry--connecttimeout"></a>`connecttimeout`
 
 Data type: `Integer[0]`
 
@@ -1027,7 +1037,7 @@ timeout.
 
 Default value: `0`
 
-##### <a name="controlmaster"></a>`controlmaster`
+##### <a name="-ssh--client--host_config_entry--controlmaster"></a>`controlmaster`
 
 Data type: `Enum['yes','no','ask']`
 
@@ -1036,16 +1046,16 @@ single network connection.
 
 Default value: `'no'`
 
-##### <a name="controlpath"></a>`controlpath`
+##### <a name="-ssh--client--host_config_entry--controlpath"></a>`controlpath`
 
 Data type: `Optional[Variant[Stdlib::Absolutepath, Enum['none']]]`
 
 Specify the path to the control socket used for
 connection sharing as set by controlmaster.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="dynamicforward"></a>`dynamicforward`
+##### <a name="-ssh--client--host_config_entry--dynamicforward"></a>`dynamicforward`
 
 Data type: `Optional[Variant[Simplib::Port, Simplib::Host::Port]]`
 
@@ -1053,18 +1063,18 @@ Specifies that a TCP port on the local machine
 be forwarded over the secure channel, and the application protocol is then
 used to determine where to connect to from the remote machine.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="enablesshkeysign"></a>`enablesshkeysign`
+##### <a name="-ssh--client--host_config_entry--enablesshkeysign"></a>`enablesshkeysign`
 
 Data type: `Boolean`
 
 Setting this option to true enables the use
 of the helper program ssh-keysign during HostbasedAuthentication.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="escapechar"></a>`escapechar`
+##### <a name="-ssh--client--host_config_entry--escapechar"></a>`escapechar`
 
 Data type: `Pattern[/^[[:graph:]]$/, /^\^[[:alpha:]]$/, /^none$/]`
 
@@ -1072,7 +1082,7 @@ Sets the default escape character. Must be a single character.
 
 Default value: `'~'`
 
-##### <a name="exitonforwardfailure"></a>`exitonforwardfailure`
+##### <a name="-ssh--client--host_config_entry--exitonforwardfailure"></a>`exitonforwardfailure`
 
 Data type: `Boolean`
 
@@ -1080,54 +1090,54 @@ Specifies whether ssh should terminate
 the connection if it cannot set up all requested dynamic, tunnel, local, and
 remote port forwardings.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="forwardagent"></a>`forwardagent`
+##### <a name="-ssh--client--host_config_entry--forwardagent"></a>`forwardagent`
 
 Data type: `Boolean`
 
 Specifies whether the connection to the
 authentication agent (if any) will be forwarded to the remote machine.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="forwardx11"></a>`forwardx11`
+##### <a name="-ssh--client--host_config_entry--forwardx11"></a>`forwardx11`
 
 Data type: `Boolean`
 
 Specifies whether X11 connections will be
 automatically redirected over the secure channel and DISPLAY set.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="forwardx11trusted"></a>`forwardx11trusted`
+##### <a name="-ssh--client--host_config_entry--forwardx11trusted"></a>`forwardx11trusted`
 
 Data type: `Boolean`
 
 If set to true, remote X11 clients will
 have full access to the original X11 display.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="gatewayports"></a>`gatewayports`
+##### <a name="-ssh--client--host_config_entry--gatewayports"></a>`gatewayports`
 
 Data type: `Boolean`
 
 Specifies whether remote hosts are allowed to
 connect to local forwarded ports.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="globalknownhostsfile"></a>`globalknownhostsfile`
+##### <a name="-ssh--client--host_config_entry--globalknownhostsfile"></a>`globalknownhostsfile`
 
 Data type: `Optional[Array[Stdlib::Absolutepath]]`
 
 Specifies one or more files to use for
 the global host key database.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="gssapiauthentication"></a>`gssapiauthentication`
+##### <a name="-ssh--client--host_config_entry--gssapiauthentication"></a>`gssapiauthentication`
 
 Data type: `Boolean`
 
@@ -1136,68 +1146,68 @@ based on GSSAPI is allowed. If the system is connected to an IPA domain,
 this will be set to true, regardless of this parameter. It uses the
 `ipa` fact to determine domain membership.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="gssapidelegatecredentials"></a>`gssapidelegatecredentials`
+##### <a name="-ssh--client--host_config_entry--gssapidelegatecredentials"></a>`gssapidelegatecredentials`
 
 Data type: `Boolean`
 
 Forward credentials to the server.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="gssapikeyexchange"></a>`gssapikeyexchange`
+##### <a name="-ssh--client--host_config_entry--gssapikeyexchange"></a>`gssapikeyexchange`
 
 Data type: `Boolean`
 
 Specifies whether key exchange based on
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="gssapirenewalforcesrekey"></a>`gssapirenewalforcesrekey`
+##### <a name="-ssh--client--host_config_entry--gssapirenewalforcesrekey"></a>`gssapirenewalforcesrekey`
 
 Data type: `Boolean`
 
 If set to true then renewal of
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="gssapitrustdns"></a>`gssapitrustdns`
+##### <a name="-ssh--client--host_config_entry--gssapitrustdns"></a>`gssapitrustdns`
 
 Data type: `Boolean`
 
 Set to true to indicate that the DNS is
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="hashknownhosts"></a>`hashknownhosts`
+##### <a name="-ssh--client--host_config_entry--hashknownhosts"></a>`hashknownhosts`
 
 Data type: `Boolean`
 
 Indicates that SSH should hash host names and
 addresses when they are added to known hosts.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="hostbasedauthentication"></a>`hostbasedauthentication`
+##### <a name="-ssh--client--host_config_entry--hostbasedauthentication"></a>`hostbasedauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to try rhosts
 based authentication with public key authentication.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="hostkeyalgorithms"></a>`hostkeyalgorithms`
+##### <a name="-ssh--client--host_config_entry--hostkeyalgorithms"></a>`hostkeyalgorithms`
 
 Data type: `Optional[Array[String]]`
 
 Specifies the host key algorithms that the
 client wants to use in order of preference.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="hostkeyalias"></a>`hostkeyalias`
+##### <a name="-ssh--client--host_config_entry--hostkeyalias"></a>`hostkeyalias`
 
 Data type: `Optional[String]`
 
@@ -1205,17 +1215,17 @@ Specifies an alias that should be used instead of
 the real host name when looking up or saving the host key in the host key
 database files.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="hostname"></a>`hostname`
+##### <a name="-ssh--client--host_config_entry--hostname"></a>`hostname`
 
 Data type: `Optional[Simplib::Host]`
 
 Specifies the real hostname to log into.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="identitiesonly"></a>`identitiesonly`
+##### <a name="-ssh--client--host_config_entry--identitiesonly"></a>`identitiesonly`
 
 Data type: `Boolean`
 
@@ -1224,27 +1234,27 @@ authentication identity and certificate files explicitly configured in the
 ssh_config files or passed on the ssh command-line, even if ssh-agent or
 a PKCS11Provider offers more identities.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="identityfile"></a>`identityfile`
+##### <a name="-ssh--client--host_config_entry--identityfile"></a>`identityfile`
 
 Data type: `Optional[String]`
 
 Specifies a file from which the user's DSA,
 ECDSA, Ed25519 or RSA authentication identity is read.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="kbdinteractiveauthentication"></a>`kbdinteractiveauthentication`
+##### <a name="-ssh--client--host_config_entry--kbdinteractiveauthentication"></a>`kbdinteractiveauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to use
 keyboard-interactive authentication.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="kbdinteractivedevices"></a>`kbdinteractivedevices`
+##### <a name="-ssh--client--host_config_entry--kbdinteractivedevices"></a>`kbdinteractivedevices`
 
 Data type: `Optional[Array[String]]`
 
@@ -1252,18 +1262,18 @@ Specifies the list of methods to use in
 keyboard-interactive authentication. Multiple method names must be
 comma-separated.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="localcommand"></a>`localcommand`
+##### <a name="-ssh--client--host_config_entry--localcommand"></a>`localcommand`
 
 Data type: `Optional[String]`
 
 Specifies a command to execute on the local
 machine after successfully connecting to the server.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="localforward"></a>`localforward`
+##### <a name="-ssh--client--host_config_entry--localforward"></a>`localforward`
 
 Data type: `Optional[String]`
 
@@ -1272,9 +1282,9 @@ forwarded over the secure channel to the specified host and port from the
 remote machine. The first argument must be [bind_address:]port and the
 second argument must be host:hostport.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="ssh_loglevel"></a>`ssh_loglevel`
+##### <a name="-ssh--client--host_config_entry--ssh_loglevel"></a>`ssh_loglevel`
 
 Data type: `Ssh::Loglevel`
 
@@ -1284,7 +1294,7 @@ logging messages. Valid options: 'QUIET', 'FATAL', 'ERROR', 'INFO',
 
 Default value: `'INFO'`
 
-##### <a name="macs"></a>`macs`
+##### <a name="-ssh--client--host_config_entry--macs"></a>`macs`
 
 Data type: `Optional[Array[String]]`
 
@@ -1293,9 +1303,9 @@ in order of preference.  When unset, a strong set of algorithms is
 automatically selected by this class, taking into account whether
 the server is in FIPS mode.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="nohostauthenticationforlocalhost"></a>`nohostauthenticationforlocalhost`
+##### <a name="-ssh--client--host_config_entry--nohostauthenticationforlocalhost"></a>`nohostauthenticationforlocalhost`
 
 Data type: `Boolean`
 
@@ -1305,9 +1315,9 @@ refer to a different machine on each of the machines and the user will get
 many warnings about changed host keys. However, this option disables host
 authentication for localhost.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="numberofpasswordprompts"></a>`numberofpasswordprompts`
+##### <a name="-ssh--client--host_config_entry--numberofpasswordprompts"></a>`numberofpasswordprompts`
 
 Data type: `Integer[1]`
 
@@ -1316,25 +1326,25 @@ prompts before giving up.
 
 Default value: `3`
 
-##### <a name="passwordauthentication"></a>`passwordauthentication`
+##### <a name="-ssh--client--host_config_entry--passwordauthentication"></a>`passwordauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to use password
 authentication.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="permitlocalcommand"></a>`permitlocalcommand`
+##### <a name="-ssh--client--host_config_entry--permitlocalcommand"></a>`permitlocalcommand`
 
 Data type: `Boolean`
 
 Allow local command execution via the
 LocalCommand option or using the !command escape sequence.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="port"></a>`port`
+##### <a name="-ssh--client--host_config_entry--port"></a>`port`
 
 Data type: `Simplib::Port`
 
@@ -1342,7 +1352,7 @@ Specifies the port number to connect on the remote host.
 
 Default value: `22`
 
-##### <a name="preferredauthentications"></a>`preferredauthentications`
+##### <a name="-ssh--client--host_config_entry--preferredauthentications"></a>`preferredauthentications`
 
 Data type: `Array[Ssh::Authentications]`
 
@@ -1351,12 +1361,16 @@ client should try authentication methods. The order will be determined from
 the start of the array to the end of the array. Default:
 ['publickey','hostbased','keyboard-interactive','password']
 
-Default value: `[ 'publickey',
+Default value:
+
+```puppet
+[ 'publickey',
                                                                                               'hostbased',
                                                                                               'keyboard-interactive',
-                                                                                              'password' ]`
+                                                                                              'password' ]
+```
 
-##### <a name="protocol"></a>`protocol`
+##### <a name="-ssh--client--host_config_entry--protocol"></a>`protocol`
 
 Data type: `Variant[Integer[1,2], Enum['2,1']]`
 
@@ -1364,25 +1378,25 @@ Specifies the protocol versions SSH should support.
 
 Default value: `2`
 
-##### <a name="proxycommand"></a>`proxycommand`
+##### <a name="-ssh--client--host_config_entry--proxycommand"></a>`proxycommand`
 
 Data type: `Optional[String]`
 
 Specifies the command to use to connect to the
 server.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="pubkeyauthentication"></a>`pubkeyauthentication`
+##### <a name="-ssh--client--host_config_entry--pubkeyauthentication"></a>`pubkeyauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to try public key
 authentication.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="rekeylimit"></a>`rekeylimit`
+##### <a name="-ssh--client--host_config_entry--rekeylimit"></a>`rekeylimit`
 
 Data type: `Optional[String]`
 
@@ -1390,9 +1404,9 @@ Specifies the maximum amount of data that may be
 transmitted before the session key is renegotiated, optionally followed a
 maximum amount of time that may pass before the session key is renegotiated.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="remoteforward"></a>`remoteforward`
+##### <a name="-ssh--client--host_config_entry--remoteforward"></a>`remoteforward`
 
 Data type: `Optional[String]`
 
@@ -1400,33 +1414,36 @@ Specifies that a TCP port on the remote machine
 be forwarded over the secure channel to the specified host and port from the
 local machine.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="rhostsrsaauthentication"></a>`rhostsrsaauthentication`
+##### <a name="-ssh--client--host_config_entry--rhostsrsaauthentication"></a>`rhostsrsaauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to try rhosts based
 authentication with RSA host authentication.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="rsaauthentication"></a>`rsaauthentication`
+##### <a name="-ssh--client--host_config_entry--rsaauthentication"></a>`rsaauthentication`
 
 Data type: `Boolean`
 
 Specifies whether to try RSA Authentication.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="sendenv"></a>`sendenv`
+##### <a name="-ssh--client--host_config_entry--sendenv"></a>`sendenv`
 
 Data type: `Array[String]`
 
 Specifies what variables from the local environ
 should be sent to the server.
 
-Default value: `[ 'LANG',
+Default value:
+
+```puppet
+[ 'LANG',
                                                                                               'LC_CTYPE',
                                                                                               'LC_NUMERIC',
                                                                                               'LC_TIME',
@@ -1439,9 +1456,10 @@ Default value: `[ 'LANG',
                                                                                               'LC_TELEPHONE',
                                                                                               'LC_MEASUREMENT',
                                                                                               'LC_IDENTIFICATION',
-                                                                                              'LC_ALL' ]`
+                                                                                              'LC_ALL' ]
+```
 
-##### <a name="serveralivecountmax"></a>`serveralivecountmax`
+##### <a name="-ssh--client--host_config_entry--serveralivecountmax"></a>`serveralivecountmax`
 
 Data type: `Integer[1]`
 
@@ -1451,7 +1469,7 @@ the server.
 
 Default value: `3`
 
-##### <a name="serveraliveinterval"></a>`serveraliveinterval`
+##### <a name="-ssh--client--host_config_entry--serveraliveinterval"></a>`serveraliveinterval`
 
 Data type: `Integer[0]`
 
@@ -1461,15 +1479,15 @@ indicating that these messages will not be sent to the server.
 
 Default value: `0`
 
-##### <a name="smartcarddevice"></a>`smartcarddevice`
+##### <a name="-ssh--client--host_config_entry--smartcarddevice"></a>`smartcarddevice`
 
 Data type: `Optional[String]`
 
 Specifies which smartcard device to use.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="stricthostkeychecking"></a>`stricthostkeychecking`
+##### <a name="-ssh--client--host_config_entry--stricthostkeychecking"></a>`stricthostkeychecking`
 
 Data type: `Enum['yes','no','ask']`
 
@@ -1483,16 +1501,16 @@ connect to hosts whose host key has changed. Valid Options: 'yes', 'no',
 
 Default value: `'ask'`
 
-##### <a name="tcpkeepalive"></a>`tcpkeepalive`
+##### <a name="-ssh--client--host_config_entry--tcpkeepalive"></a>`tcpkeepalive`
 
 Data type: `Boolean`
 
 Specifies whether the system should send TCP
 keepalive messages to the other side.
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="tunnel"></a>`tunnel`
+##### <a name="-ssh--client--host_config_entry--tunnel"></a>`tunnel`
 
 Data type: `Enum['yes','no','point-to-point','ethernet']`
 
@@ -1501,42 +1519,42 @@ server.
 
 Default value: `'no'`
 
-##### <a name="tunneldevice"></a>`tunneldevice`
+##### <a name="-ssh--client--host_config_entry--tunneldevice"></a>`tunneldevice`
 
 Data type: `Optional[String]`
 
 Specifies the devices to open on the client and
 the server.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="useprivilegedport"></a>`useprivilegedport`
+##### <a name="-ssh--client--host_config_entry--useprivilegedport"></a>`useprivilegedport`
 
 Data type: `Boolean`
 
 Specifies whether to use a privileged port
 for outgoing connections.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="user"></a>`user`
+##### <a name="-ssh--client--host_config_entry--user"></a>`user`
 
 Data type: `Optional[String]`
 
 Specifies the user to log in as.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="userknownhostsfile"></a>`userknownhostsfile`
+##### <a name="-ssh--client--host_config_entry--userknownhostsfile"></a>`userknownhostsfile`
 
 Data type: `Optional[Array[Stdlib::Absolutepath]]`
 
 Specifies one or more files to use for the
 user host key database, separated by whitespace.
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="verifyhostkeydns"></a>`verifyhostkeydns`
+##### <a name="-ssh--client--host_config_entry--verifyhostkeydns"></a>`verifyhostkeydns`
 
 Data type: `Enum['yes','no','ask']`
 
@@ -1545,7 +1563,7 @@ using DNS and SSHFP resource records.
 
 Default value: `'no'`
 
-##### <a name="visualhostkey"></a>`visualhostkey`
+##### <a name="-ssh--client--host_config_entry--visualhostkey"></a>`visualhostkey`
 
 Data type: `Boolean`
 
@@ -1553,9 +1571,9 @@ If this flag is set to true, an ASCII art
 representation of the remote host key fingerprint is printed in addition to
 the fingerprint string at login and for unknown host keys.
 
-Default value: ``false``
+Default value: `false`
 
-##### <a name="xauthlocation"></a>`xauthlocation`
+##### <a name="-ssh--client--host_config_entry--xauthlocation"></a>`xauthlocation`
 
 Data type: `Stdlib::Absolutepath`
 
@@ -1576,7 +1594,7 @@ The following properties are available in the `sshkey_prune` type.
 
 ##### `prune`
 
-Valid values: ``true``, ``false``
+Valid values: `true`, `false`
 
 Whether or not to prune the file in $name
 
@@ -1586,23 +1604,23 @@ Default value: `true`
 
 The following parameters are available in the `sshkey_prune` type.
 
-* [`name`](#name)
-* [`provider`](#provider)
+* [`name`](#-sshkey_prune--name)
+* [`provider`](#-sshkey_prune--provider)
 
-##### <a name="name"></a>`name`
+##### <a name="-sshkey_prune--name"></a>`name`
 
 namevar
 
 The file that you wish to prune
 
-##### <a name="provider"></a>`provider`
+##### <a name="-sshkey_prune--provider"></a>`provider`
 
 The specific backend to use for this `sshkey_prune` resource. You will seldom need to specify this --- Puppet will
 usually discover the appropriate provider for your platform.
 
 ## Functions
 
-### <a name="sshadd_sshd_config"></a>`ssh::add_sshd_config`
+### <a name="ssh--add_sshd_config"></a>`ssh::add_sshd_config`
 
 Type: Puppet Language
 
@@ -1639,7 +1657,7 @@ Data type: `Array[Type[Catalogentry]]`
 Catalog resources to notify when the sshd
 configuration has changed
 
-### <a name="sshautokey"></a>`ssh::autokey`
+### <a name="ssh--autokey"></a>`ssh::autokey`
 
 Type: Ruby 4.x API
 
@@ -1697,7 +1715,7 @@ Data type: `Optional[Boolean]`
 
 whether to return the private key, defaults to false
 
-### <a name="sshconfig_bool_translate"></a>`ssh::config_bool_translate`
+### <a name="ssh--config_bool_translate"></a>`ssh::config_bool_translate`
 
 Type: Ruby 4.x API
 
@@ -1727,7 +1745,7 @@ Data type: `Boolean`
 
 Configuration item to be translated
 
-### <a name="sshformat_host_entry_for_sorting"></a>`ssh::format_host_entry_for_sorting`
+### <a name="ssh--format_host_entry_for_sorting"></a>`ssh::format_host_entry_for_sorting`
 
 Type: Ruby 4.x API
 
@@ -1785,7 +1803,7 @@ Data type: `String`
 
 SSH host entry, which may contain wildcards
 
-### <a name="sshglobal_known_hosts"></a>`ssh::global_known_hosts`
+### <a name="ssh--global_known_hosts"></a>`ssh::global_known_hosts`
 
 Type: Ruby 4.x API
 
@@ -1812,7 +1830,7 @@ Data type: `Optional[Integer]`
 expire time in days; defaults to 7; value of 0
 means never purge
 
-### <a name="sshparse_ssh_pubkey"></a>`ssh::parse_ssh_pubkey`
+### <a name="ssh--parse_ssh_pubkey"></a>`ssh::parse_ssh_pubkey`
 
 Type: Puppet Language
 
@@ -1836,43 +1854,27 @@ The ssh key, can be pasted from ~/.ssh/id_rsa.pub or similar
 
 ## Data types
 
-### <a name="sshauthentications"></a>`Ssh::Authentications`
+### <a name="Ssh--Authentications"></a>`Ssh::Authentications`
 
 Valid SSH Authentication Settings
 
-Alias of
+Alias of `Enum['publickey', 'hostbased', 'keyboard-interactive', 'password', 'gssapi-with-mic']`
 
-```puppet
-Enum['publickey', 'hostbased', 'keyboard-interactive', 'password', 'gssapi-with-mic']
-```
-
-### <a name="sshloglevel"></a>`Ssh::Loglevel`
+### <a name="Ssh--Loglevel"></a>`Ssh::Loglevel`
 
 Valid SSH Loglevels
 
-Alias of
+Alias of `Enum['QUIET', 'FATAL', 'ERROR', 'INFO', 'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', 'DEBUG3']`
 
-```puppet
-Enum['QUIET', 'FATAL', 'ERROR', 'INFO', 'VERBOSE', 'DEBUG', 'DEBUG1', 'DEBUG2', 'DEBUG3']
-```
-
-### <a name="sshpermitrootlogin"></a>`Ssh::PermitRootLogin`
+### <a name="Ssh--PermitRootLogin"></a>`Ssh::PermitRootLogin`
 
 Valid Settings for PermitRootLogin
 
-Alias of
+Alias of `Variant[Boolean, Enum['prohibit-password', 'without-password', 'forced-commands-only']]`
 
-```puppet
-Variant[Boolean, Enum['prohibit-password', 'without-password', 'forced-commands-only']]
-```
-
-### <a name="sshsyslogfacility"></a>`Ssh::Syslogfacility`
+### <a name="Ssh--Syslogfacility"></a>`Ssh::Syslogfacility`
 
 Valid SSH Syslog Facility Settings
 
-Alias of
-
-```puppet
-Enum['DAEMON', 'USER', 'AUTH', 'AUTHPRIV', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']
-```
+Alias of `Enum['DAEMON', 'USER', 'AUTH', 'AUTHPRIV', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']`
 
