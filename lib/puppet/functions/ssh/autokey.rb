@@ -71,7 +71,7 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
       end
     end
 
-    if ( !File.exists?("#{keydir}/#{username}") )
+    if ( !File.exist?("#{keydir}/#{username}") )
       begin
         Timeout::timeout(30) do
           Puppet::Util::Execution.execute("/usr/bin/ssh-keygen -N '' -q -t rsa -C '' -b #{key_strength} -f #{keydir}/#{username}")
@@ -83,7 +83,7 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
       end
     end
 
-    if ( File.exists?("#{keydir}/#{username}.pub") )
+    if ( File.exist?("#{keydir}/#{username}.pub") )
       if return_private
         retval = File.read("#{keydir}/#{username}")
       else
