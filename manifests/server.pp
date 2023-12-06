@@ -37,8 +37,16 @@ class ssh::server (
     require => Package['openssh-server']
   }
 
+  # It is possible that /etc/localtime won't exist on the system.
+  # In the case where it doesn't simply pull the timezone file from
+  # /usr/share/zoneinfo
+  $_timezone_file = find_file('/etc/localtime') ? {
+    undef   => "/usr/share/zoneinfo/${facts['timezone']}",
+    default => '/etc/localtime'
+  }
+
   file { '/var/empty/sshd/etc/localtime':
-    source  => 'file:///etc/localtime',
+    source  => "file://${_timezone_file}",
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
