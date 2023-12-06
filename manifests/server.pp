@@ -38,7 +38,7 @@ class ssh::server (
   }
 
   # It is possible that /etc/localtime won't exist on the system.
-  # In the case where it doesn't simply pull the timezone file from
+  # In the case where it doesn't, simply pull the timezone file from
   # /usr/share/zoneinfo
   $_timezone_file = find_file('/etc/localtime') ? {
     undef   => "/usr/share/zoneinfo/${facts['timezone']}",
