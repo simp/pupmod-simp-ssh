@@ -308,6 +308,21 @@ describe 'ssh class' do
           expect(file_content_on(server, '/etc/ssh/sshd_config').strip).to_not match('AuthorizedKeysFile\s*/foo/bar')
         end
       end
+
+      context 'with default parameters' do
+        it 'should move the /etc/localtime file temporarily if it exists' do
+          on(client, 'if [ -f /etc/localtime ]; then mv /etc/localtime /etc/localtime.bak; fi')
+        end
+        it 'should configure server with no errors when missing /etc/localtime' do
+          enable_epel_on(server)
+          enable_epel_on(client)
+          set_hieradata_on(server, server_hieradata)
+          apply_manifest_on(server, server_manifest, expect_failures: false)
+        end
+        it 'should move the /etc/localtime file back if it was moved' do
+          on(client, 'if [ -f /etc/localtime.bak ]; then mv /etc/localtime.bak /etc/localtime; fi')
+        end
+      end
     end
   end
 end
