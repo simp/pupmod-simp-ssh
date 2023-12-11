@@ -66,9 +66,11 @@ describe 'ssh::server' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
         let(:facts) do
-          os_facts
+          os_facts.merge(
+            openssh_version: '6.6',
+            timezone_file: '/etc/localtime',
+          )
         end
-        let(:facts) { os_facts.merge( { :openssh_version => '6.6' } ) }
 
         context "with default parameters" do
           it_behaves_like "an ssh server", os_facts

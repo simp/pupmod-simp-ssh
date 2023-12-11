@@ -38,7 +38,7 @@ class ssh::server (
   }
 
   file { '/var/empty/sshd/etc/localtime':
-    source  => 'file:///etc/localtime',
+    source  => "file://${facts['timezone_file']}",
     owner   => 'root',
     group   => 'root',
     mode    => '0644',
