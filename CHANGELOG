@@ -1,5 +1,5 @@
 * Wed Dec 06 2023 Mike Riddle <mike@sicura.us> - 6.17.1
-- The module will now correctly handle a situation where /etc/localhost doesn't exist
+- The module will now correctly handle a situation where /etc/localtime doesn't exist
 
 * Mon Oct 23 2023 Steven Pritchard <steve@sicura.us> - 6.17.0
 - [puppetsync] Add EL9 support
