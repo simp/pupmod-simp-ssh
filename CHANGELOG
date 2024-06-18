@@ -1,3 +1,6 @@
+* Tue Jun 18 2024 Rick Gardner <Rick@sicura.us> - 6.18.1
+- Fixed custom fact on windows bug
+
 * Wed Feb 07 2024 Mike Riddle <mike@sicura.us> - 6.18.0
 - [puppetsync] Update metadata upper bounds for puppet-nsswitch, puppet-gitlab, puppet-snmp, simp-pam, and simp-useradd
 
