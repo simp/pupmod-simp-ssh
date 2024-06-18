@@ -13,7 +13,7 @@ Facter.add("ssh_host_keys") do
     hostkeys = []
 
     # sshd -T lists the config dump, which should list all hostkeys
-    sshd_out = Facter::Core::Execution.execute(%(#{sshd_command} -T)).split("\n")
+    sshd_out = Facter::Core::Execution.execute(%(\"#{sshd_command}\" -T)).split("\n")
 
     # Need to strip off the hostkey setting key and space
     hostkeys = sshd_out.grep(/^hostkey /).collect { |x|
