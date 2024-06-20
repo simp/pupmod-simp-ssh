@@ -14,7 +14,7 @@ Facter.add("openssh_version") do
 
     # There is no explicit version or help flag for sshd.  Pass
     # a garbage '-v' flag, and grab the output.
-    sshd_out = Facter::Core::Execution.execute(%(#{sshd_command} -v 2>&1))
+    sshd_out = Facter::Core::Execution.execute(%(\"#{sshd_command}\" -v 2>&1))
 
     # Case insensitive match to openssh followed by any characters (or no characters),
     # proceeded by digits(any number) and decimals.  Return the digits and decimals.
