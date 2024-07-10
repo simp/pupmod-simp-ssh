@@ -49,7 +49,7 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
 
     begin
       if not FileTest.directory?(basedir) then
-        FileUtils.mkdir_p(basedir,{:mode => 0750})
+        FileUtils.mkdir_p(basedir, mode: 0750)
       end
 
       if not File.stat(basedir).writable? then
