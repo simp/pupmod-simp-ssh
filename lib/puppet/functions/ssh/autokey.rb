@@ -64,7 +64,7 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
 
     if ( !File.directory?(keydir) )
       begin
-        FileUtils.mkdir_p(keydir,{:mode => 0750})
+        FileUtils.mkdir_p(keydir, mode: 0750)
       rescue
         Puppet.warning "ssh::autokey: Could not make directory #{keydir}. Ensure that #{keydir} is writable by 'puppet'"
         return retval

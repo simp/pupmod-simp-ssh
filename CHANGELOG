@@ -1,3 +1,6 @@
+* Wed Jul 10 2024 Steven Pritchard <steve@sicura.us> - 6.18.2
+- Fix calls to `FileUtils.mkdir_p` to work on Ruby 3
+
 * Tue Jun 18 2024 Rick Gardner <Rick@sicura.us> - 6.18.1
 - Fixed custom fact on windows bug
 
