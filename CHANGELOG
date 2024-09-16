@@ -1,3 +1,6 @@
+* Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 6.19.0
+- [puppetsync] Update module dependencies to support simp-iptables 7.x
+
 * Wed Jul 10 2024 Steven Pritchard <steve@sicura.us> - 6.18.2
 - Fix calls to `FileUtils.mkdir_p` to work on Ruby 3
 

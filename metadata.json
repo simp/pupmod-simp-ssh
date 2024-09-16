@@ -1,6 +1,6 @@
 {
   "name": "simp-ssh",
-  "version": "6.18.2",
+  "version": "6.19.0",
   "author": "SIMP Team",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
@@ -35,7 +35,7 @@
       },
       {
         "name": "simp/iptables",
-        "version_requirement": ">= 6.5.3 < 7.0.0"
+        "version_requirement": ">= 6.5.3 < 8.0.0"
       },
       {
         "name": "simp/oath",
