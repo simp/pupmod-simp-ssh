@@ -1,3 +1,6 @@
+* Tue Oct 01 2024 Steven Pritchard <steve@sicura.us> - 6.20.0
+- Update metadata upper bounds for puppet-augeasproviders_ssh and puppet-selinux
+
 * Fri Sep 13 2024 Steven Pritchard <steve@sicura.us> - 6.19.0
 - [puppetsync] Update module dependencies to support simp-iptables 7.x
 
