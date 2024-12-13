@@ -3,9 +3,7 @@ require 'spec_helper_acceptance'
 test_name 'ssh STIG enforcement'
 
 describe 'ssh STIG enforcement' do
-  profile_list = ['disa_stig']
-
-  let(:manifest) {
+  let(:manifest) do
     <<-EOS
       file { '/etc/ssh/local_keys/vagrant':
         ensure  => file,
@@ -31,9 +29,10 @@ describe 'ssh STIG enforcement' do
       }
       include 'ssh'
     EOS
-  }
+  end
 
-  let(:hieradata) { <<-EOF
+  let(:hieradata) do
+    <<-EOF
 ---
 simp_options::pki: true
 simp_options::pki::source: '/etc/pki/simp-testing/pki'
@@ -42,7 +41,7 @@ ssh::server::conf::permitrootlogin: true
 compliance_markup::enforcement:
   - disa_stig
   EOF
-  }
+  end
 
   hosts.each do |host|
     #  This is a hack to get the profiles copied up before ssh is locked down.
@@ -56,7 +55,8 @@ compliance_markup::enforcement:
     end
     # end of hack
     context 'when enforcing the STIG' do
-      let(:hiera_yaml) { <<-EOM
+      let(:hiera_yaml) do
+        <<-EOM
 ---
 version: 5
 hierarchy:
@@ -68,18 +68,18 @@ defaults:
   data_hash: yaml_data
   datadir: "#{hiera_datadir(host)}"
   EOM
-      }
+      end
 
       # Using puppet_apply as a helper
-      it 'should work with no errors' do
+      it 'works with no errors' do
         create_remote_file(host, host.puppet['hiera_config'], hiera_yaml)
         write_hieradata_to(host, hieradata)
 
-        apply_manifest_on(host, manifest, :catch_failures => true)
+        apply_manifest_on(host, manifest, catch_failures: true)
       end
 
-      it 'should be idempotent' do
-        apply_manifest_on(host, manifest, :catch_changes => true)
+      it 'is idempotent' do
+        apply_manifest_on(host, manifest, catch_changes: true)
       end
     end
   end

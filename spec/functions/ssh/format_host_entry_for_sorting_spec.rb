@@ -19,4 +19,3 @@ describe 'ssh::format_host_entry_for_sorting' do
     end
   end
 end
-

@@ -14,8 +14,8 @@ describe 'ssh check oath' do
       'ssh::server::conf::banner'             => '/dev/null',
       'ssh::server::conf::permitrootlogin'    => true,
       'ssh::server::conf::authorizedkeysfile' => '.ssh/authorized_keys',
-      'pam::access::users'                    => JSON.parse(%Q({ "defaults": { "origins": [ "ALL" ], "permission": "+" }, "vagrant": null, "root": null, "testuser": null, "tst0_usr": null })),
-      'oath::oath_users'                      => JSON.parse(%Q({"tst0_usr": {"token_type": "HOTP/T30/6", "pin": "-", "secret_key": "000001"}}))
+      'pam::access::users'                    => JSON.parse(%({ "defaults": { "origins": [ "ALL" ], "permission": "+" }, "vagrant": null, "root": null, "testuser": null, "tst0_usr": null })),
+      'oath::oath_users'                      => JSON.parse(%({"tst0_usr": {"token_type": "HOTP/T30/6", "pin": "-", "secret_key": "000001"}}))
     }
   end
 
@@ -46,7 +46,7 @@ describe 'ssh check oath' do
 
       let(:client) do
         os = server.hostname.split('-').first
-        hosts_as('client').select { |x| x.hostname =~ %r{^#{os}-.+} }.first
+        hosts_as('client').find { |x| x.hostname =~ %r{^#{os}-.+} }
       end
 
       context 'with default parameters' do
@@ -63,12 +63,12 @@ describe 'ssh check oath' do
           apply_manifest_on(server, server_manifest, catch_failures: true)
         end
 
-        it "should configure #{os}-server idempotently" do
+        it "configures #{os}-server idempotently" do
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest, catch_changes: true)
         end
 
-        it "should configure #{os}-client idempotently" do
+        it "configures #{os}-client idempotently" do
           apply_manifest_on(client, client_manifest, catch_changes: true)
         end
       end
@@ -79,7 +79,7 @@ describe 'ssh check oath' do
         it 'add test user' do
           on(server, "puppet resource user #{test_user} ensure=present comment='Tst0 User'")
           stdin = "#{password}\n" * 2
-          on(server, "passwd #{test_user} ", :stdin => stdin)
+          on(server, "passwd #{test_user} ", stdin: stdin)
         end
       end
 
@@ -101,11 +101,11 @@ describe 'ssh check oath' do
         end
 
         it 'fail auth with bad TOTP' do
-          on(client, "/usr/local/bin/oath_ssh_test_script #{test_user} #{bad_oath_key} #{password} #{os}-server", :acceptable_exit_codes => [1])
+          on(client, "/usr/local/bin/oath_ssh_test_script #{test_user} #{bad_oath_key} #{password} #{os}-server", acceptable_exit_codes: [1])
         end
 
         it 'fail auth with good TOTP and bad pass' do
-          on(client, "/usr/local/bin/oath_ssh_test_script #{test_user} #{oath_key} #{bad_password} #{os}-server", :acceptable_exit_codes => [1])
+          on(client, "/usr/local/bin/oath_ssh_test_script #{test_user} #{oath_key} #{bad_password} #{os}-server", acceptable_exit_codes: [1])
         end
 
         it 'test user exclusion' do

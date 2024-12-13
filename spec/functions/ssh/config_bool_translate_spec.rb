@@ -15,4 +15,3 @@ describe 'ssh::config_bool_translate' do
     end
   end
 end
-

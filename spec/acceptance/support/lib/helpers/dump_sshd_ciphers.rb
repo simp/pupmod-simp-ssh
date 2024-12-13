@@ -9,7 +9,7 @@
 #   label:  descriptive filename segment
 #   text:   Any custom text to add to the report
 #
-def dump_sshd_ciphers(server, label='', text='')
+def dump_sshd_ciphers(server, label = '', text = '')
   facts_to_query = [
     'fips_enabled',
     'os.selinux.config_mode',
@@ -22,19 +22,19 @@ def dump_sshd_ciphers(server, label='', text='')
   # gather
   _sshd_T = on(server, 'sshd -T | grep "^\(ciphers\|macs\|kexalgorithms\) "')
   unless _sshd_T.exit_code == 0
-    warn( 'WARNING: sshd -T failed during dump_sshd_ciphers')
+    warn('WARNING: sshd -T failed during dump_sshd_ciphers')
     return false
   end
 
-  _f = on(server, facter(%w(-y -p) + facts_to_query))
+  _f = on(server, facter(['-y', '-p'] + facts_to_query))
   unless _f.exit_code == 0
-    warn( 'WARNING: facter failed during dump_sshd_ciphers')
+    warn('WARNING: facter failed during dump_sshd_ciphers')
     return false
   end
 
   # compile
-  sshd_info = Hash[Hash[_sshd_T.stdout.split(/\n/).map{|x| x.split(' ')}].map{|k,v| [k, v.split(',')]}]
-  facts = Hash[Hash[_f.stdout.split(/\n/).map{|x| x.split(': ')}].map{|k,v| [k,v.gsub(/"/,'')]}]
+  sshd_info = Hash[Hash[_sshd_T.stdout.split("\n").map { |x| x.split(' ') }].map { |k, v| [k, v.split(',')] }]
+  facts = Hash[Hash[_f.stdout.split("\n").map { |x| x.split(': ') }].map { |k, v| [k, v.delete('"')] }]
   id_string = "#{facts['os.name']}-#{facts['os.release.major']}" \
               "__fips-#{facts['fips_enabled']}" \
               "__ssh-#{facts['openssh_version']}" \
@@ -52,13 +52,13 @@ def dump_sshd_ciphers(server, label='', text='')
   lines << "- ipa: #{facts['ipa'].empty? ? '' : facts['ipa']}"
   lines << "\n"
   lines << 'Ciphers:'
-  lines << sshd_info['ciphers'].map{|x| "- `#{x}`"}
+  lines << sshd_info['ciphers'].map { |x| "- `#{x}`" }
   lines << "\n"
   lines << 'MACs:'
-  lines << sshd_info['macs'].map{|x| "- `#{x}`"}
+  lines << sshd_info['macs'].map { |x| "- `#{x}`" }
   lines << "\n"
   lines << 'kexalgorithms:'
-  lines << sshd_info['kexalgorithms'].map{|x| "- `#{x}`"}
+  lines << sshd_info['kexalgorithms'].map { |x| "- `#{x}`" }
   unless text.empty?
     lines << "\n"
     lines << text
@@ -67,10 +67,9 @@ def dump_sshd_ciphers(server, label='', text='')
 
   # report
   warn '', report, ''
-  _dir = ENV.fetch('SIMP_SSH_report_dir','')
-  if File.directory?(_dir)
-    _file = File.join(_dir,"#{id_string}.md")
-    File.write(_file, report)
-    warn("dumped sshd -T summary to '#{_file}'")
-  end
+  _dir = ENV.fetch('SIMP_SSH_report_dir', '')
+  return unless File.directory?(_dir)
+  _file = File.join(_dir, "#{id_string}.md")
+  File.write(_file, report)
+  warn("dumped sshd -T summary to '#{_file}'")
 end

@@ -4,19 +4,20 @@ describe 'ssh::client::host_config_entry' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
       context "on #{os}" do
-        let(:title) {'new_run'}
+        let(:title) { 'new_run' }
 
         context 'default parameters for ssh::client::host_config_entry and ssh::client, both ssh::client::fips and fips_enabled false' do
           let(:facts) do
-            os_facts.merge({ :fips_enabled => false })
+            os_facts.merge({ fips_enabled: false })
           end
+
           it { is_expected.to compile.with_all_deps }
           it { is_expected.to contain_class('ssh::client') }
           it { is_expected.to contain_class('ssh::client::params') }
 
           it {
             expected_macs = ['hmac-sha2-512-etm@openssh.com',
-              'hmac-sha2-256-etm@openssh.com', 'hmac-sha2-512', 'hmac-sha2-256']
+                             'hmac-sha2-256-etm@openssh.com', 'hmac-sha2-512', 'hmac-sha2-256']
             expected_ciphers = ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr', 'aes192-ctr', 'aes128-ctr']
 
             is_expected.to contain_ssh_config('new_run__AddressFamily').with_host('new_run')
@@ -56,7 +57,8 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Port').with_value('22')
             is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
             is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG','LC_CTYPE','LC_NUMERIC','LC_TIME','LC_COLLATE','LC_MONETARY','LC_MESSAGES','LC_PAPER','LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION' ,'LC_ALL'])
+            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS',
+                                                                              'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'])
             is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
             is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
             is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
@@ -68,9 +70,10 @@ describe 'ssh::client::host_config_entry' do
           }
 
           context 'when  openssh_version < 8.0' do
-            let(:facts)  {
-              super().merge!({ :openssh_version => '7.4' })
-            }
+            let(:facts)  do
+              super().merge!({ openssh_version: '7.4' })
+            end
+
             it {
               is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('no')
               is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('no')
@@ -79,9 +82,10 @@ describe 'ssh::client::host_config_entry' do
             }
           end
           context 'when  openssh_version >= 8.0' do
-            let(:facts)  {
-              super().merge!({ :openssh_version => '8.0' })
-            }
+            let(:facts)  do
+              super().merge!({ openssh_version: '8.0' })
+            end
+
             it {
               is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_ensure('absent')
               is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_ensure('absent')
@@ -90,31 +94,33 @@ describe 'ssh::client::host_config_entry' do
             }
           end
           context 'when connected to an IPA domain' do
-            let(:facts) {
+            let(:facts) do
               super().merge!(
                 ipa: {
                   domain: 'test.local',
                   server: 'ipaserver.test.local'
-                }
+                },
               )
-            }
+            end
+
             it { is_expected.to compile.with_all_deps }
-            it 'should enable GSSAPIAuthentication' do
+            it 'enables GSSAPIAuthentication' do
               is_expected.to contain_ssh_config('new_run__GSSAPIAuthentication').with_value('yes')
             end
           end
           context 'when connected to an IPA domain and GSSAPIAuthentication is set to false' do
-            let(:params) {{ gssapiauthentication: false }}
-            let(:facts) {
+            let(:params) { { gssapiauthentication: false } }
+            let(:facts) do
               super().merge!(
                 ipa: {
                   domain: 'test.local',
                   server: 'ipaserver.test.local'
-                }
+                },
               )
-            }
+            end
+
             it { is_expected.to compile.with_all_deps }
-            it 'should enable GSSAPIAuthentication' do
+            it 'enables GSSAPIAuthentication' do
               is_expected.to contain_ssh_config('new_run__GSSAPIAuthentication').with_value('yes')
             end
           end
@@ -122,30 +128,33 @@ describe 'ssh::client::host_config_entry' do
 
         context 'with optional parameters specified, both ssh::client::fips and fips_enabled false' do
           let(:facts) do
-            os_facts.merge({ :fips_enabled => false })
+            os_facts.merge({ fips_enabled: false })
           end
-          let(:params) {{
-            :bindaddress           => '1.2.3.4',
-            :ciphers               => ['aes128-ctr', 'aes192-ctr'],
-            :controlpath           => '/some/control/path',
-            :dynamicforward        => '1.2.3.4:1022',
-            :globalknownhostsfile  => ['/some/hosts/file1', '/some/hosts/file2'],
-            :hostkeyalias          => 'some.alias',
-            :hostkeyalgorithms     => ['ssh-rsa', 'ssh-dss'],
-            :hostname              => 'some.hostname',
-            :identityfile          => '/some/identity/file',
-            :kbdinteractivedevices => ['bsdauth','pam'],
-            :localcommand          => 'some --local --command %d',
-            :localforward          => '2223 3.4.5.6:2235',
-            :macs                  => ['hmac-sha2-256','hmac-sha2-512'],
-            :proxycommand          => '/usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p',
-            :rekeylimit            => '5G',
-            :remoteforward         => '3334 4.5.6.7:3345',
-            :smartcarddevice       => 'dev_sc',
-            :tunneldevice          => 'dev_td',
-            :user                  => 'bob',
-            :userknownhostsfile    => ['/some/hosts/file3', '/some/hosts/file4']
-          }}
+          let(:params) do
+            {
+              bindaddress: '1.2.3.4',
+           ciphers: ['aes128-ctr', 'aes192-ctr'],
+           controlpath: '/some/control/path',
+           dynamicforward: '1.2.3.4:1022',
+           globalknownhostsfile: ['/some/hosts/file1', '/some/hosts/file2'],
+           hostkeyalias: 'some.alias',
+           hostkeyalgorithms: ['ssh-rsa', 'ssh-dss'],
+           hostname: 'some.hostname',
+           identityfile: '/some/identity/file',
+           kbdinteractivedevices: ['bsdauth', 'pam'],
+           localcommand: 'some --local --command %d',
+           localforward: '2223 3.4.5.6:2235',
+           macs: ['hmac-sha2-256', 'hmac-sha2-512'],
+           proxycommand: '/usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p',
+           rekeylimit: '5G',
+           remoteforward: '3334 4.5.6.7:3345',
+           smartcarddevice: 'dev_sc',
+           tunneldevice: 'dev_td',
+           user: 'bob',
+           userknownhostsfile: ['/some/hosts/file3', '/some/hosts/file4']
+            }
+          end
+
           it { is_expected.to compile.with_all_deps }
           it {
             is_expected.to contain_ssh_config('new_run__AddressFamily').with_value('any')
@@ -153,7 +162,7 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__BatchMode').with_value('no')
             is_expected.to contain_ssh_config('new_run__ChallengeResponseAuthentication').with_value('yes')
             is_expected.to contain_ssh_config('new_run__CheckHostIP').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__Ciphers').with_value(['aes128-ctr','aes192-ctr'])
+            is_expected.to contain_ssh_config('new_run__Ciphers').with_value(['aes128-ctr', 'aes192-ctr'])
             is_expected.to contain_ssh_config('new_run__ClearAllForwardings').with_value('no')
             is_expected.to contain_ssh_config('new_run__Compression').with_value('yes')
             is_expected.to contain_ssh_config('new_run__ConnectionAttempts').with_value('1')
@@ -173,11 +182,11 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__GSSAPITrustDns').with_value('no')
             is_expected.to contain_ssh_config('new_run__HashKnownHosts').with_value('yes')
             is_expected.to contain_ssh_config('new_run__HostbasedAuthentication').with_value('no')
-            is_expected.to contain_ssh_config('new_run__HostKeyAlgorithms').with_value(['ssh-rsa','ssh-dss'])
+            is_expected.to contain_ssh_config('new_run__HostKeyAlgorithms').with_value(['ssh-rsa', 'ssh-dss'])
             is_expected.to contain_ssh_config('new_run__IdentitiesOnly').with_value('no')
             is_expected.to contain_ssh_config('new_run__KbdInteractiveAuthentication').with_value('yes')
             is_expected.to contain_ssh_config('new_run__LogLevel').with_value('INFO')
-            is_expected.to contain_ssh_config('new_run__MACs').with_value(['hmac-sha2-256','hmac-sha2-512'])
+            is_expected.to contain_ssh_config('new_run__MACs').with_value(['hmac-sha2-256', 'hmac-sha2-512'])
             is_expected.to contain_ssh_config('new_run__NoHostAuthenticationForLocalhost').with_value('no')
             is_expected.to contain_ssh_config('new_run__NumberOfPasswordPrompts').with_value('3')
             is_expected.to contain_ssh_config('new_run__PasswordAuthentication').with_value('yes')
@@ -185,7 +194,8 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Port').with_value('22')
             is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
             is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG','LC_CTYPE','LC_NUMERIC','LC_TIME','LC_COLLATE','LC_MONETARY','LC_MESSAGES','LC_PAPER','LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION' ,'LC_ALL'])
+            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS',
+                                                                              'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'])
             is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
             is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
             is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
@@ -212,18 +222,20 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__User').with_value('bob')
             is_expected.to contain_ssh_config('new_run__UserKnownHostsFile').with_value('/some/hosts/file3 /some/hosts/file4')
           }
-
         end
         context 'when  openssh_version < 8.0 and param set' do
-          let(:facts)  {
-            os_facts.merge({ :openssh_version => '7.4' })
-          }
-          let(:params) {{
-            :useprivilegedport       => true,
-            :rhostsrsaauthentication => true,
-            :rsaauthentication       => false,
-            :compressionlevel        => 2,
-          }}
+          let(:facts)  do
+            os_facts.merge({ openssh_version: '7.4' })
+          end
+          let(:params) do
+            {
+              useprivilegedport: true,
+           rhostsrsaauthentication: true,
+           rsaauthentication: false,
+           compressionlevel: 2,
+            }
+          end
+
           it {
             is_expected.to contain_ssh_config('new_run__UsePrivilegedPort').with_value('yes')
             is_expected.to contain_ssh_config('new_run__RhostsRSAAuthentication').with_value('yes')
@@ -236,13 +248,13 @@ describe 'ssh::client::host_config_entry' do
         _protocol_sets.each do |_protocol_set|
           context "with protocol = #{_protocol_set} and both ssh::client::fips and fips_enabled false" do
             let(:facts) do
-              os_facts.merge({ :fips_enabled => false })
+              os_facts.merge({ fips_enabled: false })
             end
-            let(:params){{ :protocol => _protocol_set }}
+            let(:params) { { protocol: _protocol_set } }
 
             it { is_expected.to compile.with_all_deps }
             it {
-              is_expected.to contain_ssh_config('new_run__Protocol').with_value(%r[#{_protocol_set}])
+              is_expected.to contain_ssh_config('new_run__Protocol').with_value(%r{#{_protocol_set}})
               is_expected.to contain_ssh_config('new_run__Cipher').with_value('3des')
             }
           end
@@ -251,8 +263,8 @@ describe 'ssh::client::host_config_entry' do
         _protocol_sets = [ 1, 2, '2,1' ]
         _protocol_sets.each do |_protocol_set|
           context "with protocol = #{_protocol_set}, simp_options::fips = false, and fips_enabled = true" do
-            let(:facts){  os_facts.merge({ :fips_enabled => true }) }
-            let(:params){{ :protocol => _protocol_set }}
+            let(:facts) { os_facts.merge({ fips_enabled: true }) }
+            let(:params) { { protocol: _protocol_set } }
 
             it {
               expected_macs = ['hmac-sha2-256', 'hmac-sha1']
@@ -269,14 +281,15 @@ describe 'ssh::client::host_config_entry' do
         _protocol_sets.each do |_protocol_set|
           context "with protocol = #{_protocol_set}, simp_options::fips = true, and fips_enabled = false" do
             #  haveged__rngd_enabled is set as workaround for containers in gitlab
-            let(:facts){  os_facts.merge({ :fips_enabled => false,
-                                           :haveged__rngd_enabled => false })
-            }
-            let(:params){{ :protocol => _protocol_set }}
-            let(:hieradata) {'global_catalysts_enabled'}
+            let(:facts) do
+              os_facts.merge({ fips_enabled: false,
+                                           haveged__rngd_enabled: false })
+            end
+            let(:params) { { protocol: _protocol_set } }
+            let(:hieradata) { 'global_catalysts_enabled' }
 
             # This works for a defined type because APL isn't hit.
-            let(:hiera_data) {{ :invalidate => 'cache' }}
+            let(:hiera_data) { { invalidate: 'cache' } }
 
             it { is_expected.to compile.with_all_deps }
             it {
