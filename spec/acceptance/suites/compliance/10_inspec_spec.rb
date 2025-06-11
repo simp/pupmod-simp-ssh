@@ -25,6 +25,7 @@ describe 'run inspec against the appropriate fixtures' do
     profiles_to_validate.each do |profile|
       context "for profile #{profile}" do
         context "on #{host}" do
+          # rubocop:disable RSpec/InstanceVariable
           before(:all) do
             @inspec = Simp::BeakerHelpers::Inspec.new(host, profile)
             @inspec_report = { data: nil }
@@ -64,6 +65,7 @@ describe 'run inspec against the appropriate fixtures' do
 
             expect(@inspec_report[:data][:failed]).to eq(0)
           end
+          # rubocop:enable RSpec/InstanceVariable
         end
       end
     end

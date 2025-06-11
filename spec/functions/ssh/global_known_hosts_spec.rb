@@ -8,6 +8,7 @@ describe 'ssh::global_known_hosts' do
 
   on_supported_os.each do |os, os_facts|
     let(:facts) { os_facts }
+    # rubocop:disable Layout/LineLength
     let(:rsakey1) do
       'AAAAB3NzaC1yc2EAAAADAQABAAABAQCwleF+W/kETFTKeG8TxkFwWivC/24XR3N/fAeq210bt/8Txf5uel3NQL3RkgFIvwEFcghucE9VUvk1Jtn+vr0ncKp7uNP10oXlLKeCmuUEsCPKd4L7aMg1yeITYL1imLQt0/SFaHpehKI4V+remCTVY+ccwKsCk++AL6s/cas22roh031ZkLZIkf4ipvpM2A4mBbwzwdzlx+KPgBa/YylSm5pUEmKW5er/SMrloglHs5B90f8FJ0oiHOlkLZaCJLKMUIS5zNj365ZUf/omCqeeWqT1tHqTYm6dJM2No/c6Gw+9bHTL5HRq1Al1ztSqitffD/W2ctItr1d0C7ogL2Xv'
     end
@@ -15,6 +16,7 @@ describe 'ssh::global_known_hosts' do
     let(:rsakey2) do
       'AAAAB3NzaC1yc2EAAAADAQABAAABAQCaD6M2c/1mvMlXU8lbsH1r87Rg3kZAJO7Or1b6ymQv6VNCzkndOTsVfG/p9ZK/bjck8+LbZVVPJ8zj/WZ508LLFgPpi7kr0gv9NYi+ZPAr8LY/n9dbHi4NmLAjyDvLfbOBgQ5SfNw+qELofSJw2eQIr8jvj2HtYuzrXs+/0T5o95zI+sfOQGOMv6q8COYv2r5GPWL0/P7Gn6GPeIicMcryx8Spt6n0QtM7RSAcUztQgwxhq1GDNTsZOKhSyu10/5wvMLxobcduESNrEDCIO2x/KrVq5lKUHg8P/Zn4RcoqgB2diEm8XeE73QKDRboPPb0HerDZtjcKysOTLD2FrFFD'
     end
+    # rubocop:enable Layout/LineLength
 
     context "on #{os}" do
       context 'with default param & no pre-existing ssh_global_known_hosts dir' do
@@ -23,7 +25,9 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
+          # rubocop:disable RSpec/NamedSubject
           subject
+          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',
@@ -59,7 +63,9 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
+          # rubocop:disable RSpec/NamedSubject
           subject
+          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',
@@ -105,7 +111,9 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
+          # rubocop:disable RSpec/NamedSubject
           subject
+          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',
@@ -140,7 +148,9 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
+          # rubocop:disable RSpec/NamedSubject
           subject
+          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',

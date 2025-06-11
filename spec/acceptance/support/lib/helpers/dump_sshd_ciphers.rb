@@ -20,21 +20,21 @@ def dump_sshd_ciphers(server, label = '', text = '')
   ]
 
   # gather
-  _sshd_T = on(server, 'sshd -T | grep "^\(ciphers\|macs\|kexalgorithms\) "')
-  unless _sshd_T.exit_code == 0
+  sshd_t_output = on(server, 'sshd -T | grep "^\(ciphers\|macs\|kexalgorithms\) "')
+  unless sshd_t_output.exit_code == 0
     warn('WARNING: sshd -T failed during dump_sshd_ciphers')
     return false
   end
 
-  _f = on(server, facter(['-y', '-p'] + facts_to_query))
-  unless _f.exit_code == 0
+  initial_server_facts = on(server, facter(['-y', '-p'] + facts_to_query))
+  unless initial_server_facts.exit_code == 0
     warn('WARNING: facter failed during dump_sshd_ciphers')
     return false
   end
 
   # compile
-  sshd_info = Hash[Hash[_sshd_T.stdout.split("\n").map { |x| x.split(' ') }].map { |k, v| [k, v.split(',')] }]
-  facts = Hash[Hash[_f.stdout.split("\n").map { |x| x.split(': ') }].map { |k, v| [k, v.delete('"')] }]
+  sshd_info = Hash[Hash[sshd_t_output.stdout.split("\n").map { |x| x.split(' ') }].map { |k, v| [k, v.split(',')] }]
+  facts = Hash[Hash[initial_server_facts.stdout.split("\n").map { |x| x.split(': ') }].map { |k, v| [k, v.delete('"')] }]
   id_string = "#{facts['os.name']}-#{facts['os.release.major']}" \
               "__fips-#{facts['fips_enabled']}" \
               "__ssh-#{facts['openssh_version']}" \
@@ -67,9 +67,9 @@ def dump_sshd_ciphers(server, label = '', text = '')
 
   # report
   warn '', report, ''
-  _dir = ENV.fetch('SIMP_SSH_report_dir', '')
-  return unless File.directory?(_dir)
-  _file = File.join(_dir, "#{id_string}.md")
-  File.write(_file, report)
-  warn("dumped sshd -T summary to '#{_file}'")
+  report_dir = ENV.fetch('SIMP_SSH_report_dir', '')
+  return unless File.directory?(report_dir)
+  report_file = File.join(report_dir, "#{id_string}.md")
+  File.write(report_file, report)
+  warn("dumped sshd -T summary to '#{report_file}'")
 end

@@ -572,8 +572,6 @@ describe 'ssh::server::conf' do
       it { is_expected.to contain_sshd_config('AllowUsers').with_ensure('absent') }
       it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_ensure('absent') }
       it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_ensure('absent') }
-      it { is_expected.to contain_sshd_config('AuthorizedKeysCommand').with_ensure('absent') }
-      it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_ensure('absent') }
       it { is_expected.to contain_sshd_config('AuthorizedKeysFile').with_ensure('absent') }
       it { is_expected.to contain_sshd_config('Banner').with_ensure('absent') }
       it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_ensure('absent') }

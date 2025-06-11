@@ -57,8 +57,10 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Port').with_value('22')
             is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
             is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS',
-                                                                              'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'])
+            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(
+              ['LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES',
+               'LC_PAPER', 'LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'],
+            )
             is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
             is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
             is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
@@ -194,8 +196,10 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__Port').with_value('22')
             is_expected.to contain_ssh_config('new_run__PreferredAuthentications').with_value('publickey,hostbased,keyboard-interactive,password')
             is_expected.to contain_ssh_config('new_run__PubkeyAuthentication').with_value('yes')
-            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(['LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS',
-                                                                              'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'])
+            is_expected.to contain_ssh_config('new_run__SendEnv').with_value(
+              ['LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY', 'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS',
+               'LC_TELEPHONE', 'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'],
+            )
             is_expected.to contain_ssh_config('new_run__ServerAliveCountMax').with_value('3')
             is_expected.to contain_ssh_config('new_run__ServerAliveInterval').with_value('0')
             is_expected.to contain_ssh_config('new_run__StrictHostKeyChecking').with_value('ask')
@@ -244,27 +248,27 @@ describe 'ssh::client::host_config_entry' do
           }
         end
 
-        _protocol_sets = [ 1, '2,1' ]
-        _protocol_sets.each do |_protocol_set|
-          context "with protocol = #{_protocol_set} and both ssh::client::fips and fips_enabled false" do
+        example_protocol_sets = [ 1, '2,1' ]
+        example_protocol_sets.each do |example_protocol_set|
+          context "with protocol = #{example_protocol_set} and both ssh::client::fips and fips_enabled false" do
             let(:facts) do
               os_facts.merge({ fips_enabled: false })
             end
-            let(:params) { { protocol: _protocol_set } }
+            let(:params) { { protocol: example_protocol_set } }
 
             it { is_expected.to compile.with_all_deps }
             it {
-              is_expected.to contain_ssh_config('new_run__Protocol').with_value(%r{#{_protocol_set}})
+              is_expected.to contain_ssh_config('new_run__Protocol').with_value(%r{#{example_protocol_set}})
               is_expected.to contain_ssh_config('new_run__Cipher').with_value('3des')
             }
           end
         end
 
-        _protocol_sets = [ 1, 2, '2,1' ]
-        _protocol_sets.each do |_protocol_set|
-          context "with protocol = #{_protocol_set}, simp_options::fips = false, and fips_enabled = true" do
+        example_protocol_sets = [ 1, 2, '2,1' ]
+        example_protocol_sets.each do |example_protocol_set|
+          context "with protocol = #{example_protocol_set}, simp_options::fips = false, and fips_enabled = true" do
             let(:facts) { os_facts.merge({ fips_enabled: true }) }
-            let(:params) { { protocol: _protocol_set } }
+            let(:params) { { protocol: example_protocol_set } }
 
             it {
               expected_macs = ['hmac-sha2-256', 'hmac-sha1']
@@ -278,14 +282,14 @@ describe 'ssh::client::host_config_entry' do
           end
         end
 
-        _protocol_sets.each do |_protocol_set|
-          context "with protocol = #{_protocol_set}, simp_options::fips = true, and fips_enabled = false" do
+        example_protocol_sets.each do |example_protocol_set|
+          context "with protocol = #{example_protocol_set}, simp_options::fips = true, and fips_enabled = false" do
             #  haveged__rngd_enabled is set as workaround for containers in gitlab
             let(:facts) do
               os_facts.merge({ fips_enabled: false,
                                            haveged__rngd_enabled: false })
             end
-            let(:params) { { protocol: _protocol_set } }
+            let(:params) { { protocol: example_protocol_set } }
             let(:hieradata) { 'global_catalysts_enabled' }
 
             # This works for a defined type because APL isn't hit.

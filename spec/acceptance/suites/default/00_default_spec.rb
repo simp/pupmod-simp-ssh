@@ -20,10 +20,10 @@ describe 'ssh class' do
 
   let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
 
-  hosts_as('server').each do |_server|
-    os = _server.hostname.split('-').first
+  hosts_as('server').each do |sut_server|
+    os = sut_server.hostname.split('-').first
     context "on #{os}:" do
-      let(:server) { _server }
+      let(:server) { sut_server }
 
       let(:client) do
         os = server.hostname.split('-').first
@@ -214,15 +214,15 @@ describe 'ssh class' do
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest)
 
-          _normal_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
+          normal_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
 
           # Create the new test setup
           set_hieradata_on(server, server_hieradata_w_additions)
           apply_manifest_on(server, server_manifest_w_additions)
-          _custom_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
+          custom_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
 
           # Compare the results
-          expect((_custom_sshd_conf - _normal_sshd_conf).sort).to eq [
+          expect((custom_sshd_conf - normal_sshd_conf).sort).to eq [
             'AllowTcpForwarding no',
             'LogLevel VERBOSE',
             'X11UseLocalhost yes',
@@ -233,14 +233,14 @@ describe 'ssh class' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
           apply_manifest_on(client, client_manifest)
-          _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+          normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
           apply_manifest_on(client, client_manifest_w_custom_host_entries)
-          _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+          custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Compare the results
-          expect((_custom_ssh_conf - _normal_ssh_conf).sort).to eq [
+          expect((custom_ssh_conf - normal_ssh_conf).sort).to eq [
             'LogLevel VERBOSE',
           ]
         end
@@ -249,14 +249,14 @@ describe 'ssh class' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
           apply_manifest_on(client, client_manifest)
-          _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+          normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
           apply_manifest_on(client, client_manifest_w_new_host)
-          _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+          custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Compare the results
-          expect(_custom_ssh_conf - _normal_ssh_conf).to eq [
+          expect(custom_ssh_conf - normal_ssh_conf).to eq [
             'Host ancient.switch.fqdn',
             'Ciphers aes128-cbc,3des-cbc',
           ]
@@ -269,14 +269,14 @@ describe 'ssh class' do
           if os_major_release
             on(client, 'echo > /etc/ssh/ssh_config')
             apply_manifest_on(client, client_manifest)
-            _normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+            normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
             # Create the new test setup
             apply_manifest_on(client, client_manifest_w_ssh_config)
-            _custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
+            custom_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
             # Compare the results
-            expect((_custom_ssh_conf - _normal_ssh_conf).sort).to eq [
+            expect((custom_ssh_conf - normal_ssh_conf).sort).to eq [
               'RequestTTY auto',
             ]
           end

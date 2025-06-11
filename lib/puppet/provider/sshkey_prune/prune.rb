@@ -29,7 +29,7 @@ Puppet::Type.type(:sshkey_prune).provide(:prune) do
       tmp_fh.flush
 
       FileUtils.cp(tmp_fh.path, @resource[:name])
-    rescue Exception => e
+    rescue e
       err "Could not prune ssh keys! #{e}"
       @num_pruned = false
     ensure
