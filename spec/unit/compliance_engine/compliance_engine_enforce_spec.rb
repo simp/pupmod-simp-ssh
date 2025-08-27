@@ -36,20 +36,14 @@ describe 'compliance_markup', type: :class do
                              target_compliance_profile: target_profile
                            })
           end
-          # rubocop:disable RSpec/InstanceVariable
           let(:compliance_report) do
-            @compliance_report ||= JSON.parse(
+            JSON.parse(
                 catalogue.resource("File[#{facts[:puppet_vardir]}/compliance_report.json]")[:content],
               )
-
-            @compliance_report
           end
           let(:compliance_profile_data) do
-            @compliance_profile_data ||= compliance_report['compliance_profiles'][target_profile]
-
-            @compliance_profile_data
+            compliance_report['compliance_profiles'][target_profile]
           end
-          # rubocop:enable RSpec/InstanceVariable
 
           let(:pre_condition) do
             %(
