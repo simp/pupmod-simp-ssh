@@ -161,18 +161,18 @@ describe 'ssh class' do
         end
 
         let(:server_manifest_w_additions) do
-          <<-PP
-              include 'ssh::server'
+          <<~PP
+            include 'ssh::server'
 
-              # Basic example
+            # Basic example
 
-              sshd_config {'AllowTcpForwarding': value => 'no'}
+            sshd_config {'AllowTcpForwarding': value => 'no'}
 
-              # Server example for SIMP-4440 & SIMP-4197:
-              sshd_config { 'X11UseLocalhost':
-                value => 'yes'
-              }
-           PP
+            # Server example for SIMP-4440 & SIMP-4197:
+            sshd_config { 'X11UseLocalhost':
+              value => 'yes'
+            }
+          PP
         end
 
         let(:client_manifest_w_custom_host_entries) do

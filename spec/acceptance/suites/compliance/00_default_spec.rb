@@ -4,7 +4,7 @@ test_name 'ssh STIG enforcement'
 
 describe 'ssh STIG enforcement' do
   let(:manifest) do
-    <<-EOS
+    <<~EOS
       file { '/etc/ssh/local_keys/vagrant':
         ensure  => file,
         owner   => 'vagrant',
@@ -23,7 +23,7 @@ describe 'ssh STIG enforcement' do
         seltype => 'sshd_key_t',
        }
 
-      ::iptables::listen::tcp_stateful { 'allow_vagrant_ssh':
+      iptables::listen::tcp_stateful { 'allow_vagrant_ssh':
         trusted_nets => ['ALL'],
         dports     => [22],
       }
@@ -32,15 +32,15 @@ describe 'ssh STIG enforcement' do
   end
 
   let(:hieradata) do
-    <<-EOF
----
-simp_options::pki: true
-simp_options::pki::source: '/etc/pki/simp-testing/pki'
-# This is for Beaker
-ssh::server::conf::permitrootlogin: true
-compliance_markup::enforcement:
-  - disa_stig
-  EOF
+    <<~EOF
+      ---
+      simp_options::pki: true
+      simp_options::pki::source: '/etc/pki/simp-testing/pki'
+      # This is for Beaker
+      ssh::server::conf::permitrootlogin: true
+      compliance_markup::enforcement:
+        - disa_stig
+    EOF
   end
 
   hosts.each do |host|
@@ -56,18 +56,18 @@ compliance_markup::enforcement:
     # end of hack
     context 'when enforcing the STIG' do
       let(:hiera_yaml) do
-        <<-EOM
----
-version: 5
-hierarchy:
-  - name: Common
-    path: common.yaml
-  - name: Compliance
-    lookup_key: compliance_markup::enforcement
-defaults:
-  data_hash: yaml_data
-  datadir: "#{hiera_datadir(host)}"
-  EOM
+        <<~EOM
+          ---
+          version: 5
+          hierarchy:
+            - name: Common
+              path: common.yaml
+            - name: Compliance
+              lookup_key: compliance_markup::enforcement
+          defaults:
+            data_hash: yaml_data
+            datadir: "#{hiera_datadir(host)}"
+        EOM
       end
 
       # Using puppet_apply as a helper

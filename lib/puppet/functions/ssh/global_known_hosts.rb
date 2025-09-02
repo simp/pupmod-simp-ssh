@@ -66,7 +66,7 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
   def collect_hostnames(basedir)
     hnames = {
       longnames: [],
-      shortnames: []
+      shortnames: [],
     }
 
     # Collect current list of hostnames
@@ -118,9 +118,9 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
       sshkey_resource_hash = {
         hname => {
           type: 'ssh-rsa',
-         host_aliases: hname.split('.').first,
-         key: File.open(file, 'r').read.strip,
-         ensure: ssh_ensure
+          host_aliases: hname.split('.').first,
+          key: File.open(file, 'r').read.strip,
+          ensure: ssh_ensure,
         }
       }
       begin

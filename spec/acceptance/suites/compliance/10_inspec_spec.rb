@@ -10,13 +10,13 @@ describe 'run inspec against the appropriate fixtures' do
   # V-72245, V-72275
   let(:pam_sshd_content) { File.read(File.join(File.dirname(__FILE__), 'files', 'pam_sshd')) }
   let(:manifest) do
-    <<-EOS
+    <<~EOS
 
      file { '/etc/pam.d/sshd':
        ensure => file,
        content => "#{pam_sshd_content}",
        owner   => 'root',
-       mode    => '0644'
+       mode    => '0644',
      }
     EOS
   end
