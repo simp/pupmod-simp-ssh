@@ -1,10 +1,8 @@
 require 'spec_helper'
 
 describe 'ssh::client' do
-  on_supported_os.each do |os, facts|
-    let(:facts) do
-      facts
-    end
+  on_supported_os.each do |os, os_facts|
+    let(:facts) { os_facts }
 
     context "on #{os}" do
       context 'with default parameters' do

@@ -3,9 +3,7 @@ require 'spec_helper'
 describe 'ssh' do
   context 'supported operating systems' do
     on_supported_os.each do |os, os_facts|
-      let(:facts) do
-        os_facts
-      end
+      let(:facts) { os_facts }
 
       context "on #{os}" do
         it { is_expected.to create_class('ssh') }

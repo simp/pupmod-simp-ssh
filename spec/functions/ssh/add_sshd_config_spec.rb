@@ -4,7 +4,7 @@ describe 'ssh::add_sshd_config' do
   key_info = {
     'string'  => [ 'AuthorizedKeysFile', '/etc/ssh/local_keys/%u' ],
     'array'   => [ 'AcceptEnv', [ 'LANG', 'LC_CTYPE' ] ],
-    'integer' => [ 'ClientAliveCountMax', 0 ]
+    'integer' => [ 'ClientAliveCountMax', 0 ],
   }
 
   context 'with undef remove_keys' do

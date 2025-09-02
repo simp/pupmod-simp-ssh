@@ -8,7 +8,7 @@ describe 'ssh::parse_ssh_pubkey' do
         'type' => 'ssh-rsa',
         'key'  => 'skjfhslkdjfs...',
         'user' => 'kelly',
-      }
+      },
     },
     {
       content: 'ssh-rsa skjfhslkdjfs... kelly',
@@ -16,14 +16,14 @@ describe 'ssh::parse_ssh_pubkey' do
         'type' => 'ssh-rsa',
         'key'  => 'skjfhslkdjfs...',
         'user' => 'kelly',
-      }
+      },
     },
     {
       content: 'ssh-rsa skjfhslkdjfs...',
       result: {
         'type' => 'ssh-rsa',
         'key'  => 'skjfhslkdjfs...',
-      }
+      },
     },
   ]
 

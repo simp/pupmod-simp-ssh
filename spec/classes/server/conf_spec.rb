@@ -45,7 +45,7 @@ describe 'ssh::server::conf' do
 
   context 'with default parameters' do
     context 'latest openssh_version and both simp_options::fips and fips_enabled false' do
-      let(:facts) { os_facts.merge({ openssh_version: latest_openssh_version, fips_enabled: false }) }
+      let(:facts) { os_facts.merge(openssh_version: latest_openssh_version, fips_enabled: false) }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
@@ -123,20 +123,20 @@ describe 'ssh::server::conf' do
     end
 
     context 'latest openssh_version and only simp_options::fips true' do
-      let(:facts) { os_facts.merge({ openssh_version: latest_openssh_version, fips_enabled: false }) }
+      let(:facts) { os_facts.merge(openssh_version: latest_openssh_version, fips_enabled: false) }
       let(:hieradata) { 'fips_catalyst_enabled' }
 
       include_examples 'it adjusts sshd_config for FIPS'
     end
 
     context 'latest openssh_version and only fips_enabled false' do
-      let(:facts) { os_facts.merge({ openssh_version: latest_openssh_version, fips_enabled: true }) }
+      let(:facts) { os_facts.merge(openssh_version: latest_openssh_version, fips_enabled: true) }
 
       include_examples 'it adjusts sshd_config for FIPS'
     end
 
     context 'latest openssh_version and connected to an IPA domain' do
-      let(:facts) { os_facts.merge({ openssh_version: latest_openssh_version, ipa: {} }) }
+      let(:facts) { os_facts.merge(openssh_version: latest_openssh_version, ipa: {}) }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_value('yes') }
@@ -144,7 +144,7 @@ describe 'ssh::server::conf' do
 
     # early EL7 support
     context 'openssh_version=6.4 and both simp_options::fips and fips_enabled false' do
-      let(:facts) { os_facts.merge({ openssh_version: '6.4', fips_enabled: false }) }
+      let(:facts) { os_facts.merge(openssh_version: '6.4', fips_enabled: false) }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
@@ -159,7 +159,7 @@ describe 'ssh::server::conf' do
 
     # early EL7 support
     context 'openssh_version=6.5 and both simp_options::fips and fips_enabled false' do
-      let(:facts) { os_facts.merge({ openssh_version: '6.5', fips_enabled: false }) }
+      let(:facts) { os_facts.merge(openssh_version: '6.5', fips_enabled: false) }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
@@ -175,7 +175,7 @@ describe 'ssh::server::conf' do
 
     # early EL7 support
     context 'openssh_version=6.6' do
-      let(:facts) { os_facts.merge({ openssh_version: '6.6' }) }
+      let(:facts) { os_facts.merge(openssh_version: '6.6') }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
@@ -184,7 +184,7 @@ describe 'ssh::server::conf' do
 
     # EL7 support
     context 'openssh_version=7.4' do
-      let(:facts) { os_facts.merge({ openssh_version: '7.4' }) }
+      let(:facts) { os_facts.merge(openssh_version: '7.4') }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
@@ -195,7 +195,7 @@ describe 'ssh::server::conf' do
     # early EL 8.0 support
     context 'openssh_version=7.8' do
       # logic checks for < 7.5, but 7.5 didn't make it into a CentOS release
-      let(:facts) { os_facts.merge({ openssh_version: '7.8' }) }
+      let(:facts) { os_facts.merge(openssh_version: '7.8') }
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_ensure('absent') }
@@ -203,7 +203,7 @@ describe 'ssh::server::conf' do
   end
 
   context 'with latest ssh_version and custom parameters' do
-    let(:facts) { os_facts.merge({ openssh_version: latest_openssh_version }) }
+    let(:facts) { os_facts.merge(openssh_version: latest_openssh_version) }
 
     # Contexts below **loosely** follow the ordering of the code legs as they
     # appear in the manifests.
@@ -214,9 +214,9 @@ describe 'ssh::server::conf' do
       it { is_expected.to compile.with_all_deps }
       it {
         is_expected.to contain_pki__copy('sshd').with(
-        source: '/etc/pki/simp/x509',
-        pki: 'simp',
-      )
+          source: '/etc/pki/simp/x509',
+          pki: 'simp',
+        )
       }
     end
 
@@ -288,8 +288,8 @@ describe 'ssh::server::conf' do
       let(:params) do
         {
           enable_fallback_ciphers: false,
-       # set ciphers so can see that merge is not done
-       ciphers: [ 'aes256-gcm@openssh.com']
+          # set ciphers so can see that merge is not done
+          ciphers: [ 'aes256-gcm@openssh.com'],
         }
       end
 
@@ -329,34 +329,34 @@ describe 'ssh::server::conf' do
         it { is_expected.to contain_class('oath') }
         it {
           is_expected.to contain_file('/etc/pam.d/sshd').with(
-          ensure: 'file',
-          content: <<~EOM,
-            #%PAM-1.0
-            auth       required     pam_sepermit.so
-            auth       [success=3 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/exclude_groups.oath
-            auth       [success=2 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/exclude_users.oath
-            auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=1
-            auth       requisite    pam_deny.so
-            auth       substack     password-auth
-            auth       include      postlogin
-            # Used with polkit to reauthorize users in remote sessions
-            -auth      optional     pam_reauthorize.so prepare
-            account    required     pam_nologin.so
-            account    include      password-auth
-            password   include      password-auth
-            # pam_selinux.so close should be the first session rule
-            session    required     pam_selinux.so close
-            session    required     pam_loginuid.so
-            # pam_selinux.so open should only be followed by sessions to be executed in the user context
-            session    required     pam_selinux.so open env_params
-            session    required     pam_namespace.so
-            session    optional     pam_keyinit.so force revoke
-            session    include      password-auth
-            session    include      postlogin
-            # Used with polkit to reauthorize users in remote sessions
-            -session   optional     pam_reauthorize.so prepare
-          EOM
-        )
+            ensure: 'file',
+            content: <<~EOM,
+              #%PAM-1.0
+              auth       required     pam_sepermit.so
+              auth       [success=3 default=ignore] pam_listfile.so item=group sense=allow file=/etc/liboath/exclude_groups.oath
+              auth       [success=2 default=ignore] pam_listfile.so item=user sense=allow file=/etc/liboath/exclude_users.oath
+              auth       [success=1 default=bad]    pam_oath.so usersfile=/etc/liboath/users.oath window=1
+              auth       requisite    pam_deny.so
+              auth       substack     password-auth
+              auth       include      postlogin
+              # Used with polkit to reauthorize users in remote sessions
+              -auth      optional     pam_reauthorize.so prepare
+              account    required     pam_nologin.so
+              account    include      password-auth
+              password   include      password-auth
+              # pam_selinux.so close should be the first session rule
+              session    required     pam_selinux.so close
+              session    required     pam_loginuid.so
+              # pam_selinux.so open should only be followed by sessions to be executed in the user context
+              session    required     pam_selinux.so open env_params
+              session    required     pam_namespace.so
+              session    optional     pam_keyinit.so force revoke
+              session    include      password-auth
+              session    include      postlogin
+              # Used with polkit to reauthorize users in remote sessions
+              -session   optional     pam_reauthorize.so prepare
+            EOM
+          )
         }
 
         include_examples('it creates sshd_config with notify', 'ChallengeResponseAuthentication', 'yes')
@@ -388,28 +388,28 @@ describe 'ssh::server::conf' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to contain_file('/etc/pam.d/sshd').with_content(<<~EOM,
-            #%PAM-1.0
-            auth       required     pam_sepermit.so
-            auth       substack     password-auth
-            auth       include      postlogin
-            # Used with polkit to reauthorize users in remote sessions
-            -auth      optional     pam_reauthorize.so prepare
-            account    required     pam_nologin.so
-            account    include      password-auth
-            password   include      password-auth
-            # pam_selinux.so close should be the first session rule
-            session    required     pam_selinux.so close
-            session    required     pam_loginuid.so
-            # pam_selinux.so open should only be followed by sessions to be executed in the user context
-            session    required     pam_selinux.so open env_params
-            session    required     pam_namespace.so
-            session    optional     pam_keyinit.so force revoke
-            session    include      password-auth
-            session    include      postlogin
-            # Used with polkit to reauthorize users in remote sessions
-            -session   optional     pam_reauthorize.so prepare
-          EOM
-                                                                     )
+              #%PAM-1.0
+              auth       required     pam_sepermit.so
+              auth       substack     password-auth
+              auth       include      postlogin
+              # Used with polkit to reauthorize users in remote sessions
+              -auth      optional     pam_reauthorize.so prepare
+              account    required     pam_nologin.so
+              account    include      password-auth
+              password   include      password-auth
+              # pam_selinux.so close should be the first session rule
+              session    required     pam_selinux.so close
+              session    required     pam_loginuid.so
+              # pam_selinux.so open should only be followed by sessions to be executed in the user context
+              session    required     pam_selinux.so open env_params
+              session    required     pam_namespace.so
+              session    optional     pam_keyinit.so force revoke
+              session    include      password-auth
+              session    include      postlogin
+              # Used with polkit to reauthorize users in remote sessions
+              -session   optional     pam_reauthorize.so prepare
+            EOM
+          )
         }
       end
 
@@ -434,7 +434,7 @@ describe 'ssh::server::conf' do
         let(:params) do
           {
             authorizedkeyscommand: '/some/command',
-         authorizedkeyscommanduser: ''
+            authorizedkeyscommanduser: '',
           }
         end
 
@@ -498,10 +498,10 @@ describe 'ssh::server::conf' do
 
     context 'with selinux_enforced=true' do
       let(:facts) do
-        os_facts.merge({
-                         openssh_version: latest_openssh_version,
-          selinux_enforced: true
-                       })
+        os_facts.merge(
+          openssh_version: latest_openssh_version,
+          selinux_enforced: true,
+        )
         os_facts[:selinux] = true
         os_facts[:os][:selinux][:config_mode] = 'enforcing'
         os_facts[:os][:selinux][:config_policy] = 'targeted'
@@ -519,13 +519,11 @@ describe 'ssh::server::conf' do
 
         it {
           is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}").with(
-          {
             low_port: params[:port],
             high_port: params[:port],
             seltype: 'ssh_port_t',
-            protocol: 'tcp'
-          },
-        )
+            protocol: 'tcp',
+          )
         }
 
         it { is_expected.to contain_selinux_port("tcp_#{params[:port]}-#{params[:port]}") }
@@ -539,24 +537,20 @@ describe 'ssh::server::conf' do
 
         it {
           is_expected.to contain_selinux_port("tcp_#{params[:port].first}-#{params[:port].first}").with(
-          {
             low_port: params[:port].first,
             high_port: params[:port].first,
             seltype: 'ssh_port_t',
-            protocol: 'tcp'
-          },
-        )
+            protocol: 'tcp',
+          )
         }
 
         it {
           is_expected.to contain_selinux_port("tcp_#{params[:port].last}-#{params[:port].last}").with(
-          {
             low_port: params[:port].last,
             high_port: params[:port].last,
             seltype: 'ssh_port_t',
-            protocol: 'tcp'
-          },
-        )
+            protocol: 'tcp',
+          )
         }
       end
     end
@@ -627,7 +621,7 @@ describe 'ssh::server::conf' do
 
   # EL7 support
   context 'with useprivilegeseparation set to a boolean and openssh_version=7.4' do
-    let(:facts) { os_facts.merge({ openssh_version: '7.4' }) }
+    let(:facts) { os_facts.merge(openssh_version: '7.4') }
 
     context '=> true' do
       let(:params) { { useprivilegeseparation: true } }
@@ -644,7 +638,7 @@ describe 'ssh::server::conf' do
 
   # EL7 support
   context 'with rhostsrsaauthentication explicitly disabled, openssh_version=7.4' do
-    let(:facts) { os_facts.merge({ openssh_version: '7.4' }) }
+    let(:facts) { os_facts.merge(openssh_version: '7.4') }
     let(:params) { { rhostsrsaauthentication: false } }
 
     it { is_expected.to compile.with_all_deps }

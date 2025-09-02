@@ -15,7 +15,7 @@ describe 'ssh class' do
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
-      'ssh::server::conf::port' => target_ports
+      'ssh::server::conf::port'                   => target_ports,
     }
   end
 

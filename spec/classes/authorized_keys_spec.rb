@@ -3,9 +3,7 @@ require 'spec_helper'
 describe 'ssh::authorized_keys' do
   on_supported_os.each do |os, os_facts|
     context "on #{os}" do
-      let(:facts) do
-        os_facts
-      end
+      let(:facts) { os_facts }
 
       let(:str)  { { 'kelly' => 'ssh-rsa skjfhslkdjfs...' } }
       let(:str2) { { 'dave' => 'ssh-rsa fiqsuouefa... dave@test.local' } }
@@ -15,7 +13,7 @@ describe 'ssh::authorized_keys' do
             'ssh-rsa sajhgfsaihd... nick@test.local',
             'ssh-rsa jrklsahsgfs... nick',
             'ssh-rsa ffioqlasasd...',
-          ]
+          ],
         }
       end
       let(:hash) do
@@ -24,8 +22,8 @@ describe 'ssh::authorized_keys' do
             'key'    => 'dlfkjsahh...',
             'type'   => 'ssh-rsa',
             'user'   => 'mlast',
-            'target' => '/etc/ssh/local_keys/mlast'
-          }
+            'target' => '/etc/ssh/local_keys/mlast',
+          },
         }
       end
 
@@ -38,10 +36,10 @@ describe 'ssh::authorized_keys' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to create_ssh_authorized_key('kelly - skjfh...').with(
-          'user' => 'kelly',
-          'type' => 'ssh-rsa',
-          'key'  => 'skjfhslkdjfs...',
-        )
+            'user' => 'kelly',
+            'type' => 'ssh-rsa',
+            'key'  => 'skjfhslkdjfs...',
+          )
         }
       end
 
@@ -51,10 +49,10 @@ describe 'ssh::authorized_keys' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to create_ssh_authorized_key('dave - fiqsu...').with(
-          'user' => 'dave',
-          'type' => 'ssh-rsa',
-          'key'  => 'fiqsuouefa...',
-        )
+            'user' => 'dave',
+            'type' => 'ssh-rsa',
+            'key'  => 'fiqsuouefa...',
+          )
         }
       end
 
@@ -64,24 +62,24 @@ describe 'ssh::authorized_keys' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to create_ssh_authorized_key('nick - sajhg...').with(
-          'user' => 'nick',
-          'type' => 'ssh-rsa',
-          'key'  => 'sajhgfsaihd...',
-        )
+            'user' => 'nick',
+            'type' => 'ssh-rsa',
+            'key'  => 'sajhgfsaihd...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('nick - jrkls...').with(
-          'user' => 'nick',
-          'type' => 'ssh-rsa',
-          'key'  => 'jrklsahsgfs...',
-        )
+            'user' => 'nick',
+            'type' => 'ssh-rsa',
+            'key'  => 'jrklsahsgfs...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('nick - ffioq...').with(
-          'user' => 'nick',
-          'type' => 'ssh-rsa',
-          'key'  => 'ffioqlasasd...',
-        )
+            'user' => 'nick',
+            'type' => 'ssh-rsa',
+            'key'  => 'ffioqlasasd...',
+          )
         }
       end
 
@@ -91,11 +89,11 @@ describe 'ssh::authorized_keys' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to create_ssh_authorized_key('mike').with(
-          'key'    => 'dlfkjsahh...',
-          'type'   => 'ssh-rsa',
-          'user'   => 'mlast',
-          'target' => '/etc/ssh/local_keys/mlast',
-        )
+            'key'    => 'dlfkjsahh...',
+            'type'   => 'ssh-rsa',
+            'user'   => 'mlast',
+            'target' => '/etc/ssh/local_keys/mlast',
+          )
         }
       end
 
@@ -105,46 +103,46 @@ describe 'ssh::authorized_keys' do
         it { is_expected.to compile.with_all_deps }
         it {
           is_expected.to create_ssh_authorized_key('dave - fiqsu...').with(
-          'user' => 'dave',
-          'type' => 'ssh-rsa',
-          'key'  => 'fiqsuouefa...',
-        )
+            'user' => 'dave',
+            'type' => 'ssh-rsa',
+            'key'  => 'fiqsuouefa...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('kelly - skjfh...').with(
-          'user' => 'kelly',
-          'type' => 'ssh-rsa',
-          'key'  => 'skjfhslkdjfs...',
-        )
+            'user' => 'kelly',
+            'type' => 'ssh-rsa',
+            'key'  => 'skjfhslkdjfs...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('nick - sajhg...').with(
-          'user' => 'nick',
-          'type' => 'ssh-rsa',
-          'key'  => 'sajhgfsaihd...',
-        )
+            'user' => 'nick',
+            'type' => 'ssh-rsa',
+            'key'  => 'sajhgfsaihd...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('nick - jrkls...').with(
-          'user' => 'nick',
-          'type' => 'ssh-rsa',
-          'key'  => 'jrklsahsgfs...',
-        )
+            'user' => 'nick',
+            'type' => 'ssh-rsa',
+            'key'  => 'jrklsahsgfs...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('nick - ffioq...').with(
-          'user' => 'nick',
-          'type' => 'ssh-rsa',
-          'key'  => 'ffioqlasasd...',
-        )
+            'user' => 'nick',
+            'type' => 'ssh-rsa',
+            'key'  => 'ffioqlasasd...',
+          )
         }
         it {
           is_expected.to create_ssh_authorized_key('mike').with(
-          'key'    => 'dlfkjsahh...',
-          'type'   => 'ssh-rsa',
-          'user'   => 'mlast',
-          'target' => '/etc/ssh/local_keys/mlast',
-        )
+            'key'    => 'dlfkjsahh...',
+            'type'   => 'ssh-rsa',
+            'user'   => 'mlast',
+            'target' => '/etc/ssh/local_keys/mlast',
+          )
         }
       end
     end

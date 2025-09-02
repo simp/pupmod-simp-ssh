@@ -15,24 +15,24 @@ describe 'ssh check oath' do
       'ssh::server::conf::permitrootlogin'    => true,
       'ssh::server::conf::authorizedkeysfile' => '.ssh/authorized_keys',
       'pam::access::users'                    => JSON.parse(%({ "defaults": { "origins": [ "ALL" ], "permission": "+" }, "vagrant": null, "root": null, "testuser": null, "tst0_usr": null })),
-      'oath::oath_users'                      => JSON.parse(%({"tst0_usr": {"token_type": "HOTP/T30/6", "pin": "-", "secret_key": "000001"}}))
+      'oath::oath_users'                      => JSON.parse(%({"tst0_usr": {"token_type": "HOTP/T30/6", "pin": "-", "secret_key": "000001"}})),
     }
   end
 
   #
   # NOTE: by default, include 'ssh' will automatically include the ssh_server
   let(:client_manifest) do
-    <<-CLIENT_CONFIG
-         include 'ssh::client'
-         include 'oath'
+    <<~CLIENT_CONFIG
+      include 'ssh::client'
+      include 'oath'
     CLIENT_CONFIG
   end
 
   let(:server_manifest) do
-    <<-SERVER_CONFIG
-         include 'ssh::server'
-         include 'oath'
-         include 'pam'
+    <<~SERVER_CONFIG
+      include 'ssh::server'
+      include 'oath'
+      include 'pam'
     SERVER_CONFIG
   end
   let(:password) { 'suP3rF00B@rB@11bx23' }

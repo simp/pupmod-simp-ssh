@@ -8,7 +8,7 @@ describe 'ssh::client::host_config_entry' do
 
         context 'default parameters for ssh::client::host_config_entry and ssh::client, both ssh::client::fips and fips_enabled false' do
           let(:facts) do
-            os_facts.merge({ fips_enabled: false })
+            os_facts.merge(fips_enabled: false)
           end
 
           it { is_expected.to compile.with_all_deps }
@@ -71,9 +71,9 @@ describe 'ssh::client::host_config_entry' do
             is_expected.to contain_ssh_config('new_run__XAuthLocation').with_value('/usr/bin/xauth')
           }
 
-          context 'when  openssh_version < 8.0' do
-            let(:facts)  do
-              super().merge!({ openssh_version: '7.4' })
+          context 'when openssh_version < 8.0' do
+            let(:facts) do
+              super().merge!(openssh_version: '7.4')
             end
 
             it {
@@ -83,9 +83,9 @@ describe 'ssh::client::host_config_entry' do
               is_expected.to contain_ssh_config('new_run__CompressionLevel').with_value('6')
             }
           end
-          context 'when  openssh_version >= 8.0' do
-            let(:facts)  do
-              super().merge!({ openssh_version: '8.0' })
+          context 'when openssh_version >= 8.0' do
+            let(:facts) do
+              super().merge!(openssh_version: '8.0')
             end
 
             it {
@@ -100,7 +100,7 @@ describe 'ssh::client::host_config_entry' do
               super().merge!(
                 ipa: {
                   domain: 'test.local',
-                  server: 'ipaserver.test.local'
+                  server: 'ipaserver.test.local',
                 },
               )
             end
@@ -116,7 +116,7 @@ describe 'ssh::client::host_config_entry' do
               super().merge!(
                 ipa: {
                   domain: 'test.local',
-                  server: 'ipaserver.test.local'
+                  server: 'ipaserver.test.local',
                 },
               )
             end
@@ -130,30 +130,30 @@ describe 'ssh::client::host_config_entry' do
 
         context 'with optional parameters specified, both ssh::client::fips and fips_enabled false' do
           let(:facts) do
-            os_facts.merge({ fips_enabled: false })
+            os_facts.merge(fips_enabled: false)
           end
           let(:params) do
             {
               bindaddress: '1.2.3.4',
-           ciphers: ['aes128-ctr', 'aes192-ctr'],
-           controlpath: '/some/control/path',
-           dynamicforward: '1.2.3.4:1022',
-           globalknownhostsfile: ['/some/hosts/file1', '/some/hosts/file2'],
-           hostkeyalias: 'some.alias',
-           hostkeyalgorithms: ['ssh-rsa', 'ssh-dss'],
-           hostname: 'some.hostname',
-           identityfile: '/some/identity/file',
-           kbdinteractivedevices: ['bsdauth', 'pam'],
-           localcommand: 'some --local --command %d',
-           localforward: '2223 3.4.5.6:2235',
-           macs: ['hmac-sha2-256', 'hmac-sha2-512'],
-           proxycommand: '/usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p',
-           rekeylimit: '5G',
-           remoteforward: '3334 4.5.6.7:3345',
-           smartcarddevice: 'dev_sc',
-           tunneldevice: 'dev_td',
-           user: 'bob',
-           userknownhostsfile: ['/some/hosts/file3', '/some/hosts/file4']
+              ciphers: ['aes128-ctr', 'aes192-ctr'],
+              controlpath: '/some/control/path',
+              dynamicforward: '1.2.3.4:1022',
+              globalknownhostsfile: ['/some/hosts/file1', '/some/hosts/file2'],
+              hostkeyalias: 'some.alias',
+              hostkeyalgorithms: ['ssh-rsa', 'ssh-dss'],
+              hostname: 'some.hostname',
+              identityfile: '/some/identity/file',
+              kbdinteractivedevices: ['bsdauth', 'pam'],
+              localcommand: 'some --local --command %d',
+              localforward: '2223 3.4.5.6:2235',
+              macs: ['hmac-sha2-256', 'hmac-sha2-512'],
+              proxycommand: '/usr/bin/nc -X connect -x 192.0.2.0:8080 %h %p',
+              rekeylimit: '5G',
+              remoteforward: '3334 4.5.6.7:3345',
+              smartcarddevice: 'dev_sc',
+              tunneldevice: 'dev_td',
+              user: 'bob',
+              userknownhostsfile: ['/some/hosts/file3', '/some/hosts/file4'],
             }
           end
 
@@ -229,14 +229,14 @@ describe 'ssh::client::host_config_entry' do
         end
         context 'when  openssh_version < 8.0 and param set' do
           let(:facts)  do
-            os_facts.merge({ openssh_version: '7.4' })
+            os_facts.merge(openssh_version: '7.4')
           end
           let(:params) do
             {
               useprivilegedport: true,
-           rhostsrsaauthentication: true,
-           rsaauthentication: false,
-           compressionlevel: 2,
+              rhostsrsaauthentication: true,
+              rsaauthentication: false,
+              compressionlevel: 2,
             }
           end
 
@@ -252,7 +252,7 @@ describe 'ssh::client::host_config_entry' do
         example_protocol_sets.each do |example_protocol_set|
           context "with protocol = #{example_protocol_set} and both ssh::client::fips and fips_enabled false" do
             let(:facts) do
-              os_facts.merge({ fips_enabled: false })
+              os_facts.merge(fips_enabled: false)
             end
             let(:params) { { protocol: example_protocol_set } }
 
@@ -267,7 +267,7 @@ describe 'ssh::client::host_config_entry' do
         example_protocol_sets = [ 1, 2, '2,1' ]
         example_protocol_sets.each do |example_protocol_set|
           context "with protocol = #{example_protocol_set}, simp_options::fips = false, and fips_enabled = true" do
-            let(:facts) { os_facts.merge({ fips_enabled: true }) }
+            let(:facts) { os_facts.merge(fips_enabled: true) }
             let(:params) { { protocol: example_protocol_set } }
 
             it {
@@ -286,8 +286,10 @@ describe 'ssh::client::host_config_entry' do
           context "with protocol = #{example_protocol_set}, simp_options::fips = true, and fips_enabled = false" do
             #  haveged__rngd_enabled is set as workaround for containers in gitlab
             let(:facts) do
-              os_facts.merge({ fips_enabled: false,
-                                           haveged__rngd_enabled: false })
+              os_facts.merge(
+                fips_enabled: false,
+                haveged__rngd_enabled: false,
+              )
             end
             let(:params) { { protocol: example_protocol_set } }
             let(:hieradata) { 'global_catalysts_enabled' }

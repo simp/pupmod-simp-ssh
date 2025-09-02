@@ -51,7 +51,7 @@ describe 'ssh::global_known_hosts' do
             type: 'ssh-rsa',
             host_aliases: facts[:fqdn].split('.').first,
             key: facts[:sshrsakey],
-            ensure: 'present'
+            ensure: 'present',
           }
           expect(resource.to_hash).to include(expected_hash)
         end

@@ -155,9 +155,9 @@ describe 'ssh class' do
 
       context 'with customized settings' do
         let(:server_hieradata_w_additions) do
-          server_hieradata.merge({
-                                   'ssh::server::conf::ssh_loglevel' => 'VERBOSE',
-                                 })
+          server_hieradata.merge(
+            'ssh::server::conf::ssh_loglevel' => 'VERBOSE',
+          )
         end
 
         let(:server_manifest_w_additions) do
@@ -176,31 +176,31 @@ describe 'ssh class' do
         end
 
         let(:client_manifest_w_custom_host_entries) do
-          <<-PP
-               # SIMP-4440 client example
-               class{ 'ssh::client': add_default_entry => false }
+          <<~PP
+            # SIMP-4440 client example
+            class{ 'ssh::client': add_default_entry => false }
 
-               ssh::client::host_config_entry{ '*':
-                 ssh_loglevel => 'VERBOSE'
-               }
+            ssh::client::host_config_entry{ '*':
+              ssh_loglevel => 'VERBOSE'
+            }
            PP
         end
 
         let(:client_manifest_w_ssh_config) do
-          <<-PP
-               # ssh_config example
+          <<~PP
+            # ssh_config example
 
-               # RequestTTY isn't handled by ssh::client::host_config_entry
-               ssh_config { 'Global RequestTTY':
-                 ensure => present,
-                 key    => 'RequestTTY',
-                 value  => 'auto',
-               }
+            # RequestTTY isn't handled by ssh::client::host_config_entry
+            ssh_config { 'Global RequestTTY':
+              ensure => present,
+              key    => 'RequestTTY',
+              value  => 'auto',
+            }
            PP
         end
 
         let(:client_manifest_w_new_host) do
-          <<-PP
+          <<~PP
             # `ancient.switch.fqdn` only understands old ciphers:
             ssh::client::host_config_entry { 'ancient.switch.fqdn':
               ciphers => [ 'aes128-cbc', '3des-cbc' ],
@@ -284,8 +284,8 @@ describe 'ssh class' do
 
         it 'is able to disable AuthorizedKeysFile management' do
           disable_manage_authorizedkeysfile = server_hieradata.merge(
-            { 'ssh::server::conf::manage_authorizedkeysfile' => false,
-              'ssh::server::conf::authorizedkeysfile'        => '/foo/bar' },
+            'ssh::server::conf::manage_authorizedkeysfile' => false,
+            'ssh::server::conf::authorizedkeysfile'        => '/foo/bar',
           )
 
           set_hieradata_on(server, disable_manage_authorizedkeysfile)
