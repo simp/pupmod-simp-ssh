@@ -387,7 +387,8 @@ describe 'ssh::server::conf' do
 
         it { is_expected.to compile.with_all_deps }
         it {
-          is_expected.to contain_file('/etc/pam.d/sshd').with_content(<<~EOM,
+          is_expected.to contain_file('/etc/pam.d/sshd').with_content(
+            <<~EOM,
               #%PAM-1.0
               auth       required     pam_sepermit.so
               auth       substack     password-auth
