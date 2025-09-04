@@ -1,14 +1,14 @@
 Puppet::Type.newtype(:sshkey_prune) do
-  @desc = "Prune unknown SSH Keys from the file in $name"
+  @desc = 'Prune unknown SSH Keys from the file in $name'
 
-  newparam(:name, :namevar => true) do
-    desc "The file that you wish to prune"
+  newparam(:name, namevar: true) do
+    desc 'The file that you wish to prune'
   end
 
   newproperty(:prune) do
-    newvalues(:true,:false)
+    newvalues(:true, :false)
     defaultto(:true)
-    desc "Whether or not to prune the file in $name"
+    desc 'Whether or not to prune the file in $name'
 
     def insync?(is)
       # Expects a list of SSH keys already in the target file.
@@ -25,17 +25,17 @@ Puppet::Type.newtype(:sshkey_prune) do
       provider.retrieve
     end
 
-    def change_to_s(currentvalue, newvalue)
+    def change_to_s(_currentvalue, _newvalue)
       provider.change_to_s
     end
   end
 
   autorequire(:sshkey) do
     req = []
-    resource = catalog.resources.find_all { |r|
+    resource = catalog.resources.select do |r|
       r.is_a?(Puppet::Type.type(:sshkey))
-    }
-    if not resource.empty? then
+    end
+    unless resource.empty?
       req << resource
     end
     req.flatten!

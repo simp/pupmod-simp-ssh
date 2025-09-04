@@ -2,7 +2,6 @@
 #
 # All other values are passed-through unchanged
 Puppet::Functions.create_function(:'ssh::config_bool_translate') do
-
   # @param config_item Configuration item to be translated
   # @return transformed config_item
   dispatch :config_bool_translate do
@@ -20,10 +19,10 @@ Puppet::Functions.create_function(:'ssh::config_bool_translate') do
       true    => 'yes',
       'true'  => 'yes',
       false   => 'no',
-      'false' => 'no'
+      'false' => 'no',
     }
 
-    return config_item if not bool_translation.keys.include?(config_item)
+    return config_item unless bool_translation.keys.include?(config_item)
 
     bool_translation[config_item]
   end

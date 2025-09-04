@@ -34,7 +34,7 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
     optional_param 'Boolean', :return_private
   end
 
-  def autokey_with_options_hash(username, options=nil)
+  def autokey_with_options_hash(username, options = nil)
     key_strength = 2048
     return_private = false
 
@@ -46,53 +46,53 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
     autokey(username, key_strength, return_private)
   end
 
-  def autokey(username, key_strength=nil, return_private=nil)
-    require "timeout"
+  def autokey(username, key_strength = nil, return_private = nil)
+    require 'timeout'
 
     key_strength = 2048 if key_strength.nil?
-    key_strength = 1024 unless (key_strength > 1024)
+    key_strength = 1024 unless key_strength > 1024
     return_private = false if return_private.nil?
 
-    retval = "error"
+    retval = 'error'
 
-    if !username
-      fail('ssh::autokey: Error, username not specified')
+    unless username
+      raise('ssh::autokey: Error, username not specified')
     end
 
     env = closure_scope.lookupvar('::environment')
     keydir = "#{Puppet[:vardir]}/simp/environments/#{env}/simp_autofiles/ssh_autokeys"
 
-    if ( !File.directory?(keydir) )
+    unless File.directory?(keydir)
       begin
-        FileUtils.mkdir_p(keydir, mode: 0750)
+        FileUtils.mkdir_p(keydir, mode: 0o750)
       rescue
         Puppet.warning "ssh::autokey: Could not make directory #{keydir}. Ensure that #{keydir} is writable by 'puppet'"
         return retval
       end
     end
 
-    if ( !File.exist?("#{keydir}/#{username}") )
+    unless File.exist?("#{keydir}/#{username}")
       begin
-        Timeout::timeout(30) do
+        Timeout.timeout(30) do
           Puppet::Util::Execution.execute("/usr/bin/ssh-keygen -N '' -q -t rsa -C '' -b #{key_strength} -f #{keydir}/#{username}")
-          FileUtils.chmod 0640, "#{keydir}/#{username}"
-          FileUtils.chmod 0640, "#{keydir}/#{username}.pub"
+          FileUtils.chmod 0o640, "#{keydir}/#{username}"
+          FileUtils.chmod 0o640, "#{keydir}/#{username}.pub"
         end
       rescue Timeout::Error
         Puppet.warning "ssh::autokey: ssh-keygen timed out for #{username}"
       end
     end
 
-    if ( File.exist?("#{keydir}/#{username}.pub") )
-      if return_private
-        retval = File.read("#{keydir}/#{username}")
-      else
-        # Grab the first line from the generated file and spit out only the
-        # hash portion.
-        retval = File.readlines("#{keydir}/#{username}.pub")[0].split(/\s/)[1]
-      end
+    if File.exist?("#{keydir}/#{username}.pub")
+      retval = if return_private
+                 File.read("#{keydir}/#{username}")
+               else
+                 # Grab the first line from the generated file and spit out only the
+                 # hash portion.
+                 File.readlines("#{keydir}/#{username}.pub")[0].split(%r{\s})[1]
+               end
     end
 
-    return retval
+    retval
   end
 end

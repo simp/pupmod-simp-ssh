@@ -21,7 +21,6 @@
 # Input: 'foo?.*.bar'
 # Output: 'foozzzz96_qu__.zzzz95_st__.bar'
 Puppet::Functions.create_function(:'ssh::format_host_entry_for_sorting') do
-
   # @param host_entry  SSH host entry, which may contain wildcards
   # @return transformed host_entry
   dispatch :format_host_entry_for_sorting do
@@ -32,9 +31,9 @@ Puppet::Functions.create_function(:'ssh::format_host_entry_for_sorting') do
     segments = host_entry.split('.')
     refnum = 100 - segments.length
 
-    segments.map {|x|
-      refnum = refnum - 1
-      x.gsub('*',"zzzz#{refnum}_st__").gsub('?',"zzzz#{refnum}_qu__")
+    segments.map { |x|
+      refnum -= 1
+      x.gsub('*', "zzzz#{refnum}_st__").gsub('?', "zzzz#{refnum}_qu__")
     }.join('.')
   end
 end

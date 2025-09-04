@@ -1,3 +1,6 @@
+* Wed Jun 11 2025 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.20.1
+- Fix rubocop issues
+
 * Tue Oct 01 2024 Steven Pritchard <steve@sicura.us> - 6.20.0
 - Update metadata upper bounds for puppet-augeasproviders_ssh and puppet-selinux
 

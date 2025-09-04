@@ -6,7 +6,7 @@ describe 'ssh::config_bool_translate' do
     'true'  => 'yes',
     false   => 'no',
     'false' => 'no',
-    'other' => 'other'
+    'other' => 'other',
   }
 
   context 'with valid input' do
@@ -15,4 +15,3 @@ describe 'ssh::config_bool_translate' do
     end
   end
 end
-
