@@ -9,10 +9,10 @@ describe 'ssh::server::conf' do
   shared_examples 'it adjusts sshd_config for FIPS' do
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('ssh::server::conf') }
-    include_examples('it creates sshd_config with notify', 'Ciphers',
+    it_behaves_like('it creates sshd_config with notify', 'Ciphers',
       [ 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ])
 
-    include_examples('it creates sshd_config with notify', 'KexAlgorithms',
+    it_behaves_like('it creates sshd_config with notify', 'KexAlgorithms',
       [
         'ecdh-sha2-nistp521',
         'ecdh-sha2-nistp384',
@@ -20,7 +20,7 @@ describe 'ssh::server::conf' do
         'diffie-hellman-group-exchange-sha256',
       ])
 
-    include_examples('it creates sshd_config with notify', 'MACs',
+    it_behaves_like('it creates sshd_config with notify', 'MACs',
       [
         'hmac-sha2-256',
         'hmac-sha1',
@@ -50,31 +50,31 @@ describe 'ssh::server::conf' do
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
       it { is_expected.to create_file('/etc/ssh/sshd_config') }
-      include_examples('it creates sshd_config with notify', 'AcceptEnv',
+      it_behaves_like('it creates sshd_config with notify', 'AcceptEnv',
         [ 'LANG', 'LC_CTYPE', 'LC_NUMERIC', 'LC_TIME', 'LC_COLLATE', 'LC_MONETARY',
           'LC_MESSAGES', 'LC_PAPER', 'LC_NAME', 'LC_ADDRESS', 'LC_TELEPHONE',
           'LC_MEASUREMENT', 'LC_IDENTIFICATION', 'LC_ALL'])
 
-      include_examples('it creates sshd_config with notify', 'AllowGroups', nil)
-      include_examples('it creates sshd_config with notify', 'AllowUsers', nil)
+      it_behaves_like('it creates sshd_config with notify', 'AllowGroups', nil)
+      it_behaves_like('it creates sshd_config with notify', 'AllowUsers', nil)
       it { is_expected.not_to contain_sshd_config('AuthorizedKeysCommand') }
       it { is_expected.not_to contain_sshd_config('AuthorizedKeysCommandUser') }
-      include_examples('it creates sshd_config with notify', 'AuthorizedKeysFile', '/etc/ssh/local_keys/%u')
-      include_examples('it creates sshd_config with notify', 'Banner', '/etc/issue.net')
-      include_examples('it creates sshd_config with notify', 'ChallengeResponseAuthentication', 'no')
-      include_examples('it creates sshd_config with notify', 'Ciphers',
+      it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysFile', '/etc/ssh/local_keys/%u')
+      it_behaves_like('it creates sshd_config with notify', 'Banner', '/etc/issue.net')
+      it_behaves_like('it creates sshd_config with notify', 'ChallengeResponseAuthentication', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'Ciphers',
         ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ])
-      include_examples('it creates sshd_config with notify', 'ClientAliveCountMax', 0)
-      include_examples('it creates sshd_config with notify', 'ClientAliveInterval', 600)
-      include_examples('it creates sshd_config with notify', 'Compression', 'delayed')
-      include_examples('it creates sshd_config with notify', 'DenyGroups', nil)
-      include_examples('it creates sshd_config with notify', 'DenyUsers', nil)
-      include_examples('it creates sshd_config with notify', 'GSSAPIAuthentication', 'no')
-      include_examples('it creates sshd_config with notify', 'HostbasedAuthentication', 'no')
-      include_examples('it creates sshd_config with notify', 'IgnoreRhosts', 'yes')
-      include_examples('it creates sshd_config with notify', 'IgnoreUserKnownHosts', 'yes')
-      include_examples('it creates sshd_config with notify', 'KerberosAuthentication', 'no')
-      include_examples('it creates sshd_config with notify', 'KexAlgorithms',
+      it_behaves_like('it creates sshd_config with notify', 'ClientAliveCountMax', 0)
+      it_behaves_like('it creates sshd_config with notify', 'ClientAliveInterval', 600)
+      it_behaves_like('it creates sshd_config with notify', 'Compression', 'delayed')
+      it_behaves_like('it creates sshd_config with notify', 'DenyGroups', nil)
+      it_behaves_like('it creates sshd_config with notify', 'DenyUsers', nil)
+      it_behaves_like('it creates sshd_config with notify', 'GSSAPIAuthentication', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'HostbasedAuthentication', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'IgnoreRhosts', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'IgnoreUserKnownHosts', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'KerberosAuthentication', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'KexAlgorithms',
         [
           'curve25519-sha256@libssh.org',
           'ecdh-sha2-nistp521',
@@ -84,9 +84,9 @@ describe 'ssh::server::conf' do
         ])
 
       it { is_expected.not_to contain_sshd_config('ListenAddress') }
-      include_examples('it creates sshd_config with notify', 'LoginGraceTime', 120)
-      include_examples('it creates sshd_config with notify', 'LogLevel', nil)
-      include_examples('it creates sshd_config with notify', 'MACs',
+      it_behaves_like('it creates sshd_config with notify', 'LoginGraceTime', 120)
+      it_behaves_like('it creates sshd_config with notify', 'LogLevel', nil)
+      it_behaves_like('it creates sshd_config with notify', 'MACs',
         [
           'hmac-sha2-512-etm@openssh.com',
           'hmac-sha2-256-etm@openssh.com',
@@ -94,19 +94,19 @@ describe 'ssh::server::conf' do
           'hmac-sha2-256',
         ])
 
-      include_examples('it creates sshd_config with notify', 'MaxAuthTries', 6)
-      include_examples('it creates sshd_config with notify', 'PasswordAuthentication', 'yes')
-      include_examples('it creates sshd_config with notify', 'PermitEmptyPasswords', 'no')
-      include_examples('it creates sshd_config with notify', 'PermitRootLogin', 'no')
-      include_examples('it creates sshd_config with notify', 'PermitUserEnvironment', 'no')
-      include_examples('it creates sshd_config with notify', 'Port', [22])
-      include_examples('it creates sshd_config with notify', 'PrintLastLog', 'no')
-      include_examples('it creates sshd_config with notify', 'Protocol', '2')
+      it_behaves_like('it creates sshd_config with notify', 'MaxAuthTries', 6)
+      it_behaves_like('it creates sshd_config with notify', 'PasswordAuthentication', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'PermitEmptyPasswords', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'PermitRootLogin', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'PermitUserEnvironment', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'Port', [22])
+      it_behaves_like('it creates sshd_config with notify', 'PrintLastLog', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'Protocol', '2')
       it { is_expected.not_to contain_sshd_config('RhostsRSAAuthentication') }
-      include_examples('it creates sshd_config with notify', 'StrictModes', 'yes')
-      include_examples('it creates sshd_config with notify', 'SyslogFacility', 'AUTHPRIV')
-      include_examples('it creates sshd_config with notify', 'UsePAM', 'yes')
-      include_examples('it creates sshd_config with notify', 'X11Forwarding', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'StrictModes', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'SyslogFacility', 'AUTHPRIV')
+      it_behaves_like('it creates sshd_config with notify', 'UsePAM', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'X11Forwarding', 'no')
       it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_ensure('absent') }
       it {
         is_expected.to contain_sshd_config_subsystem('sftp')
@@ -126,13 +126,13 @@ describe 'ssh::server::conf' do
       let(:facts) { os_facts.merge(openssh_version: latest_openssh_version, fips_enabled: false) }
       let(:hieradata) { 'fips_catalyst_enabled' }
 
-      include_examples 'it adjusts sshd_config for FIPS'
+      it_behaves_like 'it adjusts sshd_config for FIPS'
     end
 
     context 'latest openssh_version and only fips_enabled false' do
       let(:facts) { os_facts.merge(openssh_version: latest_openssh_version, fips_enabled: true) }
 
-      include_examples 'it adjusts sshd_config for FIPS'
+      it_behaves_like 'it adjusts sshd_config for FIPS'
     end
 
     context 'latest openssh_version and connected to an IPA domain' do
@@ -148,7 +148,7 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
-      include_examples('it creates sshd_config with notify', 'KexAlgorithms',
+      it_behaves_like('it creates sshd_config with notify', 'KexAlgorithms',
         [
           'ecdh-sha2-nistp521',
           'ecdh-sha2-nistp384',
@@ -163,7 +163,7 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
-      include_examples('it creates sshd_config with notify', 'KexAlgorithms',
+      it_behaves_like('it creates sshd_config with notify', 'KexAlgorithms',
         [
           'curve25519-sha256@libssh.org',
           'ecdh-sha2-nistp521',
@@ -179,7 +179,7 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
-      include_examples('it creates sshd_config with notify', 'RhostsRSAAuthentication', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'RhostsRSAAuthentication', 'no')
     end
 
     # EL7 support
@@ -189,7 +189,7 @@ describe 'ssh::server::conf' do
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to create_class('ssh::server::conf') }
       it { is_expected.not_to contain_sshd_config('RhostsRSAAuthentication') }
-      include_examples('it creates sshd_config with notify', 'UsePrivilegeSeparation', 'sandbox')
+      it_behaves_like('it creates sshd_config with notify', 'UsePrivilegeSeparation', 'sandbox')
     end
 
     # early EL 8.0 support
@@ -225,8 +225,8 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to contain_package('sssd-common') }
-      include_examples('it creates sshd_config with notify', 'AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys')
-      include_examples('it creates sshd_config with notify', 'AuthorizedKeysCommandUser', 'nobody')
+      it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys')
+      it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysCommandUser', 'nobody')
     end
 
     context 'when ldap=true and sssd=false' do
@@ -234,8 +234,8 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.not_to contain_package('sssd-common') }
-      include_examples('it creates sshd_config with notify', 'AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper')
-      include_examples('it creates sshd_config with notify', 'AuthorizedKeysCommandUser', 'nobody')
+      it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper')
+      it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysCommandUser', 'nobody')
     end
 
     context 'with macs set' do
@@ -243,14 +243,14 @@ describe 'ssh::server::conf' do
         let(:params) { { macs: ['hmac-sha2-256'] } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'MACs', ['hmac-sha2-256'])
+        it_behaves_like('it creates sshd_config with notify', 'MACs', ['hmac-sha2-256'])
       end
 
       context 'with macs empty' do
         let(:params) { { macs: [] } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'MACs',
+        it_behaves_like('it creates sshd_config with notify', 'MACs',
           [
             'hmac-sha2-512-etm@openssh.com',
             'hmac-sha2-256-etm@openssh.com',
@@ -263,7 +263,7 @@ describe 'ssh::server::conf' do
     context 'with multiple protocols set' do
       let(:params) { { protocol: [2, 1] } }
 
-      include_examples('it creates sshd_config with notify', 'Protocol', '2,1')
+      it_behaves_like('it creates sshd_config with notify', 'Protocol', '2,1')
     end
 
     context 'with ciphers set' do
@@ -271,7 +271,7 @@ describe 'ssh::server::conf' do
         let(:params) { { ciphers: ['aes256-gcm@openssh.com'] } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'Ciphers',
+        it_behaves_like('it creates sshd_config with notify', 'Ciphers',
           ['aes256-gcm@openssh.com', 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ])
       end
 
@@ -279,7 +279,7 @@ describe 'ssh::server::conf' do
         let(:params) { { ciphers: [] } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'Ciphers',
+        it_behaves_like('it creates sshd_config with notify', 'Ciphers',
           ['aes256-gcm@openssh.com', 'aes128-gcm@openssh.com', 'aes256-ctr', 'aes192-ctr', 'aes128-ctr' ])
       end
     end
@@ -302,7 +302,7 @@ describe 'ssh::server::conf' do
         let(:params) { { kex_algorithms: ['ecdh-sha2-nistp521'] } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'KexAlgorithms',
+        it_behaves_like('it creates sshd_config with notify', 'KexAlgorithms',
           ['ecdh-sha2-nistp521'])
       end
 
@@ -310,7 +310,7 @@ describe 'ssh::server::conf' do
         let(:params) { { kex_algorithms: [] } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'KexAlgorithms',
+        it_behaves_like('it creates sshd_config with notify', 'KexAlgorithms',
           [
             'curve25519-sha256@libssh.org',
             'ecdh-sha2-nistp521',
@@ -359,8 +359,8 @@ describe 'ssh::server::conf' do
           )
         }
 
-        include_examples('it creates sshd_config with notify', 'ChallengeResponseAuthentication', 'yes')
-        include_examples('it creates sshd_config with notify', 'PasswordAuthentication', 'no')
+        it_behaves_like('it creates sshd_config with notify', 'ChallengeResponseAuthentication', 'yes')
+        it_behaves_like('it creates sshd_config with notify', 'PasswordAuthentication', 'no')
       end
 
       context 'with usepam=false' do
@@ -369,7 +369,7 @@ describe 'ssh::server::conf' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('oath') }
         it { is_expected.to contain_file('/etc/pam.d/sshd') }
-        include_examples('it creates sshd_config with notify', 'UsePAM', 'yes')
+        it_behaves_like('it creates sshd_config with notify', 'UsePAM', 'yes')
       end
 
       context 'with manage_pam_sshd=false' do
@@ -427,8 +427,8 @@ describe 'ssh::server::conf' do
         let(:params) { { authorizedkeyscommand: '/some/command' } }
 
         it { is_expected.to compile.with_all_deps }
-        include_examples('it creates sshd_config with notify', 'AuthorizedKeysCommand', '/some/command')
-        include_examples('it creates sshd_config with notify', 'AuthorizedKeysCommandUser', 'nobody')
+        it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysCommand', '/some/command')
+        it_behaves_like('it creates sshd_config with notify', 'AuthorizedKeysCommandUser', 'nobody')
       end
 
       context 'with authorizedkeyscommanduser empty' do
@@ -481,7 +481,7 @@ describe 'ssh::server::conf' do
       let(:hieradata) { 'some_global_catalysts_enabled' }
 
       it { is_expected.to compile.with_all_deps }
-      include_examples('it creates sshd_config with notify', 'UsePAM', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'UsePAM', 'yes')
       it { is_expected.to contain_class('iptables') }
       it { is_expected.to contain_iptables__listen__tcp_stateful('allow_sshd').with_dports([22]) }
       it { is_expected.to contain_class('tcpwrappers') }
@@ -616,7 +616,7 @@ describe 'ssh::server::conf' do
       let(:params) { { listenaddress: '1.2.3.4' } }
 
       it { is_expected.to compile.with_all_deps }
-      include_examples('it creates sshd_config with notify', 'ListenAddress', '1.2.3.4')
+      it_behaves_like('it creates sshd_config with notify', 'ListenAddress', '1.2.3.4')
     end
   end
 
@@ -627,13 +627,13 @@ describe 'ssh::server::conf' do
     context '=> true' do
       let(:params) { { useprivilegeseparation: true } }
 
-      include_examples('it creates sshd_config with notify', 'UsePrivilegeSeparation', 'yes')
+      it_behaves_like('it creates sshd_config with notify', 'UsePrivilegeSeparation', 'yes')
     end
 
     context '=> false' do
       let(:params) { { useprivilegeseparation: false } }
 
-      include_examples('it creates sshd_config with notify', 'UsePrivilegeSeparation', 'no')
+      it_behaves_like('it creates sshd_config with notify', 'UsePrivilegeSeparation', 'no')
     end
   end
 
@@ -643,6 +643,6 @@ describe 'ssh::server::conf' do
     let(:params) { { rhostsrsaauthentication: false } }
 
     it { is_expected.to compile.with_all_deps }
-    include_examples('it creates sshd_config with notify', 'RhostsRSAAuthentication', 'no')
+    it_behaves_like('it creates sshd_config with notify', 'RhostsRSAAuthentication', 'no')
   end
 end
