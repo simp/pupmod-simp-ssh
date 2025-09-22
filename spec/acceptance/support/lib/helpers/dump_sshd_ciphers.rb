@@ -49,7 +49,7 @@ def dump_sshd_ciphers(server, label = '', text = '')
   lines << "- openssh_version: #{facts['openssh_version']}"
   lines << "- fips_enabled: #{facts['fips_enabled']}"
   lines << "- selinux_mode: #{facts['os.selinux.config_mode']}"
-  lines << "- ipa: #{facts['ipa'].empty? ? '' : facts['ipa']}"
+  lines << "- ipa: #{facts['ipa'] unless facts['ipa'].empty?}"
   lines << "\n"
   lines << 'Ciphers:'
   lines << sshd_info['ciphers'].map { |x| "- `#{x}`" }
