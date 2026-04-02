@@ -20,7 +20,6 @@ fixtures:
     simp_options: https://github.com/simp/pupmod-simp-simp_options.git
     simplib: https://github.com/simp/pupmod-simp-simplib.git
     stdlib: https://github.com/simp/puppetlabs-stdlib.git
-    tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers.git
     selinux: https://github.com/simp/pupmod-simp-selinux.git
     simp_firewalld: https://github.com/simp/pupmod-simp-simp_firewalld.git
     sshkeys_core: https://github.com/simp/pupmod-puppetlabs-sshkeys_core.git
