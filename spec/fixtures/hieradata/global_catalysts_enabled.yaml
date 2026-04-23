@@ -8,4 +8,3 @@ simp_options::ldap : true
 simp_options::pam : true
 simp_options::pki : true
 simp_options::sssd : true
-simp_options::tcpwrappers : true

@@ -119,7 +119,6 @@ describe 'ssh::server::conf' do
       it { is_expected.not_to contain_class('oath') }
       it { is_expected.not_to contain_file('/etc/pam.d/sshd') }
       it { is_expected.not_to contain_class('iptables') }
-      it { is_expected.not_to contain_class('tcpwrappers') }
     end
 
     context 'latest openssh_version and only simp_options::fips true' do
@@ -477,15 +476,13 @@ describe 'ssh::server::conf' do
       it { is_expected.to contain_sshd_config('AuthorizedKeysCommandUser').with_value('nobody') }
     end
 
-    context 'with firewall, haveged, pam, and tcpwrappers global catalysts enabled' do
+    context 'with firewall, haveged, and pam global catalysts enabled' do
       let(:hieradata) { 'some_global_catalysts_enabled' }
 
       it { is_expected.to compile.with_all_deps }
       it_behaves_like('it creates sshd_config with notify', 'UsePAM', 'yes')
       it { is_expected.to contain_class('iptables') }
       it { is_expected.to contain_iptables__listen__tcp_stateful('allow_sshd').with_dports([22]) }
-      it { is_expected.to contain_class('tcpwrappers') }
-      it { is_expected.to contain_tcpwrappers__allow('sshd') }
       it { is_expected.to contain_class('haveged') }
     end
 
