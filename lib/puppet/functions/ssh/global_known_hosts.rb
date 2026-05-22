@@ -58,9 +58,9 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
       raise("ssh::global_known_hosts: Error, #{basedir} must be writable by #{Process.uid}")
     end
 
-    hostkey = File.open("#{basedir}/#{fqdn}", 'w+', 0o640)
-    hostkey.puts(rsakey)
-    hostkey.close
+    File.open("#{basedir}/#{fqdn}", 'w+', 0o640) do |hostkey|
+      hostkey.puts(rsakey)
+    end
   end
 
   def collect_hostnames(basedir)
@@ -119,7 +119,7 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
         hname => {
           type: 'ssh-rsa',
           host_aliases: hname.split('.').first,
-          key: File.open(file, 'r').read.strip,
+          key: File.read(file).strip,
           ensure: ssh_ensure,
         }
       }

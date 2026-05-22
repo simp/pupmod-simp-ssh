@@ -32,9 +32,7 @@ Puppet::Type.newtype(:sshkey_prune) do
 
   autorequire(:sshkey) do
     req = []
-    resource = catalog.resources.select do |r|
-      r.is_a?(Puppet::Type.type(:sshkey))
-    end
+    resource = catalog.resources.grep(Puppet::Type.type(:sshkey))
     unless resource.empty?
       req << resource
     end
