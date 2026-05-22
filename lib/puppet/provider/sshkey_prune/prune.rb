@@ -44,10 +44,11 @@ Puppet::Type.type(:sshkey_prune).provide(:prune) do
 
     @system_hosts = {}
     if File.readable?(@resource[:name])
-      fh = File.open(@resource[:name], 'r')
-      fh.each_line do |line|
-        hostname = line.split(%r{\s}).first.split(',').first
-        hostname !~ %r{^#} and @system_hosts[hostname] = line
+      File.open(@resource[:name], 'r') do |fh|
+        fh.each_line do |line|
+          hostname = line.split(%r{\s}).first.split(',').first
+          hostname !~ %r{^#} and @system_hosts[hostname] = line
+        end
       end
     end
 
