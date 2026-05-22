@@ -8,7 +8,6 @@ def target_ports
 end
 
 describe 'ssh class' do
-
   let(:server_manifest) { "include 'ssh::server'" }
 
   let(:server_hieradata) do
