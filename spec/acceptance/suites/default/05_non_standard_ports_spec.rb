@@ -3,8 +3,11 @@ require_relative '../../support/lib/helpers/dump_sshd_ciphers'
 
 test_name 'ssh non-standard ports'
 
+def target_ports
+  @target_ports ||= [22, 2222, 22_222]
+end
+
 describe 'ssh class' do
-  target_ports = [22, 2222, 22_222]
 
   let(:server_manifest) { "include 'ssh::server'" }
 

@@ -30,7 +30,7 @@ describe 'ssh::server::conf' do
   # sshd config is dependent upon only a handful of facts that are not
   # OS-specific. So don't waste test cycles by iterating through supported
   # OSes. Just grab the first set of facts as the base facts.
-  os_facts = on_supported_os.first.last
+  let(:os_facts) { on_supported_os.first.last }
 
   # CentOS Versions    OpenSSH version
   # 7.0.1406           6.4
@@ -38,7 +38,7 @@ describe 'ssh::server::conf' do
   # 7.4.1708-7.9.2009  7.4
   # 8.0.1905           7.8
   # 8.3.2011           8.0
-  latest_openssh_version = '8.0'
+  let(:latest_openssh_version) { '8.0' }
 
   # This is a common dependency that is notified
   let(:pre_condition) { 'service { "sshd": }' }
