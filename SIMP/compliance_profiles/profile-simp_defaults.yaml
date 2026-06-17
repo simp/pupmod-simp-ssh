@@ -1,0 +1,53 @@
+---
+# The `simp:defaults` profile is a drop-in restoration of the pre-8.0.0
+# `pupmod-simp-ssh` behavior.  Enabling it
+# (`compliance_engine::enforcement: [simp:defaults]`) re-applies the hardening
+# defaults, manages the `sshd` service, and re-enables the SIMP integrations
+# (firewall/pki/haveged/tcpwrappers) that a bare `include ssh` used to opt into
+# automatically.  Site Hiera outranks this profile, so a site can enable it and
+# override individual keys for an "old behavior, but safer" posture.
+version: 2.0.0
+profiles:
+  simp:defaults:
+    checks:
+      simp:defaults.ssh.service_ensure: true
+      simp:defaults.ssh.service_enable: true
+      simp:defaults.ssh.add_default_entry: true
+      simp:defaults.ssh.client_haveged: true
+      simp:defaults.ssh.acceptenv: true
+      simp:defaults.ssh.authorizedkeysfile: true
+      simp:defaults.ssh.banner: true
+      simp:defaults.ssh.challengeresponseauthentication: true
+      simp:defaults.ssh.clientalivecountmax: true
+      simp:defaults.ssh.clientaliveinterval: true
+      simp:defaults.ssh.compression: true
+      simp:defaults.ssh.gssapiauthentication: true
+      simp:defaults.ssh.hostbasedauthentication: true
+      simp:defaults.ssh.ignorerhosts: true
+      simp:defaults.ssh.ignoreuserknownhosts: true
+      simp:defaults.ssh.kerberosauthentication: true
+      simp:defaults.ssh.logingracetime: true
+      simp:defaults.ssh.maxauthtries: true
+      simp:defaults.ssh.usepam: true
+      simp:defaults.ssh.passwordauthentication: true
+      simp:defaults.ssh.permitemptypasswords: true
+      simp:defaults.ssh.permitrootlogin: true
+      simp:defaults.ssh.permituserenvironment: true
+      simp:defaults.ssh.port: true
+      simp:defaults.ssh.printlastlog: true
+      simp:defaults.ssh.protocol: true
+      simp:defaults.ssh.strictmodes: true
+      simp:defaults.ssh.subsystem: true
+      simp:defaults.ssh.syslogfacility: true
+      simp:defaults.ssh.x11forwarding: true
+      simp:defaults.ssh.firewall: true
+      simp:defaults.ssh.haveged: true
+      simp:defaults.ssh.tcpwrappers: true
+      simp:defaults.ssh.pki: true
+      simp:defaults.ssh.ciphers.non_fips: true
+      simp:defaults.ssh.ciphers.fips: true
+      simp:defaults.ssh.macs.non_fips: true
+      simp:defaults.ssh.macs.fips: true
+      simp:defaults.ssh.kex_algorithms.non_fips: true
+      simp:defaults.ssh.kex_algorithms.fips: true
+      simp:defaults.ssh.useprivilegeseparation.el7: true

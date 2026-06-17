@@ -1,6 +1,7 @@
 require 'spec_helper'
 
-shared_examples_for 'an ssh server' do |os_facts|
+# Resources that are only declared once service management is requested.
+shared_examples_for 'a managed ssh server' do |os_facts|
   it { is_expected.to create_class('ssh::server') }
   it { is_expected.to compile.with_all_deps }
   it { is_expected.to contain_class('ssh') }
@@ -42,6 +43,7 @@ shared_examples_for 'an ssh server' do |os_facts|
   it {
     is_expected.to contain_service('sshd').with(
       ensure: 'running',
+      enable: true,
       require: [
         'Package[openssh-server]',
         'User[sshd]',
@@ -80,20 +82,60 @@ describe 'ssh::server' do
         end
 
         context 'with default parameters' do
-          it_behaves_like 'an ssh server', os_facts
-          it { is_expected.not_to contain_package('openssh-ldap').with_ensure('installed') }
+          # Reduced blast radius: a bare include installs the package and does
+          # nothing else.  Service management (and everything that only matters
+          # when sshd runs) is opt-in.
+          it { is_expected.to create_class('ssh::server') }
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.to contain_package('openssh-server').with_ensure('installed') }
+
+          it { is_expected.not_to contain_service('sshd') }
+          it { is_expected.not_to contain_user('sshd') }
+          it { is_expected.not_to contain_group('sshd') }
+          it { is_expected.not_to contain_file('/var/empty/sshd') }
+          it { is_expected.not_to contain_file('/etc/ssh/moduli') }
+          it { is_expected.not_to contain_file('/etc/ssh/sshd_config') }
+
+          os_facts[:ssh_host_keys].each do |host_key|
+            it { is_expected.not_to contain_file(host_key) }
+          end
         end
 
-        context 'with ldap => true' do
+        context 'with service management enabled' do
+          let(:params) do
+            {
+              service_ensure: 'running',
+              service_enable: true,
+            }
+          end
+
+          it_behaves_like 'a managed ssh server', os_facts
+          it { is_expected.not_to contain_package('openssh-ldap').with_ensure('installed') }
+          it { is_expected.to contain_file('/etc/ssh/sshd_config').that_requires('Package[openssh-server]') }
+        end
+
+        context 'with service management and ldap => true' do
+          let(:params) do
+            {
+              service_ensure: 'running',
+              service_enable: true,
+            }
+          end
           let(:pre_condition) do
             "class{'ssh::server::conf': ldap => true }"
           end
 
-          it_behaves_like 'an ssh server', os_facts
+          it_behaves_like 'a managed ssh server', os_facts
           it { is_expected.to contain_package('openssh-ldap').with_ensure('installed') }
         end
 
-        context 'with pki => true' do
+        context 'with service management and pki => true' do
+          let(:params) do
+            {
+              service_ensure: 'running',
+              service_enable: true,
+            }
+          end
           let(:pre_condition) do
             "class{'ssh::server::conf': pki => true }"
           end

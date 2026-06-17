@@ -62,24 +62,29 @@ Puppet::Functions.create_function(:'ssh::autokey', Puppet::Functions::InternalFu
     env = closure_scope.lookupvar('::environment')
     keydir = "#{Puppet[:vardir]}/simp/environments/#{env}/simp_autofiles/ssh_autokeys"
 
-    unless File.directory?(keydir)
-      begin
-        FileUtils.mkdir_p(keydir, mode: 0o750)
-      rescue
-        Puppet.warning "ssh::autokey: Could not make directory #{keydir}. Ensure that #{keydir} is writable by 'puppet'"
-        return retval
-      end
-    end
-
-    unless File.exist?("#{keydir}/#{username}")
-      begin
-        Timeout.timeout(30) do
-          Puppet::Util::Execution.execute("/usr/bin/ssh-keygen -N '' -q -t rsa -C '' -b #{key_strength} -f #{keydir}/#{username}")
-          FileUtils.chmod 0o640, "#{keydir}/#{username}"
-          FileUtils.chmod 0o640, "#{keydir}/#{username}.pub"
+    # Do not create directories or generate keys during a `--noop` run; this
+    # function changes system state, so honor noop and simply return whatever
+    # key already exists (if any).
+    unless Puppet.settings[:noop]
+      unless File.directory?(keydir)
+        begin
+          FileUtils.mkdir_p(keydir, mode: 0o750)
+        rescue
+          Puppet.warning "ssh::autokey: Could not make directory #{keydir}. Ensure that #{keydir} is writable by 'puppet'"
+          return retval
         end
-      rescue Timeout::Error
-        Puppet.warning "ssh::autokey: ssh-keygen timed out for #{username}"
+      end
+
+      unless File.exist?("#{keydir}/#{username}")
+        begin
+          Timeout.timeout(30) do
+            Puppet::Util::Execution.execute("/usr/bin/ssh-keygen -N '' -q -t rsa -C '' -b #{key_strength} -f #{keydir}/#{username}")
+            FileUtils.chmod 0o640, "#{keydir}/#{username}"
+            FileUtils.chmod 0o640, "#{keydir}/#{username}.pub"
+          end
+        rescue Timeout::Error
+          Puppet.warning "ssh::autokey: ssh-keygen timed out for #{username}"
+        end
       end
     end
 

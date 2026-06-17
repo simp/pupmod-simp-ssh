@@ -1,3 +1,39 @@
+* Tue Jun 17 2026 Steven Pritchard <steve@sicura.us> - 8.0.0
+- BREAKING: Drastically reduce the blast radius of `include ssh`. A bare
+  include now installs the `openssh-server`/`openssh-clients` packages and
+  manages only the `/etc/ssh` directory. Everything that used to happen
+  automatically is now opt-in:
+  - The `sshd` service is no longer managed unless `ssh::server::service_ensure`
+    or `ssh::server::service_enable` is set. The `sshd` user/group, the
+    `/var/empty/sshd` chroot scaffolding, `/etc/ssh/moduli`, and host-key file
+    management are only declared when the service is managed.
+  - `/etc/ssh/sshd_config` is no longer rewritten. Each `ssh::server::conf`
+    setting now defaults to `undef` and only emits a `sshd_config` entry when
+    explicitly set, so a bare include leaves the file exactly as the package
+    and administrator left it.
+  - The client no longer writes `/etc/ssh/ssh_config` by default;
+    `ssh::client::add_default_entry` now defaults to `false`.
+  - The `simp_options::*` lookups (`firewall`, `tcpwrappers`, `pki`, `fips`,
+    `haveged`, `ldap`, `oath`, `sssd`, `pam`, `package_ensure`, `pki::source`)
+    are removed. Sites that relied on automatic opt-in must now set the module
+    parameters explicitly or enable the `simp:defaults` profile.
+- BREAKING: Remove the server-side FIPS/version auto-detection of
+  `ciphers`/`macs`/`kex_algorithms`. Those values are now supplied by the
+  `simp:defaults` profile (FIPS-split via `confine`). Removed the now-unused
+  `ssh::server::conf::fips`, `ssh::server::conf::enable_fallback_ciphers`, and
+  `ssh::server::conf::fallback_ciphers` parameters and the
+  `ssh::server::params` class. The IPA-based `gssapiauthentication`
+  auto-enable and the EL8+ `UsePrivilegeSeparation` auto-removal are dropped.
+- Ship a `simp:defaults` compliance_engine profile that restores the full
+  pre-8.0.0 behavior. Activate it stack-wide with
+  `compliance_engine::enforcement: [simp:defaults]`.
+- Fix noop-safety: guard the `ssh_host_keys`/`openssh_version` fact reads so the
+  catalog compiles on a node without openssh installed, and gate the
+  `sshd_config`/`ssh_config` augeas resources on their package. Add `--noop`
+  guards to the `ssh::autokey` and `ssh::global_known_hosts` functions and the
+  `sshkey_prune` provider (a fuller rewrite of those into noop-honoring
+  resources remains a future follow-up).
+
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 7.0.0
 - Remove unmaintained Compliance Engine data
 

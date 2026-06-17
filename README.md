@@ -42,13 +42,58 @@
 
 Manages the SSH Client and Server
 
+## Breaking changes in 8.0.0
+
+Version 8.0.0 drastically reduces the "blast radius" of `include ssh`. A bare
+`include ssh` now **installs the `openssh-server`/`openssh-clients` packages
+and manages only the `/etc/ssh` directory** — it does *not* manage the `sshd`
+service, rewrite `/etc/ssh/sshd_config` or `/etc/ssh/ssh_config`, or silently
+enable any `simp_options::*` feature. Everything that used to be automatic is
+now opt-in:
+
+- The `sshd` service (and the `sshd` user/group, `/var/empty/sshd`,
+  host-key file management) is only managed when `ssh::server::service_ensure`
+  or `ssh::server::service_enable` is set.
+- Each `ssh::server::conf` setting defaults to `undef` and only writes a
+  `sshd_config` entry when you set it. A bare include leaves
+  `/etc/ssh/sshd_config` exactly as the package and administrator left it.
+- `ssh::client::add_default_entry` now defaults to `false`, so the `Host *`
+  entry in `/etc/ssh/ssh_config` is no longer written automatically.
+- The `simp_options::*` lookups are gone, along with the server-side
+  FIPS/version cipher auto-detection and the `ssh::server::conf::fips`,
+  `enable_fallback_ciphers`, and `fallback_ciphers` parameters.
+
+There are **two ways to restore the previous behavior**:
+
+1. **Per parameter** — set the specific `ssh::*` parameters you want (e.g.
+   `ssh::server::service_ensure: running`,
+   `ssh::server::conf::permitrootlogin: false`,
+   `ssh::client::add_default_entry: true`).
+2. **The `simp:defaults` profile** — the module ships a
+   [compliance_engine][compliance_engine] profile named `simp:defaults` that is
+   a drop-in restoration of the pre-8.0.0 behavior. Enable it stack-wide with a
+   single Hiera key:
+
+   ```yaml
+   compliance_engine::enforcement:
+     - simp:defaults
+   ```
+
+   This is opinionated for SIMP sites: it manages the service, re-applies the
+   hardening defaults and FIPS-aware crypto, and **re-enables** the SIMP
+   integrations (firewall, PKI, haveged, tcpwrappers). Site Hiera outranks the
+   profile, so to get "old behavior, but safer" enable the profile and then
+   override the individual keys you care about (e.g.
+   `ssh::server::conf::firewall: false`) in your own Hiera.
 
 ## Setup
 
 ### What ssh affects
 
-SSH installs the SSH package, runs the sshd service and manages files primarily
-in `/etc/ssh`
+A bare `include ssh` installs the SSH packages and manages the `/etc/ssh`
+directory. The sshd service and the contents of the files in `/etc/ssh` are
+managed only when the relevant parameters are set (or the `simp:defaults`
+profile is enabled) — see [Breaking changes in 8.0.0](#breaking-changes-in-800).
 
 ### Setup requirements
 
@@ -84,12 +129,13 @@ class{ 'ssh':
 
 #### Managing client settings
 
-Including `ssh::client` with no other options will automatically manage client
-settings to be used with all hosts (`Host *`).
+As of 8.0.0, `ssh::client` does **not** manage `/etc/ssh/ssh_config` by
+default. Set `ssh::client::add_default_entry: true` to manage the `Host *`
+entry with the module's sane defaults.
 
-If you want to customize any of these settings, you must disable the creation
-of the default entry with `ssh::client::add_default_entry: false` and manage
-`Host *` manually with the defined type `ssh::client::host_config_entry`:
+If you want to customize the default entry, leave `add_default_entry` at its
+default of `false` and manage `Host *` directly with the defined type
+`ssh::client::host_config_entry`:
 
 <!--
   Maintainers: You can validate these examples with the acceptance test
@@ -170,8 +216,11 @@ class{ 'ssh':
 
 #### Managing server settings
 
-Including `ssh::server` with the default options will manage the server with
-reasonable settings for each host's environment.
+As of 8.0.0, `ssh::server` only manages the `sshd` service and the contents of
+`/etc/ssh/sshd_config` when you opt in. Set `ssh::server::service_ensure` and
+`ssh::server::service_enable` to manage the service, and set the individual
+`ssh::server::conf` parameters (or enable the `simp:defaults` profile) for the
+hardening defaults.
 
 ```puppet
 include 'ssh::server'
@@ -420,6 +469,7 @@ Some environment variables may be useful:
   to validate and update the information in the [Server
   ciphers](#server-ciphers) section.
 
+[compliance_engine]: https://github.com/simp/rubygem-simp-compliance_engine
 [fips140_2]: https://csrc.nist.gov/publications/detail/fips/140/2/final
 [ssh_man]: https://man.openbsd.org/ssh
 [aug_ssh]: https://github.com/hercules-team/augeasproviders_ssh/
