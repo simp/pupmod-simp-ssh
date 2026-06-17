@@ -115,14 +115,23 @@ describe 'ssh::server' do
         end
 
         context 'with service management and ldap => true' do
+          # conf params are supplied via Hiera (APL); a resource-style
+          # declaration of the private conf class trips assert_private.
+          let(:hiera_config) do
+            File.expand_path('../fixtures/hieradata/hiera_compliance_engine.yaml', __dir__)
+          end
+          let(:facts) do
+            os_facts.merge(
+              openssh_version: '6.6',
+              timezone_file: '/etc/localtime',
+              custom_hiera: 'server_ldap',
+            )
+          end
           let(:params) do
             {
               service_ensure: 'running',
               service_enable: true,
             }
-          end
-          let(:pre_condition) do
-            "class{'ssh::server::conf': ldap => true }"
           end
 
           it_behaves_like 'a managed ssh server', os_facts
@@ -130,14 +139,21 @@ describe 'ssh::server' do
         end
 
         context 'with service management and pki => true' do
+          let(:hiera_config) do
+            File.expand_path('../fixtures/hieradata/hiera_compliance_engine.yaml', __dir__)
+          end
+          let(:facts) do
+            os_facts.merge(
+              openssh_version: '6.6',
+              timezone_file: '/etc/localtime',
+              custom_hiera: 'server_pki',
+            )
+          end
           let(:params) do
             {
               service_ensure: 'running',
               service_enable: true,
             }
-          end
-          let(:pre_condition) do
-            "class{'ssh::server::conf': pki => true }"
           end
 
           it { is_expected.not_to contain_class('pki') }

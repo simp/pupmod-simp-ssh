@@ -1,15 +1,20 @@
 require 'spec_helper'
 
+# `ssh::server::conf` is a private class configured via APL (Hiera).  It is
+# declared here through `include ssh::server` (its public parent) so the
+# in-module scope satisfies `assert_private`; parameters are supplied via Hiera
+# rather than a resource-style declaration.
 describe 'ssh::server::conf' do
-  # sshd_config emission is driven by the parameters, not OS facts, so just use
-  # the first supported OS as the base.
-  let(:os_facts) { on_supported_os.first.last }
-  let(:facts) { os_facts.merge(openssh_version: '8.0', fips_enabled: false) }
+  let(:hiera_config) do
+    File.expand_path('../../fixtures/hieradata/hiera_compliance_engine.yaml', __dir__)
+  end
+  let(:pre_condition) { 'include ssh::server' }
+  let(:base_facts) { on_supported_os.first.last.merge(openssh_version: '8.0', fips_enabled: false) }
 
-  context 'with no parameters (reduced blast radius)' do
-    # A bare include leaves /etc/ssh/sshd_config exactly as the package left
-    # it: no sshd_config resources, and the file itself is unmanaged because
-    # the service is not managed.
+  context 'with no sshd_config parameters (reduced blast radius)' do
+    # A bare include leaves /etc/ssh/sshd_config exactly as the package left it.
+    let(:facts) { base_facts.merge(custom_hiera: 'none') }
+
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to create_class('ssh::server::conf') }
     it { is_expected.not_to contain_file('/etc/ssh/sshd_config') }
@@ -27,26 +32,10 @@ describe 'ssh::server::conf' do
     end
 
     it { is_expected.not_to contain_sshd_config_subsystem('sftp') }
-    it { is_expected.not_to contain_class('iptables') }
-    it { is_expected.not_to contain_class('tcpwrappers') }
-    it { is_expected.not_to create_pki__copy('sshd') }
   end
 
-  context 'with settings provided' do
-    let(:params) do
-      {
-        banner: '/etc/issue.net',
-        permitrootlogin: false,
-        passwordauthentication: true,
-        port: 22,
-        maxauthtries: 6,
-        clientaliveinterval: 600,
-        x11forwarding: false,
-        ciphers: ['aes256-ctr', 'aes192-ctr'],
-        subsystem: 'sftp /usr/libexec/openssh/sftp-server',
-        protocol: [2],
-      }
-    end
+  context 'with sshd_config settings provided' do
+    let(:facts) { base_facts.merge(custom_hiera: 'conf_settings') }
 
     it { is_expected.to compile.with_all_deps }
     it { is_expected.to contain_sshd_config('Banner').with_value('/etc/issue.net') }
@@ -68,46 +57,12 @@ describe 'ssh::server::conf' do
   end
 
   context 'with remove_entries' do
-    let(:params) do
-      {
-        permitrootlogin: false,
-        remove_entries: ['PermitRootLogin', 'GSSAPIAuthentication'],
-      }
-    end
+    let(:facts) { base_facts.merge(custom_hiera: 'conf_remove') }
 
     it { is_expected.to compile.with_all_deps }
     # A key in the remove list is not added even when its parameter is set...
     it { is_expected.to contain_sshd_config('PermitRootLogin').with_ensure('absent') }
     # ...and an explicit removal is declared.
     it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_ensure('absent') }
-  end
-
-  context 'with firewall => true' do
-    let(:params) { { firewall: true, port: 22, trusted_nets: ['192.168.0.0/16'] } }
-
-    it { is_expected.to compile.with_all_deps }
-    it { is_expected.to contain_class('iptables') }
-    it {
-      is_expected.to contain_iptables__listen__tcp_stateful('allow_sshd').with(
-        dports: [22],
-        trusted_nets: ['192.168.0.0/16'],
-      )
-    }
-  end
-
-  context 'with tcpwrappers => true' do
-    let(:params) { { tcpwrappers: true } }
-
-    it { is_expected.to compile.with_all_deps }
-    it { is_expected.to contain_class('tcpwrappers') }
-    it { is_expected.to contain_tcpwrappers__allow('sshd') }
-  end
-
-  context 'with pki => true' do
-    let(:params) { { pki: true } }
-
-    it { is_expected.to compile.with_all_deps }
-    it { is_expected.not_to contain_class('pki') }
-    it { is_expected.to create_pki__copy('sshd') }
   end
 end

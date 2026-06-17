@@ -62,7 +62,7 @@ describe 'ssh' do
         it { is_expected.to create_pki__copy('sshd') }
 
         # UsePrivilegeSeparation is only valid on EL7 (confined in the profile)
-        if os_facts[:os]['release']['major'] == '7'
+        if os.split('-')[1] == '7'
           it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox') }
         end
       end
