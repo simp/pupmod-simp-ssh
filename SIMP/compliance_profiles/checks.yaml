@@ -1,0 +1,278 @@
+---
+# Restores the pre-8.0.0 `pupmod-simp-ssh` behavior.  Each check pins a class
+# parameter back to the value (or typical SIMP-site value) that a bare
+# `include ssh` used to apply automatically.  The compliance_engine gem
+# deep-merges these with every other module's `simp:defaults` checks, so a
+# single `compliance_engine::enforcement: [simp:defaults]` Hiera key restores
+# the whole stack.
+version: 2.0.0
+checks:
+  # --- Service management (ssh::server) ---
+  simp:defaults.ssh.service_ensure:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::service_ensure
+      value: running
+  simp:defaults.ssh.service_enable:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::service_enable
+      value: true
+
+  # --- Client default Host entry (ssh::client) ---
+  simp:defaults.ssh.add_default_entry:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::client::add_default_entry
+      value: true
+  simp:defaults.ssh.client_haveged:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::client::haveged
+      value: true
+
+  # --- sshd_config hardening defaults (ssh::server::conf) ---
+  simp:defaults.ssh.acceptenv:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::acceptenv
+      value:
+        - LANG
+        - LC_CTYPE
+        - LC_NUMERIC
+        - LC_TIME
+        - LC_COLLATE
+        - LC_MONETARY
+        - LC_MESSAGES
+        - LC_PAPER
+        - LC_NAME
+        - LC_ADDRESS
+        - LC_TELEPHONE
+        - LC_MEASUREMENT
+        - LC_IDENTIFICATION
+        - LC_ALL
+  simp:defaults.ssh.authorizedkeysfile:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::authorizedkeysfile
+      value: '/etc/ssh/local_keys/%u'
+  simp:defaults.ssh.banner:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::banner
+      value: '/etc/issue.net'
+  simp:defaults.ssh.challengeresponseauthentication:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::challengeresponseauthentication
+      value: false
+  simp:defaults.ssh.clientalivecountmax:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::clientalivecountmax
+      value: 0
+  simp:defaults.ssh.clientaliveinterval:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::clientaliveinterval
+      value: 600
+  simp:defaults.ssh.compression:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::compression
+      value: delayed
+  simp:defaults.ssh.gssapiauthentication:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::gssapiauthentication
+      value: false
+  simp:defaults.ssh.hostbasedauthentication:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::hostbasedauthentication
+      value: false
+  simp:defaults.ssh.ignorerhosts:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::ignorerhosts
+      value: true
+  simp:defaults.ssh.ignoreuserknownhosts:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::ignoreuserknownhosts
+      value: true
+  simp:defaults.ssh.kerberosauthentication:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::kerberosauthentication
+      value: false
+  simp:defaults.ssh.logingracetime:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::logingracetime
+      value: 120
+  simp:defaults.ssh.maxauthtries:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::maxauthtries
+      value: 6
+  simp:defaults.ssh.usepam:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::usepam
+      value: true
+  simp:defaults.ssh.passwordauthentication:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::passwordauthentication
+      value: true
+  simp:defaults.ssh.permitemptypasswords:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::permitemptypasswords
+      value: false
+  simp:defaults.ssh.permitrootlogin:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::permitrootlogin
+      value: false
+  simp:defaults.ssh.permituserenvironment:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::permituserenvironment
+      value: false
+  simp:defaults.ssh.port:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::port
+      value: 22
+  simp:defaults.ssh.printlastlog:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::printlastlog
+      value: false
+  simp:defaults.ssh.protocol:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::protocol
+      value:
+        - 2
+  simp:defaults.ssh.strictmodes:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::strictmodes
+      value: true
+  simp:defaults.ssh.subsystem:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::subsystem
+      value: 'sftp /usr/libexec/openssh/sftp-server'
+  simp:defaults.ssh.syslogfacility:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::syslogfacility
+      value: AUTHPRIV
+  simp:defaults.ssh.x11forwarding:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::x11forwarding
+      value: false
+
+  # --- SIMP integrations restored to their typical SIMP-site value ---
+  simp:defaults.ssh.firewall:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::firewall
+      value: true
+  simp:defaults.ssh.haveged:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::haveged
+      value: true
+  simp:defaults.ssh.tcpwrappers:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::tcpwrappers
+      value: true
+  simp:defaults.ssh.pki:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::pki
+      value: simp
+
+  # --- Crypto: FIPS-aware values carried by the profile via `confine` ---
+  # (the module no longer auto-detects FIPS; enforcement supplies the value)
+  simp:defaults.ssh.ciphers.non_fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::ciphers
+      value:
+        - 'aes256-gcm@openssh.com'
+        - 'aes128-gcm@openssh.com'
+        - aes256-ctr
+        - aes192-ctr
+        - aes128-ctr
+    confine:
+      fips_enabled: false
+  simp:defaults.ssh.ciphers.fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::ciphers
+      value:
+        - aes256-ctr
+        - aes192-ctr
+        - aes128-ctr
+    confine:
+      fips_enabled: true
+  simp:defaults.ssh.macs.non_fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::macs
+      value:
+        - 'hmac-sha2-512-etm@openssh.com'
+        - 'hmac-sha2-256-etm@openssh.com'
+        - hmac-sha2-512
+        - hmac-sha2-256
+    confine:
+      fips_enabled: false
+  simp:defaults.ssh.macs.fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::macs
+      value:
+        - hmac-sha2-256
+        - hmac-sha1
+    confine:
+      fips_enabled: true
+  simp:defaults.ssh.kex_algorithms.non_fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::kex_algorithms
+      value:
+        - 'curve25519-sha256@libssh.org'
+        - ecdh-sha2-nistp521
+        - ecdh-sha2-nistp384
+        - ecdh-sha2-nistp256
+        - diffie-hellman-group-exchange-sha256
+    confine:
+      fips_enabled: false
+  simp:defaults.ssh.kex_algorithms.fips:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::kex_algorithms
+      value:
+        - ecdh-sha2-nistp521
+        - ecdh-sha2-nistp384
+        - ecdh-sha2-nistp256
+        - diffie-hellman-group-exchange-sha256
+    confine:
+      fips_enabled: true
+
+  # --- Version-dependent: only valid on EL7 (openssh < 7.5) ---
+  simp:defaults.ssh.useprivilegeseparation.el7:
+    type: puppet-class-parameter
+    settings:
+      parameter: ssh::server::conf::useprivilegeseparation
+      value: sandbox
+    confine:
+      os.release.major: '7'

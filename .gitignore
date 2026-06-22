@@ -11,7 +11,9 @@ dist
 /pkg
 # Read everything in fixtures
 /spec/fixtures/*
-# Un-ignore hieradata
+# Un-ignore hieradata (the directory must be re-included before the files,
+# otherwise the file-level negation can never apply)
+!/spec/fixtures/hieradata/
 !/spec/fixtures/hieradata/*
 # Except this one, which is auto-generated
 /spec/fixtures/hieradata/hiera.yaml

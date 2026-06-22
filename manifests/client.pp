@@ -1,5 +1,12 @@
 # @summary Sets up a ssh client and creates /etc/ssh/ssh_config.
 #
+# A bare `include ssh` (or `include ssh::client`) installs the
+# `openssh-clients` package and does *nothing else*.  The default `Host *`
+# entry in `/etc/ssh/ssh_config` (and management of `ssh_config`/
+# `ssh_known_hosts`) is opt-in via `$add_default_entry`.  Activate the bundled
+# `simp:defaults` compliance_engine profile (or set `$add_default_entry`) to
+# restore the pre-8.0.0 behavior.
+#
 # @param add_default_entry Set this if you wish to automatically
 #   have the '*' Host entry set up with some sane defaults.
 #
@@ -12,32 +19,32 @@
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::client (
-  Boolean $add_default_entry = true,
-  Boolean $haveged           = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean $fips              = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  String  $package_ensure    = simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' }),
+  Boolean $add_default_entry = false,
+  Boolean $haveged           = false,
+  Boolean $fips              = false,
+  String  $package_ensure    = 'installed',
 ) {
   simplib::assert_metadata( $module_name )
 
-  if $add_default_entry {
-    ssh::client::host_config_entry { '*': }
-  }
-
-  file { '/etc/ssh/ssh_config':
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    require => Package['openssh-clients']
-  }
-
-  file { '/etc/ssh/ssh_known_hosts':
-    owner => 'root',
-    group => 'root',
-    mode  => '0644'
-  }
-
   package { 'openssh-clients':
     ensure => $package_ensure
+  }
+
+  if $add_default_entry {
+    ssh::client::host_config_entry { '*': }
+
+    file { '/etc/ssh/ssh_config':
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      require => Package['openssh-clients']
+    }
+
+    file { '/etc/ssh/ssh_known_hosts':
+      owner => 'root',
+      group => 'root',
+      mode  => '0644'
+    }
   }
 
   if $haveged {

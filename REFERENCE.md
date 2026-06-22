@@ -12,7 +12,6 @@
 * [`ssh::client::params`](#ssh--client--params): Default parameters for the SSH client
 * [`ssh::server`](#ssh--server): Sets up a ssh server and starts sshd.
 * [`ssh::server::conf`](#ssh--server--conf): Sets up sshd_config and adds an iptables rule if iptables is being used.
-* [`ssh::server::params`](#ssh--server--params): Default parameters for the SSH Server
 
 ### Defined types
 
@@ -24,7 +23,7 @@
 
 ### Functions
 
-* [`ssh::add_sshd_config`](#ssh--add_sshd_config): Add a sshd_config entry if it is not in the remove list
+* [`ssh::add_sshd_config`](#ssh--add_sshd_config): Add a sshd_config entry if it has a value and is not in the remove list  A `$value` of `undef` is skipped entirely so that an unset class par
 * [`ssh::autokey`](#ssh--autokey): Generates a random RSA SSH private and public key pair for a passed
 * [`ssh::config_bool_translate`](#ssh--config_bool_translate): Translates true|false or 'true'|'false' to 'yes'|'no', respectively
 * [`ssh::format_host_entry_for_sorting`](#ssh--format_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
@@ -117,7 +116,12 @@ Default value: `{}`
 
 ### <a name="ssh--client"></a>`ssh::client`
 
-Sets up a ssh client and creates /etc/ssh/ssh_config.
+A bare `include ssh` (or `include ssh::client`) installs the
+`openssh-clients` package and does *nothing else*.  The default `Host *`
+entry in `/etc/ssh/ssh_config` (and management of `ssh_config`/
+`ssh_known_hosts`) is opt-in via `$add_default_entry`.  Activate the bundled
+`simp:defaults` compliance_engine profile (or set `$add_default_entry`) to
+restore the pre-8.0.0 behavior.
 
 #### Parameters
 
@@ -135,7 +139,7 @@ Data type: `Boolean`
 Set this if you wish to automatically
 have the '*' Host entry set up with some sane defaults.
 
-Default value: `true`
+Default value: `false`
 
 ##### <a name="-ssh--client--fips"></a>`fips`
 
@@ -143,7 +147,7 @@ Data type: `Boolean`
 
 If set or FIPS is already enabled, adjust for FIPS mode.
 
-Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--client--haveged"></a>`haveged`
 
@@ -151,7 +155,7 @@ Data type: `Boolean`
 
 If true, include the haveged module to assist with entropy generation.
 
-Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--client--package_ensure"></a>`package_ensure`
 
@@ -159,7 +163,7 @@ Data type: `String`
 
 The ensure status the openssh-clients package
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
 
 ### <a name="ssh--client--params"></a>`ssh::client::params`
 
@@ -167,7 +171,13 @@ Default parameters for the SSH client
 
 ### <a name="ssh--server"></a>`ssh::server`
 
-Sets up a ssh server and starts sshd.
+A bare `include ssh` (or `include ssh::server`) installs the
+`openssh-server` package and does *nothing else*.  The `sshd` service,
+the `sshd` user/group, the `/var/empty/sshd` chroot scaffolding and the
+host-key file management are only declared when service management is
+requested via `$service_ensure`/`$service_enable`.  Activate the bundled
+`simp:defaults` compliance_engine profile (or set these parameters) to
+restore the pre-8.0.0 behavior.
 
 #### Parameters
 
@@ -175,6 +185,8 @@ The following parameters are available in the `ssh::server` class:
 
 * [`server_ensure`](#-ssh--server--server_ensure)
 * [`ldap_ensure`](#-ssh--server--ldap_ensure)
+* [`service_ensure`](#-ssh--server--service_ensure)
+* [`service_enable`](#-ssh--server--service_enable)
 
 ##### <a name="-ssh--server--server_ensure"></a>`server_ensure`
 
@@ -182,7 +194,7 @@ Data type: `String`
 
 The ensure status of the openssh-server package
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
 
 ##### <a name="-ssh--server--ldap_ensure"></a>`ldap_ensure`
 
@@ -190,7 +202,26 @@ Data type: `String`
 
 The ensure status of the openssh-ldap package
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
+
+##### <a name="-ssh--server--service_ensure"></a>`service_ensure`
+
+Data type: `Optional[Stdlib::Ensure::Service]`
+
+The `ensure` status of the `sshd` service.  Leave `undef` (the default)
+to leave the service unmanaged.  Setting either this or `$service_enable`
+causes the service (and its supporting resources) to be managed.
+
+Default value: `undef`
+
+##### <a name="-ssh--server--service_enable"></a>`service_enable`
+
+Data type: `Optional[Boolean]`
+
+The `enable` status of the `sshd` service.  Leave `undef` (the default)
+to leave the service unmanaged.
+
+Default value: `undef`
 
 ### <a name="ssh--server--conf"></a>`ssh::server::conf`
 
@@ -256,9 +287,6 @@ The following parameters are available in the `ssh::server::conf` class:
 * [`remove_subsystems`](#-ssh--server--conf--remove_subsystems)
 * [`app_pki_external_source`](#-ssh--server--conf--app_pki_external_source)
 * [`app_pki_key`](#-ssh--server--conf--app_pki_key)
-* [`enable_fallback_ciphers`](#-ssh--server--conf--enable_fallback_ciphers)
-* [`fallback_ciphers`](#-ssh--server--conf--fallback_ciphers)
-* [`fips`](#-ssh--server--conf--fips)
 * [`firewall`](#-ssh--server--conf--firewall)
 * [`haveged`](#-ssh--server--conf--haveged)
 * [`ldap`](#-ssh--server--conf--ldap)
@@ -269,12 +297,12 @@ The following parameters are available in the `ssh::server::conf` class:
 
 ##### <a name="-ssh--server--conf--acceptenv"></a>`acceptenv`
 
-Data type: `Array[String]`
+Data type: `Optional[Array[String]]`
 
 Specifies what environment variables sent by the client will be copied into
 the sessions environment.
 
-Default value: `$ssh::server::params::acceptenv`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--allowgroups"></a>`allowgroups`
 
@@ -306,12 +334,12 @@ Default value: `true`
 
 ##### <a name="-ssh--server--conf--authorizedkeysfile"></a>`authorizedkeysfile`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 This is set to a non-standard location to provide for increased control
 over who can log in as a given user.
 
-Default value: `'/etc/ssh/local_keys/%u'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--authorizedkeyscommand"></a>`authorizedkeyscommand`
 
@@ -331,55 +359,55 @@ Default value: `'nobody'`
 
 ##### <a name="-ssh--server--conf--banner"></a>`banner`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `Optional[Stdlib::Absolutepath]`
 
 The contents of the specified file are sent to the remote user before
 authentication is allowed.
 
-Default value: `'/etc/issue.net'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--challengeresponseauthentication"></a>`challengeresponseauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether challenge-response authentication is allowed.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ciphers"></a>`ciphers`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the ciphers allowed for protocol version 2.  When unset, a strong
-set of ciphers is automatically selected by this class, taking into account
-whether the server is in FIPS mode.
+Specifies the ciphers allowed for protocol version 2.  When unset, no
+`Ciphers` line is managed.  The `simp:defaults` profile supplies a strong,
+FIPS-aware set.
 
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--clientalivecountmax"></a>`clientalivecountmax`
 
-Data type: `Integer`
+Data type: `Optional[Integer]`
 
 @see man page for sshd_config
 
-Default value: `0`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--clientaliveinterval"></a>`clientaliveinterval`
 
-Data type: `Integer`
+Data type: `Optional[Integer]`
 
 @see man page for sshd_config
 
-Default value: `600`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--compression"></a>`compression`
 
-Data type: `Variant[Boolean,Enum['delayed']]`
+Data type: `Optional[Variant[Boolean,Enum['delayed']]]`
 
 Specifies whether compression is allowed, or delayed until the user has
 authenticated successfully.
 
-Default value: `'delayed'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--denygroups"></a>`denygroups`
 
@@ -401,54 +429,53 @@ Default value: `undef`
 
 ##### <a name="-ssh--server--conf--gssapiauthentication"></a>`gssapiauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether user authentication based on GSSAPI is allowed. If the
 system is connected to an IPA domain, this will be default to true, based
 on the existance of the `ipa` fact.
 
-Default value: `$ssh::server::params::gssapiauthentication`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--hostbasedauthentication"></a>`hostbasedauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ignorerhosts"></a>`ignorerhosts`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ignoreuserknownhosts"></a>`ignoreuserknownhosts`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--kerberosauthentication"></a>`kerberosauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--kex_algorithms"></a>`kex_algorithms`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the key exchange algorithms accepted.  When unset, an appropriate
-set of algorithms is automatically selected by this class, taking into
-account whether the server is in FIPS mode and whether the version of
-openssh installed supports this feature.
+Specifies the key exchange algorithms accepted.  When unset, no
+`KexAlgorithms` line is managed.  The `simp:defaults` profile supplies a
+FIPS-aware set.
 
 Default value: `undef`
 
@@ -462,12 +489,12 @@ Default value: `undef`
 
 ##### <a name="-ssh--server--conf--logingracetime"></a>`logingracetime`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 The max number of seconds the server will wait for a successful login
 before disconnecting. If the value is 0, there is no limit.
 
-Default value: `120`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ssh_loglevel"></a>`ssh_loglevel`
 
@@ -481,81 +508,80 @@ Default value: `undef`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the available MAC algorithms. When unset, a strong set of ciphers
-is automatically selected by this class, taking into account whether the
-server is in FIPS mode.
+Specifies the available MAC algorithms. When unset, no `MACs` line is
+managed.  The `simp:defaults` profile supplies a strong, FIPS-aware set.
 
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--maxauthtries"></a>`maxauthtries`
 
-Data type: `Integer[1]`
+Data type: `Optional[Integer[1]]`
 
 Specifies the maximum number of authentication attempts permitted per
 connection.
 
-Default value: `6`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--passwordauthentication"></a>`passwordauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether password authentication is allowed on the sshd server.
 
 * This setting must be managed by default so that switching to and from
   OATH does not lock you out of your system.
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--permitemptypasswords"></a>`permitemptypasswords`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 When password authentication is allowed, it specifies whether the server
 allows login to accounts with empty password strings.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--permitrootlogin"></a>`permitrootlogin`
 
-Data type: `Ssh::PermitRootLogin`
+Data type: `Optional[Ssh::PermitRootLogin]`
 
 Specifies whether root can log in using SSH.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--permituserenvironment"></a>`permituserenvironment`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--port"></a>`port`
 
-Data type: `Variant[Array[Simplib::Port],Simplib::Port]`
+Data type: `Optional[Variant[Array[Simplib::Port],Simplib::Port]]`
 
 Specifies the port number SSHD listens on.
 
-Default value: `22`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--printlastlog"></a>`printlastlog`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether SSHD should print the date and time of the last user
 login when a user logs in interactively.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--protocol"></a>`protocol`
 
-Data type: `Array[Integer[1,2]]`
+Data type: `Optional[Array[Integer[1,2]]]`
 
 @see man page for sshd_config
 
-Default value: `[2]`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--rhostsrsaauthentication"></a>`rhostsrsaauthentication`
 
@@ -567,31 +593,31 @@ using openssh 7.4 or later, only set this value if you need
 `RhostsRSAAuthentication` to be in the sshd configuration file to
 satisfy an outdated, STIG check.
 
-Default value: `$ssh::server::params::rhostsrsaauthentication`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--strictmodes"></a>`strictmodes`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--subsystem"></a>`subsystem`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 Configures an external subsystem for file transfers.
 
-Default value: `'sftp /usr/libexec/openssh/sftp-server'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--syslogfacility"></a>`syslogfacility`
 
-Data type: `Ssh::Syslogfacility`
+Data type: `Optional[Ssh::Syslogfacility]`
 
 Gives the facility code that is used when logging messages.
 
-Default value: `'AUTHPRIV'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--tcpwrappers"></a>`tcpwrappers`
 
@@ -599,15 +625,15 @@ Data type: `Boolean`
 
 If true, enable sshd tcpwrappers.
 
-Default value: `simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--usepam"></a>`usepam`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Enables the Pluggable Authentication Module interface.
 
-Default value: `simplib::lookup('simp_options::pam', { 'default_value' => true })`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--manage_pam_sshd"></a>`manage_pam_sshd`
 
@@ -627,7 +653,7 @@ Configures ssh to use pam_oath TOTP in the sshd pam stack.
 Also configures sshd_config to use required settings. Inherits from
 simp_options::oath, defaults to false if not found.
 
-Default value: `simplib::lookup('simp_options::oath', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--oath_window"></a>`oath_window`
 
@@ -639,22 +665,22 @@ Default value: `1`
 
 ##### <a name="-ssh--server--conf--useprivilegeseparation"></a>`useprivilegeseparation`
 
-Data type: `Variant[Boolean,Enum['sandbox']]`
+Data type: `Optional[Variant[Boolean,Enum['sandbox']]]`
 
 Specifies whether sshd separates privileges by creating an unprivileged
 child process to deal with incoming network traffic.
 
 This option has no effect on OpenSSH >= 7.5.0 due to being deprecated.
 
-Default value: `'sandbox'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--x11forwarding"></a>`x11forwarding`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether X11 forwarding is permitted.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--custom_entries"></a>`custom_entries`
 
@@ -703,7 +729,7 @@ Data type: `String`
 
 * If pki = false, this variable has no effect.
 
-Default value: `simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' })`
+Default value: `'/etc/pki/simp/x509'`
 
 ##### <a name="-ssh--server--conf--app_pki_key"></a>`app_pki_key`
 
@@ -714,40 +740,13 @@ the system SSH certificates for consistency.
 
 Default value: `"/etc/pki/simp_apps/sshd/x509/private/${facts['networking']['fqdn']}.pem"`
 
-##### <a name="-ssh--server--conf--enable_fallback_ciphers"></a>`enable_fallback_ciphers`
-
-Data type: `Boolean`
-
-If true, add the fallback ciphers from ssh::server::params to the cipher
-list. This is intended to provide compatibility with non-SIMP systems in a
-way that properly supports FIPS 140-2.
-
-Default value: `true`
-
-##### <a name="-ssh--server--conf--fallback_ciphers"></a>`fallback_ciphers`
-
-Data type: `Array[String]`
-
-The set of ciphers that should be used should no other cipher be declared.
-This is used when $ssh::server::conf::enable_fallback_ciphers is enabled.
-
-Default value: `$ssh::server::params::fallback_ciphers`
-
-##### <a name="-ssh--server--conf--fips"></a>`fips`
-
-Data type: `Boolean`
-
-If set or FIPS is already enabled, adjust for FIPS mode.
-
-Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
-
 ##### <a name="-ssh--server--conf--firewall"></a>`firewall`
 
 Data type: `Boolean`
 
 If true, use the SIMP iptables class.
 
-Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--haveged"></a>`haveged`
 
@@ -755,7 +754,7 @@ Data type: `Boolean`
 
 If true, include the haveged module to assist with entropy generation.
 
-Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--ldap"></a>`ldap`
 
@@ -765,7 +764,7 @@ If true, enable LDAP support on the system. If
 authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
 ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
 
-Default value: `simplib::lookup('simp_options::ldap', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--pki"></a>`pki`
 
@@ -783,7 +782,7 @@ Data type: `Variant[Enum['simp'],Boolean]`
   * app_pki_ca
   * app_pki_ca_dir
 
-Default value: `simplib::lookup('simp_options::pki', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--sssd"></a>`sssd`
 
@@ -791,7 +790,7 @@ Data type: `Boolean`
 
 If true, use sssd
 
-Default value: `simplib::lookup('simp_options::sssd', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--ensure_sssd_packages"></a>`ensure_sssd_packages`
 
@@ -810,11 +809,6 @@ Data type: `Simplib::Netlist`
 The networks to allow to connect to SSH.
 
 Default value: `['ALL']`
-
-### <a name="ssh--server--params"></a>`ssh::server::params`
-
-* ``Curve`` exchange was not fully supported until openssh 6.5
-* RhostsRSAAuthentication was removed in openssh 7.4
 
 ## Defined types
 
@@ -1624,11 +1618,19 @@ usually discover the appropriate provider for your platform.
 
 Type: Puppet Language
 
-Add a sshd_config entry if it is not in the remove list
+Add a sshd_config entry if it has a value and is not in the remove list
 
-#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [ Service['sshd'] ])`
+A `$value` of `undef` is skipped entirely so that an unset class parameter
+declares no `sshd_config` resource (reduced blast radius: Puppet leaves that
+setting exactly as the package/admin left it).
 
-Add a sshd_config entry if it is not in the remove list
+#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [])`
+
+Add a sshd_config entry if it has a value and is not in the remove list
+
+A `$value` of `undef` is skipped entirely so that an unset class parameter
+declares no `sshd_config` resource (reduced blast radius: Puppet leaves that
+setting exactly as the package/admin left it).
 
 Returns: `Nil`
 
@@ -1655,7 +1657,8 @@ List of sshd configuration parameters to be removed
 Data type: `Array[Type[Catalogentry]]`
 
 Catalog resources to notify when the sshd
-configuration has changed
+configuration has changed.  Defaults to none, since the `sshd` service is
+not managed unless service management is explicitly requested.
 
 ### <a name="ssh--autokey"></a>`ssh::autokey`
 
@@ -1742,6 +1745,19 @@ Returns: `Any` transformed config_item
 ##### `config_item`
 
 Data type: `Boolean`
+
+Configuration item to be translated
+
+#### `ssh::config_bool_translate(Undef $config_item)`
+
+An unset (undef) item passes through unchanged so that callers can skip
+declaring a sshd_config resource for an unmanaged setting.
+
+Returns: `Any` transformed config_item
+
+##### `config_item`
+
+Data type: `Undef`
 
 Configuration item to be translated
 

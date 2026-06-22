@@ -19,6 +19,13 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
     require 'find'
     require 'fileutils'
 
+    # This function writes and deletes files on disk; honor `--noop` by doing
+    # nothing during a noop run rather than mutating state at compile time.
+    if Puppet.settings[:noop]
+      Puppet.debug('ssh::global_known_hosts: skipping known_hosts updates during a noop run')
+      return
+    end
+
     env = closure_scope.lookupvar('::environment')
     basedir = "#{Puppet[:vardir]}/simp/environments/#{env}/simp_autofiles/ssh_global_known_hosts"
 

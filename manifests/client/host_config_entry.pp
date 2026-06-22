@@ -336,6 +336,10 @@ define ssh::client::host_config_entry (
   include 'ssh::client::params'
   include 'ssh::client'
 
+  # Ensure the package that ships /etc/ssh/ssh_config is present before augeas
+  # parses the file (noop-safety on a node without openssh-clients installed).
+  Ssh_config { require => Package['openssh-clients'] }
+
   if $macs and !empty($macs) {
     $_macs = $macs
   }
@@ -570,8 +574,9 @@ define ssh::client::host_config_entry (
     ;
   }
 
-  # The following options have been removed in openssh 8.0
-  if versioncmp($facts['openssh_version'], '8.0') <  0 {
+  # The following options have been removed in openssh 8.0.
+  # `pick` guards against an absent `openssh_version` fact (noop-safety).
+  if versioncmp(pick($facts['openssh_version'], '0'), '8.0') <  0 {
     $_ensure = 'present'
   } else {
     $_ensure = 'absent'
