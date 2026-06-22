@@ -146,9 +146,6 @@
 # @param syslogfacility
 #   Gives the facility code that is used when logging messages.
 #
-# @param tcpwrappers
-#   If true, enable sshd tcpwrappers.
-#
 # @param usepam
 #   Enables the Pluggable Authentication Module interface.
 #
@@ -298,7 +295,6 @@ class ssh::server::conf (
   Boolean                                                $strictmodes                     = true,
   String                                                 $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
   Ssh::Syslogfacility                                    $syslogfacility                  = 'AUTHPRIV',
-  Boolean                                                $tcpwrappers                     = simplib::lookup('simp_options::tcpwrappers', { 'default_value' => false }),
   Variant[Boolean,Enum['sandbox']]                       $useprivilegeseparation          = 'sandbox',
   Boolean                                                $x11forwarding                   = false,
   Optional[Hash[String[1],NotUndef]]                     $custom_entries                  = undef,
@@ -575,14 +571,4 @@ class ssh::server::conf (
     }
   }
 
-  if $tcpwrappers {
-    simplib::assert_optional_dependency($module_name, 'simp/tcpwrappers')
-
-    include 'tcpwrappers'
-
-    tcpwrappers::allow { 'sshd':
-      pattern => simplib::nets2ddq($trusted_nets),
-      order   => 1
-    }
-  }
 }
