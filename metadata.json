@@ -63,7 +63,7 @@
       },
       {
         "name": "puppet/selinux",
-        "version_requirement": ">= 1.6.1 < 5.0.0"
+        "version_requirement": ">= 1.6.1 < 6.0.0"
       }
     ]
   },
