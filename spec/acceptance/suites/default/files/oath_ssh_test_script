@@ -10,6 +10,10 @@ set timeout 10
 spawn ssh -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=1 $host -l $user
 
 expect {
+    "*Permission denied*" {
+        send_user "TOTP test: failure (permission denied)\n"
+        exit 1
+    }
     "*One-time password*" {
         send_user "One-time password"
         send "$output\r"
@@ -19,9 +23,13 @@ expect {
             exp_continue
         }
         exp_continue
-    } -re "$user@.+\[\$#]*" {
+    } -re "$user@\[^\r\n]+\[\$#] *$" {
         send_user "TOTP test: success\n"
         exit 0
+    }
+    timeout {
+        send_user "TOTP test: failure (timeout)\n"
+        exit 1
     }
 }
 send_user "TOTP test: failure\n"
