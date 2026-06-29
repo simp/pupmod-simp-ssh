@@ -433,10 +433,11 @@ class ssh::server::conf (
   }
 
   file { '/etc/ssh/sshd_config':
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    notify => Service['sshd']
+    owner                   => 'root',
+    group                   => 'root',
+    mode                    => '0600',
+    selinux_ignore_defaults => true,
+    notify                  => Service['sshd']
   }
 
   ssh::add_sshd_config('AcceptEnv', $acceptenv, $remove_entries)
