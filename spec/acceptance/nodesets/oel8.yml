@@ -1,10 +1,19 @@
 ---
 HOSTS:
-  oel8:
+  oel8-server:
     roles:
     - default
     - master
     - server
+    - el8
+    platform: el-8-x86_64
+    box: generic/oracle8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+  oel8-client:
+    roles:
+    - client
     - el8
     platform: el-8-x86_64
     box: generic/oracle8

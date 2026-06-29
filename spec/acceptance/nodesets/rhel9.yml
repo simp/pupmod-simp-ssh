@@ -1,6 +1,6 @@
 ---
 HOSTS:
-  rhel9:
+  rhel9-server:
     roles:
     - default
     - master
@@ -11,8 +11,15 @@ HOSTS:
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 2048
     vagrant_cpus: 2
-    family: rhel-cloud/rhel-9
-    gce_machine_type: n1-standard-2
+  rhel9-client:
+    roles:
+    - client
+    - el9
+    platform: el-9-x86_64
+    box: generic/rhel9
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
 CONFIG:
   log_level: verbose
   type: aio

@@ -1,6 +1,6 @@
 ---
 HOSTS:
-  rocky8:
+  rocky8-server:
     roles:
     - default
     - master
@@ -11,8 +11,15 @@ HOSTS:
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
     vagrant_memsize: 2048
     vagrant_cpus: 2
-    family: rocky-linux-cloud/rocky-linux-8
-    gce_machine_type: n1-standard-2
+  rocky8-client:
+    roles:
+    - client
+    - el8
+    platform: el-8-x86_64
+    box: rockylinux/8
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
 CONFIG:
   log_level: verbose
   type: aio

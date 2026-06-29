@@ -1,10 +1,19 @@
 ---
 HOSTS:
-  oel9:
+  oel9-server:
     roles:
     - default
     - master
     - server
+    - el9
+    platform: el-9-x86_64
+    box: generic/oracle9
+    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+  oel9-client:
+    roles:
+    - client
     - el9
     platform: el-9-x86_64
     box: generic/oracle9
