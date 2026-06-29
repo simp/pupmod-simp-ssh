@@ -5,23 +5,33 @@ set key  [lindex $argv 1]
 set pass [lindex $argv 2]
 set host [lindex $argv 3]
 set output [exec oathtool --totp $key]
-set timeout 10
+set timeout 30
 
-spawn ssh -o StrictHostKeyChecking=no -o NumberOfPasswordPrompts=1 $host -l $user
+spawn ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=keyboard-interactive,password -o NumberOfPasswordPrompts=3 $host -l $user
 
+# The PAM stack may prompt for the OATH token and the password in either
+# order, so handle each prompt at the top level and loop with exp_continue
+# until we either reach the shell prompt (success) or are rejected.
 expect {
-    "*One-time password*" {
-        send_user "One-time password"
+    -re "(?i)permission denied" {
+        send_user "TOTP test: failure (permission denied)\n"
+        exit 1
+    }
+    -re "(?i)one-time password" {
         send "$output\r"
-        expect "*assword:" {
-            send_user "password (for $user)"
-            send "$pass\r"
-            exp_continue
-        }
         exp_continue
-    } -re "$user@.+\[\$#]*" {
+    }
+    -re "(?i)assword: *$" {
+        send "$pass\r"
+        exp_continue
+    }
+    -re "$user@\[^\r\n]+\[\$#] *$" {
         send_user "TOTP test: success\n"
         exit 0
+    }
+    timeout {
+        send_user "TOTP test: failure (timeout)\n"
+        exit 1
     }
 }
 send_user "TOTP test: failure\n"

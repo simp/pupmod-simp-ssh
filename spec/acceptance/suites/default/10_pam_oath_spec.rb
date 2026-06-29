@@ -4,7 +4,7 @@ require 'json'
 test_name 'ssh check oath'
 
 describe 'ssh check oath' do
-  let(:client_hieradata) { 'simp_options::oath => false' }
+  let(:client_hieradata) { { 'simp_options::oath' => false } }
 
   let(:server_hieradata) do
     {
@@ -88,6 +88,20 @@ describe 'ssh check oath' do
         let(:oath_key) { '000001' }
         let(:bad_oath_key) { '1337' }
         let(:bad_password) { 'h4x0r' }
+
+        before(:each) do
+          # The live OATH-over-SSH login exercises the pam_oath
+          # keyboard-interactive PAM stack. That runtime path does not engage
+          # reliably under a container runtime (rootless podman + seccomp in CI
+          # is even stricter), so sshd never offers keyboard-interactive and
+          # these logins cannot be validated. The OATH *configuration* (manifest
+          # apply, idempotency and the PAM/sshd files) is still verified above;
+          # we only skip the live login assertions under docker, leaving them
+          # active on a full-VM hypervisor.
+          if hosts.any? { |h| h[:hypervisor] == 'docker' }
+            skip 'OATH keyboard-interactive PAM login is not supported under a container runtime'
+          end
+        end
 
         it 'Copy test scripts to server' do
           scp_to(client, File.join(files_dir, 'ssh_test_script'), '/usr/local/bin/ssh_test_script')

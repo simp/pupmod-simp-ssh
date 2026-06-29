@@ -10,10 +10,19 @@ end
 describe 'ssh class' do
   let(:server_manifest) { "include 'ssh::server'" }
 
+  # The SIMP iptables stack manages the kernel firewall via iptables-restore
+  # and the legacy iptables init service. Those kernel-level operations cannot
+  # run under a container runtime (rootless podman + seccomp in CI is even
+  # stricter than local docker), so we only exercise the firewall path on a
+  # full-VM hypervisor. Under docker we leave the firewall unmanaged; sshd
+  # still binds the non-standard ports, so the multi-port login coverage is
+  # preserved -- only the kernel firewall assertion is dropped.
+  let(:manage_firewall) { hosts.none? { |h| h[:hypervisor] == 'docker' } }
+
   let(:server_hieradata) do
     {
       'simp_options::trusted_nets'                => ['ALL'],
-      'simp_options::firewall'                    => true,
+      'simp_options::firewall'                    => manage_firewall,
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
