@@ -294,10 +294,12 @@ define ssh::client::host_config_entry (
   Boolean                                               $passwordauthentication           = true,
   Boolean                                               $permitlocalcommand               = false,
   Simplib::Port                                         $port                             = 22,
-  Array[Ssh::Authentications]                           $preferredauthentications         = ['publickey',
+  Array[Ssh::Authentications]                           $preferredauthentications         = [
+    'publickey',
     'hostbased',
     'keyboard-interactive',
-  'password'],
+    'password',
+  ],
   Variant[Integer[1,2], Enum['2,1']]                    $protocol                         = 2,
   Optional[String]                                      $proxycommand                     = undef,
   Boolean                                               $pubkeyauthentication             = true,
@@ -305,7 +307,8 @@ define ssh::client::host_config_entry (
   Optional[String]                                      $remoteforward                    = undef,
   Boolean                                               $rhostsrsaauthentication          = false,
   Boolean                                               $rsaauthentication                = true,
-  Array[String]                                         $sendenv                          = ['LANG',
+  Array[String]                                         $sendenv                          = [
+    'LANG',
     'LC_CTYPE',
     'LC_NUMERIC',
     'LC_TIME',
@@ -318,7 +321,8 @@ define ssh::client::host_config_entry (
     'LC_TELEPHONE',
     'LC_MEASUREMENT',
     'LC_IDENTIFICATION',
-  'LC_ALL'],
+    'LC_ALL',
+  ],
   Integer[1]                                            $serveralivecountmax              = 3,
   Integer[0]                                            $serveraliveinterval              = 0,
   Optional[String]                                      $smartcarddevice                  = undef,
@@ -331,7 +335,7 @@ define ssh::client::host_config_entry (
   Optional[Array[Stdlib::Absolutepath]]                 $userknownhostsfile               = undef,
   Enum['yes','no','ask']                                $verifyhostkeydns                 = 'no',
   Boolean                                               $visualhostkey                    = false,
-  Stdlib::Absolutepath                                  $xauthlocation                    = '/usr/bin/xauth'
+  Stdlib::Absolutepath                                  $xauthlocation                    = '/usr/bin/xauth',
 ) {
   include 'ssh::client::params'
   include 'ssh::client'

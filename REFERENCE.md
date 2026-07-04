@@ -1364,10 +1364,12 @@ the start of the array to the end of the array. Default:
 Default value:
 
 ```puppet
-[ 'publickey',
-                                                                                              'hostbased',
-                                                                                              'keyboard-interactive',
-                                                                                              'password' ]
+[
+    'publickey',
+    'hostbased',
+    'keyboard-interactive',
+    'password',
+  ]
 ```
 
 ##### <a name="-ssh--client--host_config_entry--protocol"></a>`protocol`
@@ -1443,20 +1445,22 @@ should be sent to the server.
 Default value:
 
 ```puppet
-[ 'LANG',
-                                                                                              'LC_CTYPE',
-                                                                                              'LC_NUMERIC',
-                                                                                              'LC_TIME',
-                                                                                              'LC_COLLATE',
-                                                                                              'LC_MONETARY',
-                                                                                              'LC_MESSAGES',
-                                                                                              'LC_PAPER',
-                                                                                              'LC_NAME',
-                                                                                              'LC_ADDRESS',
-                                                                                              'LC_TELEPHONE',
-                                                                                              'LC_MEASUREMENT',
-                                                                                              'LC_IDENTIFICATION',
-                                                                                              'LC_ALL' ]
+[
+    'LANG',
+    'LC_CTYPE',
+    'LC_NUMERIC',
+    'LC_TIME',
+    'LC_COLLATE',
+    'LC_MONETARY',
+    'LC_MESSAGES',
+    'LC_PAPER',
+    'LC_NAME',
+    'LC_ADDRESS',
+    'LC_TELEPHONE',
+    'LC_MEASUREMENT',
+    'LC_IDENTIFICATION',
+    'LC_ALL',
+  ]
 ```
 
 ##### <a name="-ssh--client--host_config_entry--serveralivecountmax"></a>`serveralivecountmax`
@@ -1626,7 +1630,7 @@ Type: Puppet Language
 
 Add a sshd_config entry if it is not in the remove list
 
-#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [ Service['sshd'] ])`
+#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [Service['sshd']])`
 
 Add a sshd_config entry if it is not in the remove list
 
