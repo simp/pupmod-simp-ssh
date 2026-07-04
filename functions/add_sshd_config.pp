@@ -12,9 +12,8 @@ function ssh::add_sshd_config(
   String[1]                       $key,
   Any                             $value,
   Variant[Array[String[1]],Undef] $remove_keys,
-  Array[Type[Catalogentry]]       $resources_to_notify = [ Service['sshd'] ]
+  Array[Type[Catalogentry]]       $resources_to_notify = [Service['sshd']]
 ) {
-
   $_add = ( $remove_keys == undef ) or ( !member($remove_keys, $key) )
 
   if $_add {

@@ -12,16 +12,19 @@ spawn ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=keyboard-inter
 # The PAM stack may prompt for the OATH token and the password in either
 # order, so handle each prompt at the top level and loop with exp_continue
 # until we either reach the shell prompt (success) or are rejected.
+# NOTE: do not use embedded (?i) case flags here: expect's "gate keeper"
+# optimization derives a case-SENSITIVE glob from each regex (ignoring the
+# flag), so (?i)-patterns are never evaluated against mixed-case prompts.
 expect {
-    -re "(?i)permission denied" {
+    -re "\[Pp]ermission denied" {
         send_user "TOTP test: failure (permission denied)\n"
         exit 1
     }
-    -re "(?i)one-time password" {
+    -re "\[Oo]ne-time password" {
         send "$output\r"
         exp_continue
     }
-    -re "(?i)assword: *$" {
+    -re "assword: *$" {
         send "$pass\r"
         exp_continue
     }

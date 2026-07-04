@@ -5,6 +5,9 @@
 - Allow newer SIMP module dependencies (see metadata.json diff)
 - Sync Gemfile with current puppetsync baseline (adds OpenVox to test gems)
 - Drop Puppet 7 / Ruby 2.7 from GitHub Actions; use Ruby 3.2.11 with OpenVox 8 and 3.4.9 elsewhere
+- Fix OATH on EL9+: manage /etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf
+  so the vendor 50-redhat.conf drop-in (first-match-wins) no longer overrides
+  the keyboard-interactive setting OATH requires
 
 * Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 7.0.0
 - Remove unmaintained Compliance Engine data
