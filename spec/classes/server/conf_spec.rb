@@ -361,7 +361,6 @@ describe 'ssh::server::conf' do
 
         it_behaves_like('it creates sshd_config with notify', 'ChallengeResponseAuthentication', 'yes')
         it_behaves_like('it creates sshd_config with notify', 'PasswordAuthentication', 'no')
-
       end
 
       # On EL9+ the vendor 50-redhat.conf drop-in overrides the main
