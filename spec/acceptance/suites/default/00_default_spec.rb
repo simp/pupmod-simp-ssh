@@ -36,6 +36,11 @@ describe 'ssh class' do
           enable_epel_on(client)
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest, expect_changes: true)
+
+          # Back up the freshly-configured /etc/ssh so later examples that
+          # need to restore the default test setup (e.g. the sshd_config type
+          # coexistence test) have a known-good copy at /root/ssh.
+          on(server, '/bin/cp -ra /etc/ssh /root')
         end
 
         it "configures #{os}-server idempotently" do

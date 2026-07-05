@@ -1,12 +1,12 @@
 {
   "name": "simp-ssh",
-  "version": "7.0.0",
+  "version": "8.0.0",
   "author": "SIMP Team",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
   "source": "https://github.com/simp/pupmod-simp-ssh",
   "project_page": "https://github.com/simp/pupmod-simp-ssh",
-  "issues_url": "https://simp-project.atlassian.net",
+  "issues_url": "https://github.com/simp/pupmod-simp-ssh/issues",
   "tags": [
     "simp",
     "ssh",
@@ -24,7 +24,7 @@
     },
     {
       "name": "simp/simplib",
-      "version_requirement": ">= 4.9.0 < 5.0.0"
+      "version_requirement": ">= 4.9.0 < 6.0.0"
     }
   ],
   "simp": {
@@ -35,15 +35,15 @@
       },
       {
         "name": "simp/iptables",
-        "version_requirement": ">= 6.5.3 < 8.0.0"
+        "version_requirement": ">= 6.5.3 < 9.0.0"
       },
       {
         "name": "simp/oath",
-        "version_requirement": ">= 0.1.0 < 1.0.0"
+        "version_requirement": ">= 0.1.0 < 2.0.0"
       },
       {
         "name": "simp/pki",
-        "version_requirement": ">= 6.2.0 < 7.0.0"
+        "version_requirement": ">= 6.2.0 < 8.0.0"
       },
       {
         "name": "simp/tcpwrappers",
@@ -51,11 +51,11 @@
       },
       {
         "name": "simp/pam",
-        "version_requirement": ">= 6.8.3 < 8.0.0"
+        "version_requirement": ">= 6.8.3 < 10.0.0"
       },
       {
         "name": "simp/selinux",
-        "version_requirement": ">= 2.6.1 < 4.0.0"
+        "version_requirement": ">= 2.6.1 < 5.0.0"
       },
       {
         "name": "simp/vox_selinux",
@@ -71,46 +71,47 @@
     {
       "operatingsystem": "CentOS",
       "operatingsystemrelease": [
-        "7",
-        "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "RedHat",
       "operatingsystemrelease": [
-        "7",
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "OracleLinux",
       "operatingsystemrelease": [
-        "7",
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "Rocky",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     },
     {
       "operatingsystem": "AlmaLinux",
       "operatingsystemrelease": [
         "8",
-        "9"
+        "9",
+        "10"
       ]
     }
   ],
   "requirements": [
     {
-      "name": "puppet",
-      "version_requirement": ">= 7.0.0 < 9.0.0"
+      "name": "openvox",
+      "version_requirement": ">= 8.0.0 < 9.0.0"
     }
   ]
 }

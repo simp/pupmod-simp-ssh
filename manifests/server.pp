@@ -56,7 +56,7 @@ class ssh::server (
     ensure => $server_ensure
   }
 
-  if $::ssh::server::conf::_use_ldap {
+  if $ssh::server::conf::_use_ldap {
     package { 'openssh-ldap':
       ensure => $ldap_ensure
     }
@@ -94,7 +94,7 @@ class ssh::server (
         mode      => '0600',
         source    => "file://${ssh::server::conf::app_pki_key}",
         subscribe => Pki::Copy['sshd'],
-        notify    => [ Exec['gensshpub'], Service['sshd'] ],
+        notify    => [Exec['gensshpub'], Service['sshd']],
       }
 
       file { "${key}.pub":
@@ -107,7 +107,7 @@ class ssh::server (
       exec { 'gensshpub':
         command     => "/usr/bin/ssh-keygen -y -f ${key} > ${key}.pub",
         refreshonly => true,
-        require     => [ Package['openssh-server'], File[$key] ],
+        require     => [Package['openssh-server'], File[$key]],
       }
     }
     else {

@@ -33,7 +33,6 @@
 class ssh::authorized_keys (
   Hash $keys = {},
 ) {
-
   $expanded_keys = $keys.reduce({}) |Hash $result, Tuple $data| {
     $key_name = $data[0]
     $params   = $data[1]

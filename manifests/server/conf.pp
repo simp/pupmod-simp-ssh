@@ -432,11 +432,34 @@ class ssh::server::conf (
     }
   }
 
+  # On EL9+, the vendor sshd_config Includes /etc/ssh/sshd_config.d/*.conf at
+  # the TOP of the file and sshd uses first-match-wins, so the vendor
+  # 50-redhat.conf (ChallengeResponseAuthentication no) silently overrides
+  # any keyboard-interactive setting in the main sshd_config. When OATH is
+  # enabled, manage a drop-in that sorts before the vendor file so the
+  # required setting actually takes effect; remove it otherwise so vendor
+  # behavior is restored when OATH is disabled.
+  #
+  # NOTE: kept as a self-contained block for easy relocation during the
+  # blast-radius refactor (see simp/pupmod-simp-ssh#220).
+  if versioncmp($facts['os']['release']['major'], '9') >= 0 {
+    file { '/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf':
+      ensure                  => bool2str($oath, 'file', 'absent'),
+      owner                   => 'root',
+      group                   => 'root',
+      mode                    => '0600',
+      selinux_ignore_defaults => true,
+      content                 => "# This file is managed by Puppet; changes will be overwritten\nKbdInteractiveAuthentication yes\n",
+      notify                  => Service['sshd'],
+    }
+  }
+
   file { '/etc/ssh/sshd_config':
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    notify => Service['sshd']
+    owner                   => 'root',
+    group                   => 'root',
+    mode                    => '0600',
+    selinux_ignore_defaults => true,
+    notify                  => Service['sshd']
   }
 
   ssh::add_sshd_config('AcceptEnv', $acceptenv, $remove_entries)
@@ -469,7 +492,7 @@ class ssh::server::conf (
     ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
   }
   ssh::add_sshd_config('Banner', $banner, $remove_entries)
-  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication } ), $remove_entries)
+  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication }), $remove_entries)
   ssh::add_sshd_config('Ciphers', $_ciphers, $remove_entries)
   ssh::add_sshd_config('ClientAliveCountMax', String($clientalivecountmax), $remove_entries)
   ssh::add_sshd_config('ClientAliveInterval', String($clientaliveinterval), $remove_entries)
@@ -489,7 +512,7 @@ class ssh::server::conf (
   ssh::add_sshd_config('LogLevel', $ssh_loglevel, $remove_entries)
   ssh::add_sshd_config('MACs', $_macs, $remove_entries)
   ssh::add_sshd_config('MaxAuthTries', $maxauthtries, $remove_entries)
-  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate(defined('$_passwordauthentication') ? { true => $_passwordauthentication, default => $passwordauthentication} ), $remove_entries)
+  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate(defined('$_passwordauthentication') ? { true => $_passwordauthentication, default => $passwordauthentication }), $remove_entries)
   ssh::add_sshd_config('PermitEmptyPasswords', ssh::config_bool_translate($permitemptypasswords), $remove_entries)
   ssh::add_sshd_config('PermitRootLogin', ssh::config_bool_translate($permitrootlogin), $remove_entries)
   ssh::add_sshd_config('PermitUserEnvironment', ssh::config_bool_translate($permituserenvironment), $remove_entries)
@@ -509,7 +532,7 @@ class ssh::server::conf (
     ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
   }
   elsif !$remove_entries or ($remove_entries and !('UsePrivilegeSeparation' in $remove_entries)) {
-    sshd_config { 'UsePrivilegeSeparation': ensure =>  absent }
+    sshd_config { 'UsePrivilegeSeparation': ensure => absent }
   }
 
   # Custom manipulation
@@ -547,7 +570,6 @@ class ssh::server::conf (
         simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
 
         include vox_selinux
-
       }
       else {
         simplib::assert_optional_dependency($module_name, 'puppet/selinux')

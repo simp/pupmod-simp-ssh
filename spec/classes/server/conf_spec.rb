@@ -363,6 +363,53 @@ describe 'ssh::server::conf' do
         it_behaves_like('it creates sshd_config with notify', 'PasswordAuthentication', 'no')
       end
 
+      # On EL9+ the vendor 50-redhat.conf drop-in overrides the main
+      # sshd_config (first-match-wins), so OATH requires a drop-in that
+      # sorts first
+      context 'kbdinteractive drop-in' do
+        let(:el_facts_base) { os_facts.merge(openssh_version: latest_openssh_version, fips_enabled: false) }
+
+        context 'with oath=true on EL9' do
+          let(:facts) do
+            os = (el_facts_base[:os] || {}).merge(release: { major: '9', full: '9.0' })
+            el_facts_base.merge(os: os)
+          end
+          let(:params) { { oath: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+              .with_ensure('file')
+              .with_content(%r{^KbdInteractiveAuthentication yes$})
+              .that_notifies('Service[sshd]')
+          }
+        end
+
+        context 'with oath=false on EL9' do
+          let(:facts) do
+            os = (el_facts_base[:os] || {}).merge(release: { major: '9', full: '9.0' })
+            el_facts_base.merge(os: os)
+          end
+
+          it { is_expected.to compile.with_all_deps }
+          it {
+            is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+              .with_ensure('absent')
+          }
+        end
+
+        context 'with oath=true on EL8' do
+          let(:facts) do
+            os = (el_facts_base[:os] || {}).merge(release: { major: '8', full: '8.10' })
+            el_facts_base.merge(os: os)
+          end
+          let(:params) { { oath: true } }
+
+          it { is_expected.to compile.with_all_deps }
+          it { is_expected.not_to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf') }
+        end
+      end
+
       context 'with usepam=false' do
         let(:params) { { oath: true, usepam: false } }
 

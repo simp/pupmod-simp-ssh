@@ -6,7 +6,6 @@
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::server::params {
-
   ## Public Variables ##
   $acceptenv = [
     'LANG',
@@ -60,10 +59,10 @@ class ssh::server::params {
   # FIPS mode not enabled, stay within the bounds but expand the options
 
   $base_kex_algorithms = [
-      'ecdh-sha2-nistp521',
-      'ecdh-sha2-nistp384',
-      'ecdh-sha2-nistp256',
-      'diffie-hellman-group-exchange-sha256'
+    'ecdh-sha2-nistp521',
+    'ecdh-sha2-nistp384',
+    'ecdh-sha2-nistp256',
+    'diffie-hellman-group-exchange-sha256'
   ]
   if versioncmp($facts['openssh_version'], '6.5') >= 0 {
     $additional_kex_algorithms = ['curve25519-sha256@libssh.org']
