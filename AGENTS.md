@@ -300,5 +300,3 @@ Relevant gem pins (from `Gemfile`): the tested Puppet range defaults to
   Push changes to those files upstream to the baseline, not here.
 - Match the existing 2-space Puppet indentation and the aligned-arrow /
   aligned-`=` parameter style used across the manifests.
-</content>
-</invoke>
