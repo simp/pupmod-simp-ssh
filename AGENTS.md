@@ -16,7 +16,7 @@ whether the host is in FIPS mode.
 
 The top-level `ssh` class is a thin switchboard: it manages `/etc/ssh` and
 conditionally includes the client and/or server stacks
-(`manifests/init.pp:16-17`). Almost every class is **public API** — the only
+(`manifests/init.pp`). Almost every class is **public API** — the only
 private class is the server engine `ssh::server::conf`.
 
 ### Business logic
@@ -25,24 +25,24 @@ private class is the server engine `ssh::server::conf`.
 server stack, each with its own `params` class holding the FIPS vs non-FIPS
 crypto lists.
 
-- **`ssh` (`manifests/init.pp:9-24`)** — Entry class. `Boolean $enable_client`
+- **`ssh` (`manifests/init.pp`)** — Entry class. `Boolean $enable_client`
   and `Boolean $enable_server` (both default `true`) toggle which stack is
-  included (`init.pp:16-17`). Also manages the `/etc/ssh` directory.
+  included (`init.pp`). Also manages the `/etc/ssh` directory.
 
-- **`ssh::client` (`manifests/client.pp:14-48`)** — Manages `/etc/ssh/ssh_config`,
+- **`ssh::client` (`manifests/client.pp`)** — Manages `/etc/ssh/ssh_config`,
   `/etc/ssh/ssh_known_hosts`, and the `openssh-clients` package. When
   `$add_default_entry` (default `true`) it declares
   `ssh::client::host_config_entry { '*': }` for a sane default `Host *` block
-  (`client.pp:22-24`). `$haveged` (default from `simp_options::haveged`) pulls
+  (`client.pp`). `$haveged` (default from `simp_options::haveged`) pulls
   in the optional `haveged` module after an `assert_optional_dependency`
-  (`client.pp:43-47`). `$fips` (default from `simp_options::fips`) is the
+  (`client.pp`). `$fips` (default from `simp_options::fips`) is the
   FIPS toggle consulted by the host-entry define.
 
 - **`ssh::client::params` (`manifests/client/params.pp`)** — Data-only class
   holding the client crypto lists: `$fips_macs`/`$fips_ciphers` (the
-  FIPS-constrained sets, `params.pp:13-21`) and the expanded `$macs`/`$ciphers`
-  used outside FIPS (`params.pp:24-36`). Also sets `$gssapiauthentication` from
-  the `ipa` fact (`params.pp:39-44`).
+  FIPS-constrained sets, `params.pp`) and the expanded `$macs`/`$ciphers`
+  used outside FIPS (`params.pp`). Also sets `$gssapiauthentication` from
+  the `ipa` fact (`params.pp`).
 
 - **`ssh::client::host_config_entry` (`manifests/client/host_config_entry.pp`)** —
   Public **define** that emits one `Host` block into `ssh_config` as a large set
@@ -50,74 +50,74 @@ crypto lists.
   the `Host` pattern. It performs its **own** FIPS-aware selection mirroring the
   server: MACs, ciphers, and protocol are chosen from `ssh::client::params`
   based on `$ssh::client::fips or $facts['fips_enabled']`
-  (`host_config_entry.pp:339-374`). Host titles are run through
+  (`host_config_entry.pp`). Host titles are run through
   `ssh::format_host_entry_for_sorting` so wildcard entries sort last
-  (`host_config_entry.pp:384`).
+  (`host_config_entry.pp`).
 
 - **`ssh::authorized_keys` (`manifests/authorized_keys.pp`)** — Declares
   `ssh_authorized_key` resources from the `$keys` Hash in Hiera. Accepts three
   value shapes per user — a raw pubkey String, an Array of pubkey Strings, or a
   full options Hash — normalizing String/Array forms via
-  `ssh::parse_ssh_pubkey` (`authorized_keys.pp:37-69`). **Warning in the
+  `ssh::parse_ssh_pubkey` (`authorized_keys.pp`). **Warning in the
   docstring:** this creates a resource per key per user, so large key sets
   belong in a central source (LDAP), not Hiera.
 
-- **`ssh::server` (`manifests/server.pp:9-127`)** — Manages the
+- **`ssh::server` (`manifests/server.pp`)** — Manages the
   `openssh-server` package, the `sshd` service, the `sshd` user/group (uid/gid
   `74`), `/etc/ssh/moduli`, and the `/var/empty/sshd` privilege-separation
   chroot. It `include`s `ssh` and the private `ssh::server::conf`, and the
   `sshd` service `subscribe`s to `Class['ssh::server::conf']`
-  (`server.pp:15-16,85`). It manages permissions on every host key reported by
+  (`server.pp`). It manages permissions on every host key reported by
   the `ssh_host_keys` fact; when `pki` is enabled it additionally sources the
   RSA host key from the PKI key and regenerates the pubkey via `exec['gensshpub']`
-  (`server.pp:88-126`). The `openssh-ldap` package is managed only when
-  `ssh::server::conf::_use_ldap` is true (`server.pp:59-63`).
+  (`server.pp`). The `openssh-ldap` package is managed only when
+  `ssh::server::conf::_use_ldap` is true (`server.pp`).
 
 - **`ssh::server::params` (`manifests/server/params.pp`)** — Data-only class
   holding the server crypto lists and version-dependent knobs: `$fallback_ciphers`
-  (`params.pp:29-33`), FIPS sets `$fips_kex_algorithms`/`$fips_macs`/`$fips_ciphers`
-  (`params.pp:43-58`), and the expanded non-FIPS `$kex_algorithms`/`$macs`
-  (`params.pp:62-81`). Version guards: `curve25519-sha256@libssh.org` is only
-  added on openssh >= 6.5 (`params.pp:68-73`); `$rhostsrsaauthentication` is
-  `undef` on openssh >= 7.4 (option removed) and `false` below (`params.pp:84-89`).
+  (`params.pp`), FIPS sets `$fips_kex_algorithms`/`$fips_macs`/`$fips_ciphers`
+  (`params.pp`), and the expanded non-FIPS `$kex_algorithms`/`$macs`
+  (`params.pp`). Version guards: `curve25519-sha256@libssh.org` is only
+  added on openssh >= 6.5 (`params.pp`); `$rhostsrsaauthentication` is
+  `undef` on openssh >= 7.4 (option removed) and `false` below (`params.pp`).
 
 - **`ssh::server::conf` (`manifests/server/conf.pp`)** — **The private engine.**
-  `assert_private()` at `server/conf.pp:325` — this is the *only* private class;
+  `assert_private()` at `server/conf.pp` — this is the *only* private class;
   consumers reach it via `include 'ssh::server'`, never directly. It carries the
   full parameter surface for `sshd_config` and translates each parameter into an
   `sshd_config` resource via the `ssh::add_sshd_config` helper
-  (`server/conf.pp:442-505`), which respects the `$remove_entries` opt-out list.
+  (`server/conf.pp`), which respects the `$remove_entries` opt-out list.
   Boolean-to-`yes`/`no` translation goes through `ssh::config_bool_translate`.
   Its logic:
-  - **FIPS-aware crypto selection** (`server/conf.pp:362-408`): when `macs` /
+  - **FIPS-aware crypto selection** (`server/conf.pp`): when `macs` /
     `ciphers` / `kex_algorithms` are unset, it picks the `fips_*` list from
     `ssh::server::params` if `$fips or $facts['fips_enabled']`, else the
     expanded list. `$enable_fallback_ciphers` (default `true`) appends
     `$fallback_ciphers` for interoperability with non-SIMP hosts
-    (`server/conf.pp:391-396`).
-  - **AuthorizedKeysCommand routing** (`server/conf.pp:445-467`): an explicit
+    (`server/conf.pp`).
+  - **AuthorizedKeysCommand routing** (`server/conf.pp`): an explicit
     `authorizedkeyscommand` wins; else `sssd` → `sss_ssh_authorizedkeys`; else
     LDAP → `ssh-ldap-wrapper`.
-  - **OATH two-factor** (`server/conf.pp:410-433`): when `oath`, forces
+  - **OATH two-factor** (`server/conf.pp`): when `oath`, forces
     `usepam` true, includes the optional `oath` module, sets
     `challengeresponseauthentication` true / `passwordauthentication` false, and
     renders `/etc/pam.d/sshd` from `templates/etc/pam.d/sshd.epp`.
-  - **Version-dependent entries** (`server/conf.pp:507-513`):
+  - **Version-dependent entries** (`server/conf.pp`):
     `UsePrivilegeSeparation` is written on openssh < 7.5 and removed on >= 7.5.
   - **Optional integrations**, each guarded by `assert_optional_dependency`:
-    PKI (`server/conf.pp:341-348`), SELinux port labeling for non-22 ports
-    (`server/conf.pp:543-564`), firewall via `iptables`
-    (`server/conf.pp:566-576`), and `tcpwrappers` (`server/conf.pp:578-587`).
+    PKI (`server/conf.pp`), SELinux port labeling for non-22 ports
+    (`server/conf.pp`), firewall via `iptables`
+    (`server/conf.pp`), and `tcpwrappers` (`server/conf.pp`).
 
 ### Gotchas / non-obvious details
 
 - **Almost everything is public API.** `assert_private()` appears in exactly one
-  manifest, `ssh::server::conf` (`server/conf.pp:325`). Every other class and
+  manifest, `ssh::server::conf` (`server/conf.pp`). Every other class and
   the `host_config_entry` define are consumer-facing; changing their parameters
   is a breaking change.
 - **FIPS logic is duplicated across client and server.** Both the server engine
-  (`server/conf.pp:362-408`) and the client host-entry define
-  (`host_config_entry.pp:339-374`) independently select crypto lists based on
+  (`server/conf.pp`) and the client host-entry define
+  (`host_config_entry.pp`) independently select crypto lists based on
   `$fips or $facts['fips_enabled']`, reading from their respective `params`
   classes. Change one crypto policy and you likely need to change both.
 - **`fips_enabled` fact overrides the toggle.** Even with `fips => false`, a
@@ -128,12 +128,12 @@ crypto lists.
   docstring notes you *can* set `sshd` variables via Augeas outside this class.
   `Match` blocks are explicitly unsupported by `custom_entries` /
   `remove_entries` and must use `sshd_config_match` directly
-  (`server/conf.pp:183-185,195-197`).
+  (`server/conf.pp`).
 - **`PasswordAuthentication` is always managed** so that switching to/from OATH
-  cannot lock you out (`server/conf.pp:107-112`); OATH forces it off
-  (`server/conf.pp:424`).
+  cannot lock you out (`server/conf.pp`); OATH forces it off
+  (`server/conf.pp`).
 - **LDAP is suppressed by SSSD.** `$_use_ldap` is false whenever `sssd` is also
-  true (`server/conf.pp:350-360`), and that variable gates the `openssh-ldap`
+  true (`server/conf.pp`), and that variable gates the `openssh-ldap`
   package in `ssh::server`.
 - **`simp/simp_options` is NOT a declared dependency**, yet the manifests
   consume the `simp_options::*` seam via `simplib::lookup` (provided by
@@ -141,7 +141,7 @@ crypto lists.
 - **`simp/pam` is declared optional but never asserted.** It is listed in
   `metadata.json` `simp.optional_dependencies`, but there is **no**
   `assert_optional_dependency` call for it — the PAM integration is driven by
-  the `simp_options::pam` seam (`server/conf.pp:289`) and PAM management is done
+  the `simp_options::pam` seam (`server/conf.pp`) and PAM management is done
   in-module by rendering `/etc/pam.d/sshd` from the EPP template, not by
   including a `pam` class. Treat it as a soft/consumed dependency, not a
   runtime-asserted one.
@@ -157,17 +157,17 @@ explicit default, so the module works whether or not `simp_options` is included.
 
 | Key | Where | `default_value` |
 |-----|-------|-----------------|
-| `simp_options::haveged` | `client.pp:16`, `server/conf.pp:315` | `false` |
-| `simp_options::fips` | `client.pp:17`, `server/conf.pp:313` | `false` |
-| `simp_options::package_ensure` | `client.pp:18`, `server.pp:10`, `server.pp:11` | `'installed'` |
-| `simp_options::pam` | `server/conf.pp:289` | `true` |
-| `simp_options::tcpwrappers` | `server/conf.pp:301` | `false` |
-| `simp_options::pki::source` | `server/conf.pp:309` | `'/etc/pki/simp/x509'` |
-| `simp_options::firewall` | `server/conf.pp:314` | `false` |
-| `simp_options::ldap` | `server/conf.pp:316` | `false` |
-| `simp_options::oath` | `server/conf.pp:317` | `false` |
-| `simp_options::pki` | `server/conf.pp:320` | `false` |
-| `simp_options::sssd` | `server/conf.pp:321` | `false` |
+| `simp_options::haveged` | `client.pp`, `server/conf.pp` | `false` |
+| `simp_options::fips` | `client.pp`, `server/conf.pp` | `false` |
+| `simp_options::package_ensure` | `client.pp`, `server.pp`, `server.pp` | `'installed'` |
+| `simp_options::pam` | `server/conf.pp` | `true` |
+| `simp_options::tcpwrappers` | `server/conf.pp` | `false` |
+| `simp_options::pki::source` | `server/conf.pp` | `'/etc/pki/simp/x509'` |
+| `simp_options::firewall` | `server/conf.pp` | `false` |
+| `simp_options::ldap` | `server/conf.pp` | `false` |
+| `simp_options::oath` | `server/conf.pp` | `false` |
+| `simp_options::pki` | `server/conf.pp` | `false` |
+| `simp_options::sssd` | `server/conf.pp` | `false` |
 
 Keep routing SIMP feature toggles through this pattern with an explicit
 `default_value` rather than assuming `simp_options` is present.
@@ -187,14 +187,14 @@ Optional dependencies (from `metadata.json` `simp.optional_dependencies`). All
 but `simp/pam` are guarded at runtime by `simplib::assert_optional_dependency`
 at the cited line:
 
-- `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp:44`, `server/conf.pp:330`
-- `simp/pki` `>= 6.2.0 < 7.0.0` — `server/conf.pp:342`
-- `simp/oath` `>= 0.1.0 < 1.0.0` — `server/conf.pp:419`
-- `simp/selinux` `>= 2.6.1 < 4.0.0` — `server/conf.pp:546`
-- `simp/vox_selinux` `>= 3.1.0 < 4.0.0` — `server/conf.pp:547`
-- `puppet/selinux` `>= 1.6.1 < 6.0.0` — `server/conf.pp:553`
-- `simp/iptables` `>= 6.5.3 < 8.0.0` — `server/conf.pp:567`
-- `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — `server/conf.pp:579`
+- `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp`, `server/conf.pp`
+- `simp/pki` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
+- `simp/oath` `>= 0.1.0 < 1.0.0` — `server/conf.pp`
+- `simp/selinux` `>= 2.6.1 < 4.0.0` — `server/conf.pp`
+- `simp/vox_selinux` `>= 3.1.0 < 4.0.0` — `server/conf.pp`
+- `puppet/selinux` `>= 1.6.1 < 6.0.0` — `server/conf.pp`
+- `simp/iptables` `>= 6.5.3 < 8.0.0` — `server/conf.pp`
+- `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
 - `simp/pam` `>= 6.8.3 < 8.0.0` — declared optional but has **no**
   `assert_optional_dependency` call; consumed via the `simp_options::pam` seam
   and the in-module PAM template (see Gotchas).
@@ -270,11 +270,11 @@ bundle exec rake beaker:suites[oel]
 ```
 
 Relevant gem pins (from `Gemfile`): the tested Puppet range defaults to
-`['>= 7', '< 9']` (`Gemfile:23`) and only the **puppet** gem is installed
-(`gem 'puppet', puppet_version`, `Gemfile:29`) — no `openvox` gem yet.
-`rubocop ~> 1.88.0` (`Gemfile:16`), `puppetlabs_spec_helper ~> 8.0.0`
-(`Gemfile:30`), `simp-rake-helpers ~> 5.24.0` (`Gemfile:36`),
-`simp-beaker-helpers ~> 2.0.0` (`Gemfile:52`). `spec/spec_helper.rb:11` requires
+`['>= 7', '< 9']` (`Gemfile`) and only the **puppet** gem is installed
+(`gem 'puppet', puppet_version`, `Gemfile`) — no `openvox` gem yet.
+`rubocop ~> 1.88.0` (`Gemfile`), `puppetlabs_spec_helper ~> 8.0.0`
+(`Gemfile`), `simp-rake-helpers ~> 5.24.0` (`Gemfile`),
+`simp-beaker-helpers ~> 2.0.0` (`Gemfile`). `spec/spec_helper.rb` requires
 `puppetlabs_spec_helper/module_spec_helper`.
 
 ## Conventions
