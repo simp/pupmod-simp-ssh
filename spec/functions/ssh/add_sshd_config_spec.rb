@@ -18,7 +18,7 @@ describe 'ssh::add_sshd_config' do
         resource = catalogue.resource('Sshd_config', key)
         expect(resource).not_to be_nil
         expect(resource[:value]).to eq(value)
-        expect(resource[:notify].to_s).to eq('[Service[sshd]{:name=>"sshd"}]')
+        expect(resource[:notify].to_s).to eq("[Service[sshd]#{{ name: 'sshd' }}]")
       end
     end
   end
@@ -32,7 +32,7 @@ describe 'ssh::add_sshd_config' do
       resource = catalogue.resource('Sshd_config', key)
       expect(resource).not_to be_nil
       expect(resource[:value]).to eq(value)
-      expect(resource[:notify].to_s).to eq('[Service[sshd]{:name=>"sshd"}]')
+      expect(resource[:notify].to_s).to eq("[Service[sshd]#{{ name: 'sshd' }}]")
     end
   end
 
