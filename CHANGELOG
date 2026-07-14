@@ -1,4 +1,4 @@
-* Tue Jun 17 2026 Steven Pritchard <steve@sicura.us> - 8.0.0
+* Wed Jun 17 2026 Steven Pritchard <steve@sicura.us> - 8.0.0
 - BREAKING: Drastically reduce the blast radius of `include ssh`. A bare
   include now installs the `openssh-server`/`openssh-clients` packages and
   manages only the `/etc/ssh` directory. Everything that used to happen
