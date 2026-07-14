@@ -17,6 +17,9 @@ describe 'ssh class' do
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
+      # The key-login tests plant keys in the (formerly default, now opt-in)
+      # central authorized-keys location.
+      'ssh::server::conf::authorizedkeysfile'     => '/etc/ssh/local_keys/%u',
     }
   end
 
