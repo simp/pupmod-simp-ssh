@@ -6,7 +6,7 @@
 # host-key file management are only declared when service management is
 # requested via `$service_ensure`/`$service_enable`.  Activate the bundled
 # `simp:defaults` compliance_engine profile (or set these parameters) to
-# restore the pre-8.0.0 behavior.
+# restore the pre-9.0.0 behavior.
 #
 # @param server_ensure The ensure status of the openssh-server package
 #
@@ -42,7 +42,7 @@ class ssh::server (
     ensure => $server_ensure
   }
 
-  if $::ssh::server::conf::_use_ldap {
+  if $ssh::server::conf::_use_ldap {
     package { 'openssh-ldap':
       ensure => $ldap_ensure
     }

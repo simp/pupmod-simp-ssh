@@ -294,10 +294,12 @@ define ssh::client::host_config_entry (
   Boolean                                               $passwordauthentication           = true,
   Boolean                                               $permitlocalcommand               = false,
   Simplib::Port                                         $port                             = 22,
-  Array[Ssh::Authentications]                           $preferredauthentications         = [ 'publickey',
-                                                                                              'hostbased',
-                                                                                              'keyboard-interactive',
-                                                                                              'password' ],
+  Array[Ssh::Authentications]                           $preferredauthentications         = [
+    'publickey',
+    'hostbased',
+    'keyboard-interactive',
+    'password',
+  ],
   Variant[Integer[1,2], Enum['2,1']]                    $protocol                         = 2,
   Optional[String]                                      $proxycommand                     = undef,
   Boolean                                               $pubkeyauthentication             = true,
@@ -305,20 +307,22 @@ define ssh::client::host_config_entry (
   Optional[String]                                      $remoteforward                    = undef,
   Boolean                                               $rhostsrsaauthentication          = false,
   Boolean                                               $rsaauthentication                = true,
-  Array[String]                                         $sendenv                          = [ 'LANG',
-                                                                                              'LC_CTYPE',
-                                                                                              'LC_NUMERIC',
-                                                                                              'LC_TIME',
-                                                                                              'LC_COLLATE',
-                                                                                              'LC_MONETARY',
-                                                                                              'LC_MESSAGES',
-                                                                                              'LC_PAPER',
-                                                                                              'LC_NAME',
-                                                                                              'LC_ADDRESS',
-                                                                                              'LC_TELEPHONE',
-                                                                                              'LC_MEASUREMENT',
-                                                                                              'LC_IDENTIFICATION',
-                                                                                              'LC_ALL' ],
+  Array[String]                                         $sendenv                          = [
+    'LANG',
+    'LC_CTYPE',
+    'LC_NUMERIC',
+    'LC_TIME',
+    'LC_COLLATE',
+    'LC_MONETARY',
+    'LC_MESSAGES',
+    'LC_PAPER',
+    'LC_NAME',
+    'LC_ADDRESS',
+    'LC_TELEPHONE',
+    'LC_MEASUREMENT',
+    'LC_IDENTIFICATION',
+    'LC_ALL',
+  ],
   Integer[1]                                            $serveralivecountmax              = 3,
   Integer[0]                                            $serveraliveinterval              = 0,
   Optional[String]                                      $smartcarddevice                  = undef,
@@ -331,7 +335,7 @@ define ssh::client::host_config_entry (
   Optional[Array[Stdlib::Absolutepath]]                 $userknownhostsfile               = undef,
   Enum['yes','no','ask']                                $verifyhostkeydns                 = 'no',
   Boolean                                               $visualhostkey                    = false,
-  Stdlib::Absolutepath                                  $xauthlocation                    = '/usr/bin/xauth'
+  Stdlib::Absolutepath                                  $xauthlocation                    = '/usr/bin/xauth',
 ) {
   include 'ssh::client::params'
   include 'ssh::client'
@@ -387,7 +391,7 @@ define ssh::client::host_config_entry (
 
   $_name = ssh::format_host_entry_for_sorting($name)
 
-  ssh_config{
+  ssh_config {
     default:
       host   => $name,
       target => $target,
@@ -581,7 +585,7 @@ define ssh::client::host_config_entry (
   } else {
     $_ensure = 'absent'
   }
-  ssh_config{
+  ssh_config {
     default:
       ensure => $_ensure,
       target => $target,
@@ -600,13 +604,13 @@ define ssh::client::host_config_entry (
       value => ssh::config_bool_translate($rsaauthentication),
     ;
     "${_name}__UsePrivilegedPort":
-        key   => 'UsePrivilegedPort',
-        value => ssh::config_bool_translate($useprivilegedport),
+      key   => 'UsePrivilegedPort',
+      value => ssh::config_bool_translate($useprivilegedport),
     ;
   }
 
   if $_cipher {
-    ssh_config{ "${_name}__Cipher":
+    ssh_config { "${_name}__Cipher":
       key    => 'Cipher',
       value  => $_cipher,
       host   => $name,
@@ -615,7 +619,7 @@ define ssh::client::host_config_entry (
   }
 
   if $bindaddress {
-    ssh_config{ "${_name}__BindAddress":
+    ssh_config { "${_name}__BindAddress":
       key    => 'BindAddress',
       value  => $bindaddress,
       host   => $name,
@@ -624,7 +628,7 @@ define ssh::client::host_config_entry (
   }
 
   if $controlpath {
-    ssh_config{ "${_name}__ControlPath":
+    ssh_config { "${_name}__ControlPath":
       key    => 'ControlPath',
       value  => $controlpath,
       host   => $name,
@@ -633,7 +637,7 @@ define ssh::client::host_config_entry (
   }
 
   if $dynamicforward {
-    ssh_config{ "${_name}__DynamicForward":
+    ssh_config { "${_name}__DynamicForward":
       key    => 'DynamicForward',
       value  => $dynamicforward,
       host   => $name,
@@ -642,7 +646,7 @@ define ssh::client::host_config_entry (
   }
 
   if $globalknownhostsfile {
-    ssh_config{ "${_name}__GlobalKnownHostsFile":
+    ssh_config { "${_name}__GlobalKnownHostsFile":
       key    => 'GlobalKnownHostsFile',
       value  => $globalknownhostsfile.join(' '),
       host   => $name,
@@ -650,7 +654,7 @@ define ssh::client::host_config_entry (
     }
   }
 
-  if $hostkeyalgorithms{
+  if $hostkeyalgorithms {
     ssh_config { "${_name}__HostKeyAlgorithms":
       key    => 'HostKeyAlgorithms',
       value  => $hostkeyalgorithms,
@@ -660,7 +664,7 @@ define ssh::client::host_config_entry (
   }
 
   if $hostkeyalias {
-    ssh_config{ "${_name}__HostKeyAlias":
+    ssh_config { "${_name}__HostKeyAlias":
       key    => 'HostKeyAlias',
       value  => $hostkeyalias,
       host   => $name,
@@ -669,7 +673,7 @@ define ssh::client::host_config_entry (
   }
 
   if $hostname {
-    ssh_config{ "${_name}__HostName":
+    ssh_config { "${_name}__HostName":
       key    => 'HostName',
       value  => $hostname,
       host   => $name,
@@ -678,7 +682,7 @@ define ssh::client::host_config_entry (
   }
 
   if $identityfile {
-    ssh_config{ "${_name}__IdentityFile":
+    ssh_config { "${_name}__IdentityFile":
       key    => 'IdentityFile',
       value  => $identityfile,
       host   => $name,
@@ -687,7 +691,7 @@ define ssh::client::host_config_entry (
   }
 
   if $kbdinteractivedevices {
-    ssh_config{ "${_name}__KbdInteractiveDevices":
+    ssh_config { "${_name}__KbdInteractiveDevices":
       key    => 'KbdInteractiveDevices',
       value  => $kbdinteractivedevices.join(','),
       host   => $name,
@@ -696,7 +700,7 @@ define ssh::client::host_config_entry (
   }
 
   if $localcommand {
-    ssh_config{ "${_name}__LocalCommand":
+    ssh_config { "${_name}__LocalCommand":
       key    => 'LocalCommand',
       value  => $localcommand,
       host   => $name,
@@ -705,7 +709,7 @@ define ssh::client::host_config_entry (
   }
 
   if $localforward {
-    ssh_config{ "${_name}__LocalForward":
+    ssh_config { "${_name}__LocalForward":
       key    => 'LocalForward',
       value  => $localforward,
       host   => $name,
@@ -714,7 +718,7 @@ define ssh::client::host_config_entry (
   }
 
   if $proxycommand {
-    ssh_config{ "${_name}__ProxyCommand":
+    ssh_config { "${_name}__ProxyCommand":
       key    => 'ProxyCommand',
       value  => $proxycommand,
       host   => $name,
@@ -723,7 +727,7 @@ define ssh::client::host_config_entry (
   }
 
   if $rekeylimit {
-    ssh_config{ "${_name}__RekeyLimit":
+    ssh_config { "${_name}__RekeyLimit":
       key    => 'RekeyLimit',
       value  => $rekeylimit,
       host   => $name,
@@ -732,7 +736,7 @@ define ssh::client::host_config_entry (
   }
 
   if $remoteforward {
-    ssh_config{ "${_name}__RemoteForward":
+    ssh_config { "${_name}__RemoteForward":
       key    => 'RemoteForward',
       value  => $remoteforward,
       host   => $name,
@@ -741,7 +745,7 @@ define ssh::client::host_config_entry (
   }
 
   if $smartcarddevice {
-    ssh_config{ "${_name}__SmartcardDevice":
+    ssh_config { "${_name}__SmartcardDevice":
       key    => 'SmartcardDevice',
       value  => $smartcarddevice,
       host   => $name,
@@ -750,7 +754,7 @@ define ssh::client::host_config_entry (
   }
 
   if $tunneldevice {
-    ssh_config{ "${_name}__TunnelDevice":
+    ssh_config { "${_name}__TunnelDevice":
       key    => 'TunnelDevice',
       value  => $tunneldevice,
       host   => $name,
@@ -759,7 +763,7 @@ define ssh::client::host_config_entry (
   }
 
   if $user {
-    ssh_config{ "${_name}__User":
+    ssh_config { "${_name}__User":
       key    => 'User',
       value  => $user,
       host   => $name,
@@ -768,7 +772,7 @@ define ssh::client::host_config_entry (
   }
 
   if $userknownhostsfile {
-    ssh_config{ "${_name}__UserKnownHostsFile":
+    ssh_config { "${_name}__UserKnownHostsFile":
       key    => 'UserKnownHostsFile',
       value  => $userknownhostsfile.join(' '),
       host   => $name,

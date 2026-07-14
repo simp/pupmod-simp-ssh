@@ -42,9 +42,9 @@
 
 Manages the SSH Client and Server
 
-## Breaking changes in 8.0.0
+## Breaking changes in 9.0.0
 
-Version 8.0.0 drastically reduces the "blast radius" of `include ssh`. A bare
+Version 9.0.0 drastically reduces the "blast radius" of `include ssh`. A bare
 `include ssh` now **installs the `openssh-server`/`openssh-clients` packages
 and manages only the `/etc/ssh` directory** — it does *not* manage the `sshd`
 service, rewrite `/etc/ssh/sshd_config` or `/etc/ssh/ssh_config`, or silently
@@ -71,7 +71,7 @@ There are **two ways to restore the previous behavior**:
    `ssh::client::add_default_entry: true`).
 2. **The `simp:defaults` profile** — the module ships a
    [compliance_engine][compliance_engine] profile named `simp:defaults` that is
-   a drop-in restoration of the pre-8.0.0 behavior. Enable it stack-wide with a
+   a drop-in restoration of the pre-9.0.0 behavior. Enable it stack-wide with a
    single Hiera key:
 
    ```yaml
@@ -93,7 +93,7 @@ There are **two ways to restore the previous behavior**:
 A bare `include ssh` installs the SSH packages and manages the `/etc/ssh`
 directory. The sshd service and the contents of the files in `/etc/ssh` are
 managed only when the relevant parameters are set (or the `simp:defaults`
-profile is enabled) — see [Breaking changes in 8.0.0](#breaking-changes-in-800).
+profile is enabled) — see [Breaking changes in 9.0.0](#breaking-changes-in-900).
 
 ### Setup requirements
 
@@ -129,7 +129,7 @@ class{ 'ssh':
 
 #### Managing client settings
 
-As of 8.0.0, `ssh::client` does **not** manage `/etc/ssh/ssh_config` by
+As of 9.0.0, `ssh::client` does **not** manage `/etc/ssh/ssh_config` by
 default. Set `ssh::client::add_default_entry: true` to manage the `Host *`
 entry with the module's sane defaults.
 
@@ -216,7 +216,7 @@ class{ 'ssh':
 
 #### Managing server settings
 
-As of 8.0.0, `ssh::server` only manages the `sshd` service and the contents of
+As of 9.0.0, `ssh::server` only manages the `sshd` service and the contents of
 `/etc/ssh/sshd_config` when you opt in. Set `ssh::server::service_ensure` and
 `ssh::server::service_enable` to manage the service, and set the individual
 `ssh::server::conf` parameters (or enable the `simp:defaults` profile) for the

@@ -395,14 +395,36 @@ class ssh::server::conf (
     }
   }
 
+  # On EL9+, the vendor sshd_config Includes /etc/ssh/sshd_config.d/*.conf at
+  # the TOP of the file and sshd uses first-match-wins, so the vendor
+  # 50-redhat.conf (ChallengeResponseAuthentication no) silently overrides
+  # any keyboard-interactive setting in the main sshd_config. When OATH is
+  # enabled, manage a drop-in that sorts before the vendor file so the
+  # required setting actually takes effect; remove it otherwise so vendor
+  # behavior is restored when OATH is disabled.  Ensuring absence is a no-op
+  # on systems this module never configured, so a bare include still changes
+  # nothing.  No notify: the sshd service is not always in the catalog, and
+  # when it is managed it already subscribes to this class.
+  if versioncmp($facts['os']['release']['major'], '9') >= 0 {
+    file { '/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf':
+      ensure                  => bool2str($oath, 'file', 'absent'),
+      owner                   => 'root',
+      group                   => 'root',
+      mode                    => '0600',
+      selinux_ignore_defaults => true,
+      content                 => "# This file is managed by Puppet; changes will be overwritten\nKbdInteractiveAuthentication yes\n",
+    }
+  }
+
   # The sshd_config file perms are only owned when we manage the service; a bare
   # include leaves /etc/ssh/sshd_config exactly as the package left it.
   if $_manage_service {
     file { '/etc/ssh/sshd_config':
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0600',
-      require => Package['openssh-server'],
+      owner                   => 'root',
+      group                   => 'root',
+      mode                    => '0600',
+      selinux_ignore_defaults => true,
+      require                 => Package['openssh-server'],
     }
 
     file { '/etc/ssh/local_keys':
@@ -520,7 +542,6 @@ class ssh::server::conf (
         simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
 
         include vox_selinux
-
       }
       else {
         simplib::assert_optional_dependency($module_name, 'puppet/selinux')

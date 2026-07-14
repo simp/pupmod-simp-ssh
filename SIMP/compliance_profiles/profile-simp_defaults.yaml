@@ -1,5 +1,5 @@
 ---
-# The `simp:defaults` profile is a drop-in restoration of the pre-8.0.0
+# The `simp:defaults` profile is a drop-in restoration of the pre-9.0.0
 # `pupmod-simp-ssh` behavior.  Enabling it
 # (`compliance_engine::enforcement: [simp:defaults]`) re-applies the hardening
 # defaults, manages the `sshd` service, and re-enables the SIMP integrations

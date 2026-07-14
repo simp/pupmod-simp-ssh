@@ -1,5 +1,5 @@
 ---
-# Restores the pre-8.0.0 `pupmod-simp-ssh` behavior.  Each check pins a class
+# Restores the pre-9.0.0 `pupmod-simp-ssh` behavior.  Each check pins a class
 # parameter back to the value (or typical SIMP-site value) that a bare
 # `include ssh` used to apply automatically.  The compliance_engine gem
 # deep-merges these with every other module's `simp:defaults` checks, so a

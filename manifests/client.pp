@@ -5,7 +5,7 @@
 # entry in `/etc/ssh/ssh_config` (and management of `ssh_config`/
 # `ssh_known_hosts`) is opt-in via `$add_default_entry`.  Activate the bundled
 # `simp:defaults` compliance_engine profile (or set `$add_default_entry`) to
-# restore the pre-8.0.0 behavior.
+# restore the pre-9.0.0 behavior.
 #
 # @param add_default_entry Set this if you wish to automatically
 #   have the '*' Host entry set up with some sane defaults.
@@ -34,10 +34,11 @@ class ssh::client (
     ssh::client::host_config_entry { '*': }
 
     file { '/etc/ssh/ssh_config':
-      owner   => 'root',
-      group   => 'root',
-      mode    => '0644',
-      require => Package['openssh-clients']
+      owner                   => 'root',
+      group                   => 'root',
+      mode                    => '0644',
+      selinux_ignore_defaults => true,
+      require                 => Package['openssh-clients']
     }
 
     file { '/etc/ssh/ssh_known_hosts':

@@ -9,7 +9,6 @@
 function ssh::parse_ssh_pubkey(String $key) {
   $split = $key.split(' ')
 
-
   $base = {
     'key'  => $split[1],
     'type' => $split[0],

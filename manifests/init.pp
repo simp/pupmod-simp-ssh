@@ -9,8 +9,7 @@
 class ssh (
   Boolean $enable_client = true,
   Boolean $enable_server = true
-){
-
+) {
   simplib::assert_metadata( $module_name )
 
   if $enable_client { include 'ssh::client' }

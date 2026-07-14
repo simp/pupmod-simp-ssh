@@ -121,7 +121,7 @@ A bare `include ssh` (or `include ssh::client`) installs the
 entry in `/etc/ssh/ssh_config` (and management of `ssh_config`/
 `ssh_known_hosts`) is opt-in via `$add_default_entry`.  Activate the bundled
 `simp:defaults` compliance_engine profile (or set `$add_default_entry`) to
-restore the pre-8.0.0 behavior.
+restore the pre-9.0.0 behavior.
 
 #### Parameters
 
@@ -177,7 +177,7 @@ the `sshd` user/group, the `/var/empty/sshd` chroot scaffolding and the
 host-key file management are only declared when service management is
 requested via `$service_ensure`/`$service_enable`.  Activate the bundled
 `simp:defaults` compliance_engine profile (or set these parameters) to
-restore the pre-8.0.0 behavior.
+restore the pre-9.0.0 behavior.
 
 #### Parameters
 
@@ -1358,10 +1358,12 @@ the start of the array to the end of the array. Default:
 Default value:
 
 ```puppet
-[ 'publickey',
-                                                                                              'hostbased',
-                                                                                              'keyboard-interactive',
-                                                                                              'password' ]
+[
+    'publickey',
+    'hostbased',
+    'keyboard-interactive',
+    'password',
+  ]
 ```
 
 ##### <a name="-ssh--client--host_config_entry--protocol"></a>`protocol`
@@ -1437,20 +1439,22 @@ should be sent to the server.
 Default value:
 
 ```puppet
-[ 'LANG',
-                                                                                              'LC_CTYPE',
-                                                                                              'LC_NUMERIC',
-                                                                                              'LC_TIME',
-                                                                                              'LC_COLLATE',
-                                                                                              'LC_MONETARY',
-                                                                                              'LC_MESSAGES',
-                                                                                              'LC_PAPER',
-                                                                                              'LC_NAME',
-                                                                                              'LC_ADDRESS',
-                                                                                              'LC_TELEPHONE',
-                                                                                              'LC_MEASUREMENT',
-                                                                                              'LC_IDENTIFICATION',
-                                                                                              'LC_ALL' ]
+[
+    'LANG',
+    'LC_CTYPE',
+    'LC_NUMERIC',
+    'LC_TIME',
+    'LC_COLLATE',
+    'LC_MONETARY',
+    'LC_MESSAGES',
+    'LC_PAPER',
+    'LC_NAME',
+    'LC_ADDRESS',
+    'LC_TELEPHONE',
+    'LC_MEASUREMENT',
+    'LC_IDENTIFICATION',
+    'LC_ALL',
+  ]
 ```
 
 ##### <a name="-ssh--client--host_config_entry--serveralivecountmax"></a>`serveralivecountmax`

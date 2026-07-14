@@ -65,4 +65,46 @@ describe 'ssh::server::conf' do
     # ...and an explicit removal is declared.
     it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_ensure('absent') }
   end
+
+  # On EL9+ the vendor 50-redhat.conf drop-in overrides the main sshd_config
+  # (first-match-wins), so OATH requires a drop-in that sorts first.  No
+  # notify assertion: the drop-in does not notify the sshd service directly
+  # (the service, when managed, subscribes to the whole class).
+  context 'kbdinteractive drop-in' do
+    let(:el9_facts) do
+      os = base_facts[:os].merge(release: { 'major' => '9', 'full' => '9.0' })
+      base_facts.merge(os: os)
+    end
+
+    context 'with oath=true on EL9' do
+      let(:facts) { el9_facts.merge(custom_hiera: 'conf_oath') }
+
+      it { is_expected.to compile.with_all_deps }
+      it {
+        is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+          .with_ensure('file')
+          .with_content(%r{^KbdInteractiveAuthentication yes$})
+      }
+    end
+
+    context 'with oath=false on EL9' do
+      let(:facts) { el9_facts.merge(custom_hiera: 'none') }
+
+      it { is_expected.to compile.with_all_deps }
+      it {
+        is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+          .with_ensure('absent')
+      }
+    end
+
+    context 'with oath=true on EL8' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '8', 'full' => '8.10' })
+        base_facts.merge(os: os, custom_hiera: 'conf_oath')
+      end
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.not_to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf') }
+    end
+  end
 end
