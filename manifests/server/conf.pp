@@ -378,7 +378,11 @@ class ssh::server::conf (
   $_port_value = $port =~ NotUndef ? { true => $_ports, default => undef }
 
   # sshd_config resource does not treat Protocol as an array
-  $_protocol = $protocol =~ NotUndef ? { true => $protocol.unique.join(','), default => undef }
+  if $protocol =~ NotUndef {
+    $_protocol = $protocol.unique.join(',')
+  } else {
+    $_protocol = undef
+  }
 
   if $_usepam {
     if $oath {
