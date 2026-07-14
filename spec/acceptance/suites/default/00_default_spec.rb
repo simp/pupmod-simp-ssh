@@ -10,6 +10,10 @@ describe 'ssh class' do
   let(:server_hieradata) do
     {
       'simp_options::trusted_nets'                => ['ALL'],
+      # Opt in to service management so sshd reloads when settings change;
+      # otherwise the settings below never take effect on the running daemon.
+      'ssh::server::service_ensure'               => 'running',
+      'ssh::server::service_enable'               => true,
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
