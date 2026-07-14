@@ -49,7 +49,10 @@ describe 'ssh class' do
         end
 
         it "configures #{os}-client with no errors" do
-          apply_manifest_on(client, client_manifest, expect_changes: true)
+          # A bare `include ssh::client` only manages the openssh-clients
+          # package, so whether the first apply reports changes depends on
+          # whether the image ships the package preinstalled.
+          apply_manifest_on(client, client_manifest, catch_failures: true)
         end
         it "configures #{os}-client idempotently" do
           apply_manifest_on(client, client_manifest, catch_changes: true)
