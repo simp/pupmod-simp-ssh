@@ -20,28 +20,25 @@ describe 'ssh class' do
 
   let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
 
-  # Exercise noop from a clean (uninstalled) state: on a fresh node the Sicura
-  # console previews the module with `puppet apply --noop`, which must not error
-  # even though nothing this module has configured exists yet. Real idempotence
-  # is covered by the applies below. A post-convergence noop check is
-  # deliberately omitted: `puppet apply --noop --detailed-exitcodes` always
-  # exits 0, so it could never fail and would test nothing.
+  # Exercise noop from a clean state: on a fresh node the Sicura console previews
+  # the module with `puppet apply --noop`, which must not error even though
+  # nothing this module has configured exists yet. This runs first, before any
+  # of the applies below manage sshd_config or install packages, so it is the
+  # genuine fresh-node preview. Real idempotence is covered by those applies. A
+  # post-convergence noop check is deliberately omitted: `puppet apply --noop
+  # --detailed-exitcodes` always exits 0, so it could never fail.
   #
-  # We remove only `openssh-clients`, never `openssh-server`: the latter is the
-  # sshd daemon Beaker itself connects through, and any node the console can
-  # reach and manage necessarily has sshd present -- an sshd-absent node is not
-  # a state the --noop preview ever encounters. Removing openssh-clients still
-  # gives `ssh::client`'s package a genuinely-absent state to noop against,
-  # while `ssh::server` runs against the present daemon (so the always-declared
-  # sshd_config augeas resources read the real /etc/ssh/sshd_config). We noop a
-  # bare `include 'ssh'` -- exactly what the console previews (both ssh::client
-  # and ssh::server, firewall/pki default-off).
+  # Unlike other modules in this rollout, there is no `before` package removal:
+  # neither ssh package can be removed on the SUT without breaking the test run.
+  # `openssh-server` is the sshd Beaker connects through, and `openssh-clients`
+  # provides the remote-side `scp` binary Beaker's file-transport execs to copy
+  # manifests over -- removing it breaks every subsequent `apply_manifest_on`.
+  # A fresh node has openssh installed by the OS anyway, so the honest clean
+  # state is "installed but not yet SIMP-managed", which is exactly what a bare
+  # noop `include 'ssh'` previews (both ssh::client and ssh::server, firewall/
+  # pki default-off).
   context 'in noop mode from a clean state' do
     let(:noop_manifest) { "include 'ssh'" }
-
-    before(:context) do
-      on(hosts, 'puppet resource package openssh-clients ensure=absent')
-    end
 
     it 'applies without errors in noop mode' do
       apply_manifest_on(hosts, noop_manifest, catch_failures: true, noop: true)
