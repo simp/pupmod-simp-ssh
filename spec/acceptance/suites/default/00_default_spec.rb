@@ -190,6 +190,14 @@ describe 'ssh class' do
           PP
         end
 
+        let(:client_manifest_w_default_entry) do
+          # The default `Host *` entry is opt-in under the reduced blast
+          # radius; a bare `include ssh::client` writes no ssh_config content.
+          # These comparison tests need it in the baseline so the diff only
+          # contains the customization.
+          "class { 'ssh::client': add_default_entry => true }"
+        end
+
         let(:client_manifest_w_custom_host_entries) do
           <<~PP
             # SIMP-4440 client example
@@ -247,7 +255,7 @@ describe 'ssh class' do
         it 'customizes the default ssh_config Host' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
+          apply_manifest_on(client, client_manifest_w_default_entry)
           normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
@@ -263,7 +271,7 @@ describe 'ssh class' do
         it 'customizes an ssh_config Host entry for a specific host' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
+          apply_manifest_on(client, client_manifest_w_default_entry)
           normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
@@ -283,7 +291,10 @@ describe 'ssh class' do
           os_major_release.delete!('^0-9')
           if os_major_release
             on(client, 'echo > /etc/ssh/ssh_config')
-            apply_manifest_on(client, client_manifest)
+            # The baseline needs the default `Host *` block: the ssh_config
+            # type nests global settings under `Host *`, creating the block
+            # when absent, so an empty baseline would diff the whole block.
+            apply_manifest_on(client, client_manifest_w_default_entry)
             normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
             # Create the new test setup

@@ -11,6 +11,14 @@ describe 'ssh check oath' do
       'simp_options::trusted_nets'            => ['ALL'],
       'simp_options::oath'                    => true,
       'simp_options::pam'                     => true,
+      # 9.0.0 removed the simp_options seams from ssh::server::conf, so the
+      # simp_options::oath key above no longer reaches the ssh module (it is
+      # kept for the oath module itself); opt in to OATH management directly.
+      'ssh::server::conf::oath'               => true,
+      # Opt in to service management so sshd reloads to pick up the
+      # OATH-driven KbdInteractive/PasswordAuthentication settings.
+      'ssh::server::service_ensure'           => 'running',
+      'ssh::server::service_enable'           => true,
       'ssh::server::conf::banner'             => '/dev/null',
       'ssh::server::conf::permitrootlogin'    => true,
       'ssh::server::conf::authorizedkeysfile' => '.ssh/authorized_keys',
