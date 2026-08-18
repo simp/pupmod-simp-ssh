@@ -15,6 +15,9 @@ Puppet::Type.type(:sshkey_prune).provide(:prune) do
   end
 
   def sync
+    # Honor `--noop`: never rewrite the known_hosts file during a noop run.
+    return if resource.noop? || Puppet[:noop]
+
     require 'tempfile'
 
     tmp_fh = Tempfile.new('sshkey_prune')

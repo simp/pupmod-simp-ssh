@@ -6,6 +6,9 @@ fixtures:
     augeasproviders_core: https://github.com/simp/augeasproviders_core.git
     augeasproviders_ssh: https://github.com/simp/augeasproviders_ssh.git
     augeasproviders_grub: https://github.com/simp/augeasproviders_grub.git
+    compliance_engine:
+      repo: https://github.com/simp/rubygem-simp-compliance_engine.git
+      ref: '1.0.0'
     concat: https://github.com/simp/puppetlabs-concat.git
     firewalld: https://github.com/simp/pupmod-voxpupuli-firewalld.git
     haveged: https://github.com/simp/pupmod-simp-haveged.git

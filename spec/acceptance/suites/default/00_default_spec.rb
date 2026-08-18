@@ -10,9 +10,16 @@ describe 'ssh class' do
   let(:server_hieradata) do
     {
       'simp_options::trusted_nets'                => ['ALL'],
+      # Opt in to service management so sshd reloads when settings change;
+      # otherwise the settings below never take effect on the running daemon.
+      'ssh::server::service_ensure'               => 'running',
+      'ssh::server::service_enable'               => true,
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
+      # The key-login tests plant keys in the (formerly default, now opt-in)
+      # central authorized-keys location.
+      'ssh::server::conf::authorizedkeysfile'     => '/etc/ssh/local_keys/%u',
     }
   end
 
@@ -74,7 +81,10 @@ describe 'ssh class' do
         end
 
         it "configures #{os}-client with no errors" do
-          apply_manifest_on(client, client_manifest, expect_changes: true)
+          # A bare `include ssh::client` only manages the openssh-clients
+          # package, so whether the first apply reports changes depends on
+          # whether the image ships the package preinstalled.
+          apply_manifest_on(client, client_manifest, catch_failures: true)
         end
         it "configures #{os}-client idempotently" do
           apply_manifest_on(client, client_manifest, catch_changes: true)
@@ -205,6 +215,14 @@ describe 'ssh class' do
           PP
         end
 
+        let(:client_manifest_w_default_entry) do
+          # The default `Host *` entry is opt-in under the reduced blast
+          # radius; a bare `include ssh::client` writes no ssh_config content.
+          # These comparison tests need it in the baseline so the diff only
+          # contains the customization.
+          "class { 'ssh::client': add_default_entry => true }"
+        end
+
         let(:client_manifest_w_custom_host_entries) do
           <<~PP
             # SIMP-4440 client example
@@ -262,7 +280,7 @@ describe 'ssh class' do
         it 'customizes the default ssh_config Host' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
+          apply_manifest_on(client, client_manifest_w_default_entry)
           normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
@@ -278,7 +296,7 @@ describe 'ssh class' do
         it 'customizes an ssh_config Host entry for a specific host' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
+          apply_manifest_on(client, client_manifest_w_default_entry)
           normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
@@ -298,7 +316,10 @@ describe 'ssh class' do
           os_major_release.delete!('^0-9')
           if os_major_release
             on(client, 'echo > /etc/ssh/ssh_config')
-            apply_manifest_on(client, client_manifest)
+            # The baseline needs the default `Host *` block: the ssh_config
+            # type nests global settings under `Host *`, creating the block
+            # when absent, so an empty baseline would diff the whole block.
+            apply_manifest_on(client, client_manifest_w_default_entry)
             normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
             # Create the new test setup

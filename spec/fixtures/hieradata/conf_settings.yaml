@@ -1,0 +1,14 @@
+---
+ssh::server::conf::banner: '/etc/issue.net'
+ssh::server::conf::permitrootlogin: false
+ssh::server::conf::passwordauthentication: true
+ssh::server::conf::port: 22
+ssh::server::conf::maxauthtries: 6
+ssh::server::conf::clientaliveinterval: 600
+ssh::server::conf::x11forwarding: false
+ssh::server::conf::ciphers:
+  - aes256-ctr
+  - aes192-ctr
+ssh::server::conf::subsystem: 'sftp /usr/libexec/openssh/sftp-server'
+ssh::server::conf::protocol:
+  - 2

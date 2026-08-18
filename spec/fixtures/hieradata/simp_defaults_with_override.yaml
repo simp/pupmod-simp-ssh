@@ -1,0 +1,5 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+# A site value must outrank the profile (which sits at middle Hiera priority).
+ssh::server::conf::permitrootlogin: true

@@ -14,6 +14,14 @@ Puppet::Functions.create_function(:'ssh::config_bool_translate') do
     required_param 'Boolean', :config_item
   end
 
+  # An unset (undef) item passes through unchanged so that callers can skip
+  # declaring a sshd_config resource for an unmanaged setting.
+  # @param config_item Configuration item to be translated
+  # @return transformed config_item
+  dispatch :config_bool_translate do
+    required_param 'Undef', :config_item
+  end
+
   def config_bool_translate(config_item)
     bool_translation = {
       true    => 'yes',

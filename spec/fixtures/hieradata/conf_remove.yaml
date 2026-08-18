@@ -1,0 +1,5 @@
+---
+ssh::server::conf::permitrootlogin: false
+ssh::server::conf::remove_entries:
+  - PermitRootLogin
+  - GSSAPIAuthentication
