@@ -1,3 +1,12 @@
+* Wed Aug 19 2026 Steven Pritchard <steve@sicura.us> - 8.1.0
+- Raise the metadata.json optional dependency upper bounds for
+  simp/vox_selinux and puppet/selinux to < 7.0.0
+- Mark the live OATH-over-SSH login acceptance test pending on EL10: pam_oath
+  cannot create /var/lock/pam_oath.lock from the sshd_session_t domain that
+  OpenSSH 9.9's sshd-session runs in, because the EL10 selinux-policy gave that
+  new domain none of the var_lock_t rules sshd_t still carries
+  (simp/pupmod-simp-ssh#235)
+
 * Mon Jun 08 2026 Steven Pritchard <steven.pritchard@gmail.com> - 8.0.0
 - Switch `requirements` from `puppet` to `openvox` (>= 8 < 9)
 - Point `issues_url` at GitHub Issues
