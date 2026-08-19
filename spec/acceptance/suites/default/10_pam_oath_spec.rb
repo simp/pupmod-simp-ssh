@@ -111,16 +111,44 @@ describe 'ssh check oath' do
         end
 
         it 'check that the test user can ssh' do
-          # On EL8 and EL9 a live OATH login over SSH is rejected even though
-          # the OATH configuration is correct and the full /etc/pam.d/sshd
-          # stack accepts the same token when driven directly (verified via
-          # pamtester): the token delivered through sshd's keyboard-interactive
-          # channel is not accepted (users.oath never records it). This is a
-          # pam_oath/sshd keyboard-interactive transport issue on EL8/EL9
-          # (EL10 works), not a module defect.
+          # This example is pending on every currently supported EL release, for
+          # two distinct reasons:
+          #
+          # EL8/EL9: a live OATH login over SSH is rejected even though the OATH
+          # configuration is correct and the full /etc/pam.d/sshd stack accepts
+          # the same token when driven directly (verified via pamtester): the
+          # token delivered through sshd's keyboard-interactive channel is not
+          # accepted (users.oath never records it).
           # See https://github.com/simp/pupmod-simp-ssh/issues/222
+          #
+          # EL10: pam_oath cannot create its lock file. pam_oath >= 2.6.12 (the
+          # CVE-2024-47191 rework) takes a lock at /var/lock/pam_oath.lock
+          # before updating the usersfile, and fails the authentication if it
+          # cannot. OpenSSH 9.9 runs each session -- including the PAM auth
+          # conversation -- as sshd-session, which the EL10 policy confines in
+          # the new sshd_session_t domain. sshd_t still carries
+          # `allow sshd_t var_lock_t:dir { add_name remove_name write }` and the
+          # matching file rules, but sshd_session_t was never given them, so the
+          # create is denied:
+          #
+          #   avc: denied { write } for comm="sshd-session" name="lock"
+          #        scontext=...:sshd_session_t tcontext=...:var_lock_t tclass=dir
+          #
+          # Confirmed on AlmaLinux 10 (selinux-policy 42.1.18-4.el10_2.3,
+          # openssh 9.9p1-25, pam_oath 2.6.12-1): the login succeeds under
+          # `setenforce 0`, and under enforcing once pam_oath is pointed at a
+          # lock file the login domain may write. This is an selinux-policy
+          # regression in the sshd-session domain split, not a module defect --
+          # nothing in this module or in vox_selinux changed. The durable fix
+          # belongs on the pam_oath side (mutable OATH state and its lock
+          # relabelled into /var/lib, where the login_pgm attribute already
+          # grants full var_auth_t management); it is deferred until after the
+          # blast-radius refactor in #220 lands.
+          # See https://github.com/simp/pupmod-simp-ssh/issues/235
           if fact_on(server, 'os.release.major').to_i <= 9
             pending('OATH keyboard-interactive login over SSH fails on EL8/EL9 (see issue #222)')
+          else
+            pending('pam_oath cannot create /var/lock/pam_oath.lock from sshd_session_t on EL10 (see issue #235)')
           end
           on(client, "/usr/local/bin/oath_ssh_test_script #{test_user} #{oath_key} #{password} #{os}-server")
         end
