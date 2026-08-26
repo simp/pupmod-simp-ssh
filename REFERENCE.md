@@ -431,9 +431,12 @@ Default value: `undef`
 
 Data type: `Optional[Boolean]`
 
-Specifies whether user authentication based on GSSAPI is allowed. If the
-system is connected to an IPA domain, this will be default to true, based
-on the existance of the `ipa` fact.
+Specifies whether user authentication based on GSSAPI is allowed.
+
+* When unset, no `GSSAPIAuthentication` entry is managed.  This module no
+  longer auto-enables GSSAPI on IPA-joined hosts, and the `simp:defaults`
+  profile deliberately leaves this unmanaged so enabling it cannot break
+  Kerberos SSO — IPA sites should set this to `true` explicitly.
 
 Default value: `undef`
 
@@ -528,8 +531,10 @@ Data type: `Optional[Boolean]`
 
 Specifies whether password authentication is allowed on the sshd server.
 
-* This setting must be managed by default so that switching to and from
-  OATH does not lock you out of your system.
+* When unset, no `PasswordAuthentication` entry is managed — unless
+  `$oath` is set: enabling OATH forces this to `no`, and *explicitly*
+  setting `oath: false` forces it back on (defaulting to `yes`) so that
+  switching to and from OATH cannot lock you out of your system.
 
 Default value: `undef`
 
@@ -642,18 +647,26 @@ Data type: `Boolean`
 Flag indicating whether or not to manage the pam stack for sshd. This is
 required for the oath option to work properly.
 
-Default value: `$oath`
+* Managed independently of `$usepam`, which only controls the `UsePAM`
+  entry in `sshd_config`.
+
+Default value: `pick($oath, false)`
 
 ##### <a name="-ssh--server--conf--oath"></a>`oath`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 **EXPERIMENTAL FEATURE**
 Configures ssh to use pam_oath TOTP in the sshd pam stack.
-Also configures sshd_config to use required settings. Inherits from
-simp_options::oath, defaults to false if not found.
+Also configures sshd_config to use required settings.
 
-Default value: `false`
+* When unset, OATH is not configured and nothing is forced.  Set `true`
+  to enable (forces `UsePAM` and `ChallengeResponseAuthentication` on and
+  `PasswordAuthentication` off); set `false` explicitly when disabling a
+  previously enabled OATH setup so password authentication is restored
+  (see `$passwordauthentication`).
+
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--oath_window"></a>`oath_window`
 

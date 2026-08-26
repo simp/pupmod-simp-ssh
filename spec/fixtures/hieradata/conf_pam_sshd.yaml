@@ -1,0 +1,3 @@
+---
+# manage_pam_sshd on its own (no usepam/oath) must still manage the pam stack.
+ssh::server::conf::manage_pam_sshd: true

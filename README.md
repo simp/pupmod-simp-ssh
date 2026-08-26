@@ -11,6 +11,7 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Module Description](#module-description)
+* [Breaking changes in 9.0.0](#breaking-changes-in-900)
 * [Setup](#setup)
   * [What ssh affects](#what-ssh-affects)
   * [Setup requirements](#setup-requirements)
@@ -62,6 +63,15 @@ now opt-in:
 - The `simp_options::*` lookups are gone, along with the server-side
   FIPS/version cipher auto-detection and the `ssh::server::conf::fips`,
   `enable_fallback_ciphers`, and `fallback_ciphers` parameters.
+- **IPA-joined hosts:** the automatic `GSSAPIAuthentication yes` (driven by
+  the `ipa` fact) is gone, and the `simp:defaults` profile deliberately leaves
+  `GSSAPIAuthentication` unmanaged so it cannot break Kerberos SSO. If your
+  users log in via Kerberos/GSSAPI, set
+  `ssh::server::conf::gssapiauthentication: true` explicitly.
+- **OATH:** `ssh::server::conf::oath` now defaults to unset. Enabling it still
+  forces `PasswordAuthentication no`; when you later disable it, set
+  `oath: false` *explicitly* (rather than removing the key) so the module
+  restores `PasswordAuthentication` and you are not locked out.
 
 There are **two ways to restore the previous behavior**:
 
@@ -344,44 +354,38 @@ Note: including `ssh::client` directly would still manage the SSH client
 
 ### Managing SSH ciphers
 
-Unless instructed otherwise, the `ssh::` classes select ciphers based on the OS
-environment (the OS version, the version of the SSH server, whether [FIPS
-mode][fips_mode] is enabled, etc).
-
 #### Server ciphers
 
-<!--
-   Maintainers: You can validate these examples by setting the environment
-   variable `SIMP_SSH_report_dir` to a valid directory path while running
-   the acceptance tests in spec/acceptance/suites/default/ssh_spec.rb.
--->
+As of 9.0.0, the server classes no longer auto-select ciphers: when
+`ssh::server::conf::ciphers`, `ssh::server::conf::macs`, or
+`ssh::server::conf::kex_algorithms` are unset, no corresponding `sshd_config`
+line is managed and the OpenSSH/crypto-policy defaults apply. (The old
+FIPS/version auto-detection and the `ssh::server::conf::fips`,
+`enable_fallback_ciphers`, and `fallback_ciphers` parameters were removed —
+see [Breaking changes in 9.0.0](#breaking-changes-in-900).)
 
-At the time of 6.4.0, the default ciphers for `ssh::server` on EL7 when FIPS
-mode is _disabled_ are:
+To manage them, either set the parameters explicitly:
 
-- `aes256-gcm@openssh.com`
-- `aes128-gcm@openssh.com`
-- `aes256-ctr`
-- `aes192-ctr`
-- `aes128-ctr`
+```yaml
+ssh::server::conf::ciphers:
+  - aes256-gcm@openssh.com
+  - aes128-gcm@openssh.com
+  - aes256-ctr
+  - aes192-ctr
+  - aes128-ctr
+```
 
-There are also 'fallback' ciphers, which are required in order to communicate
-with systems that are compliant with [FIPS-140-2][fips140_2].  These are
-_always_ included by default unless the parameter
-`ssh::server::conf::enable_fallback_ciphers` is set to `false`:
-
-- `aes256-ctr`
-- `aes192-ctr`
-- `aes128-ctr`
-
-At the time of 6.4.0, the 'fallback' ciphers are the default ciphers for
-`ssh::server` on EL7 when FIPS mode is enabled and EL6 in either mode.
-
+or enable the `simp:defaults` profile, which supplies the strong, FIPS-aware
+cipher/MAC/key-exchange sets the module used to auto-detect (the profile
+selects the FIPS or non-FIPS variant based on the node's [FIPS
+mode][fips_mode] via a `fips_enabled` confine).
 
 #### Client ciphers
 
-By default, the system client ciphers in `/etc/ssh/ssh_config` are configured
-to strong ciphers that are recommended for use.
+When the default `Host *` entry is managed (`ssh::client::add_default_entry:
+true`, or any `ssh::client::host_config_entry`), the client ciphers in
+`/etc/ssh/ssh_config` are configured to strong ciphers that are recommended
+for use.
 
 If you need to connect to a system that does not support these ciphers but uses
 older or weaker ciphers, you should either:

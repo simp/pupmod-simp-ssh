@@ -579,8 +579,12 @@ define ssh::client::host_config_entry (
   }
 
   # The following options have been removed in openssh 8.0.
-  # `pick` guards against an absent `openssh_version` fact (noop-safety).
-  if versioncmp(pick($facts['openssh_version'], '0'), '8.0') <  0 {
+  # `pick` guards against an absent `openssh_version` fact (noop-safety, i.e.
+  # openssh not yet installed).  The fallback assumes a *modern* openssh —
+  # every supported platform ships >= 8.0 — so the first converge on a bare
+  # node takes the `absent` branch and stays idempotent instead of writing
+  # long-removed options it would delete on the second run.
+  if versioncmp(pick($facts['openssh_version'], '99'), '8.0') <  0 {
     $_ensure = 'present'
   } else {
     $_ensure = 'absent'

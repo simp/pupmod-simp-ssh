@@ -81,11 +81,11 @@ checks:
     settings:
       parameter: ssh::server::conf::compression
       value: delayed
-  simp:defaults.ssh.gssapiauthentication:
-    type: puppet-class-parameter
-    settings:
-      parameter: ssh::server::conf::gssapiauthentication
-      value: false
+  # NOTE: no `gssapiauthentication` check, deliberately.  The old default was
+  # IPA-aware (`true` on IPA-joined hosts, `false` otherwise); pinning either
+  # value here would disable Kerberos SSO on IPA hosts or weaken everyone
+  # else, so the profile leaves `GSSAPIAuthentication` unmanaged.  IPA sites
+  # should set `ssh::server::conf::gssapiauthentication: true` in site Hiera.
   simp:defaults.ssh.hostbasedauthentication:
     type: puppet-class-parameter
     settings:
@@ -268,11 +268,8 @@ checks:
     confine:
       fips_enabled: true
 
-  # --- Version-dependent: only valid on EL7 (openssh < 7.5) ---
-  simp:defaults.ssh.useprivilegeseparation.el7:
-    type: puppet-class-parameter
-    settings:
-      parameter: ssh::server::conf::useprivilegeseparation
-      value: sandbox
-    confine:
-      os.release.major: '7'
+  # NOTE: no `useprivilegeseparation` check.  The option only existed on
+  # openssh < 7.5 (EL7), which this module no longer supports; on every
+  # supported platform the pre-9.0.0 code simply removed any stale
+  # `UsePrivilegeSeparation` entry, and that cleanup is intentionally not
+  # restored (a bare include must not edit sshd_config).

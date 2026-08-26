@@ -1,4 +1,5 @@
 ---
+ssh::server::conf::authorizedkeysfile: '/etc/ssh/local_keys/%u'
 ssh::server::conf::banner: '/etc/issue.net'
 ssh::server::conf::permitrootlogin: false
 ssh::server::conf::passwordauthentication: true

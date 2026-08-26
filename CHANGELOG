@@ -1,4 +1,4 @@
-* Tue Aug 25 2026 Steven Pritchard <steve@sicura.us> - 9.0.0
+* Wed Aug 26 2026 Steven Pritchard <steve@sicura.us> - 9.0.0
 - BREAKING: Drastically reduce the blast radius of `include ssh`. A bare
   include now installs the `openssh-server`/`openssh-clients` packages and
   manages only the `/etc/ssh` directory. Everything that used to happen
@@ -33,6 +33,23 @@
   guards to the `ssh::autokey` and `ssh::global_known_hosts` functions and the
   `sshkey_prune` provider (a fuller rewrite of those into noop-honoring
   resources remains a future follow-up).
+- Review fixes:
+  - Toggling OATH off (`ssh::server::conf::oath: false`, explicitly) now
+    forces `PasswordAuthentication` back on so the toggle cannot cause a
+    lockout; `oath` now defaults to unset, which forces nothing.
+  - `/etc/ssh/local_keys` is now created whenever `authorizedkeysfile` is set
+    (instead of only under service management), so pointing sshd at the
+    central location cannot break key-based logins.
+  - `manage_pam_sshd` now works independently of `usepam`.
+  - The `simp:defaults` profile no longer pins `GSSAPIAuthentication no`
+    (the old default was IPA-aware; pinning would break Kerberos SSO on
+    IPA-joined hosts) and no longer ships the dead EL7-only
+    `UsePrivilegeSeparation` check.
+  - `ssh::client::host_config_entry` now assumes a modern openssh when the
+    `openssh_version` fact is absent, keeping the first converge idempotent.
+  - Added a profile/manifest parity spec driven by the profile's own check
+    list; updated the README cipher documentation for the removed
+    auto-detection.
 
 * Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 8.1.1
 - [puppetsync] Update metadata.json dependency ranges from the Forge

@@ -50,10 +50,58 @@ describe 'ssh::server::conf' do
     it { is_expected.to contain_sshd_config('Protocol').with_value('2') }
     it { is_expected.to contain_sshd_config_subsystem('sftp').with_command('/usr/libexec/openssh/sftp-server') }
 
+    # Pointing sshd at the central key location must also create it —
+    # AuthorizedKeysFile is absolute (no ~/.ssh fallback), so an entry without
+    # the directory breaks every key-based login.  Note service management is
+    # NOT requested in this context.
+    it { is_expected.to contain_sshd_config('AuthorizedKeysFile').with_value('/etc/ssh/local_keys/%u') }
+    it { is_expected.to contain_file('/etc/ssh/local_keys').with_ensure('directory') }
+
     # Settings that were left unset declare no resource.
     it { is_expected.not_to contain_sshd_config('ListenAddress') }
     it { is_expected.not_to contain_sshd_config('LogLevel') }
     it { is_expected.not_to contain_sshd_config('AllowGroups') }
+  end
+
+  # Toggling OATH must never strand `PasswordAuthentication no`: enabling
+  # forces it off, and *explicitly* disabling forces it back on (the OATH PAM
+  # stack disappears at the same time, so both auth paths would close at once).
+  context 'OATH toggle safety' do
+    context 'with oath=true' do
+      let(:facts) { base_facts.merge(custom_hiera: 'conf_oath') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('PasswordAuthentication').with_value('no') }
+      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('yes') }
+      it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
+      it { is_expected.to contain_file('/etc/pam.d/sshd') }
+    end
+
+    context 'with oath explicitly false' do
+      let(:facts) { base_facts.merge(custom_hiera: 'conf_oath_false') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('PasswordAuthentication').with_value('yes') }
+      it { is_expected.not_to contain_file('/etc/pam.d/sshd') }
+    end
+
+    context 'with oath unset' do
+      let(:facts) { base_facts.merge(custom_hiera: 'none') }
+
+      # Nothing is forced (reduced blast radius).
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.not_to contain_sshd_config('PasswordAuthentication') }
+    end
+  end
+
+  # manage_pam_sshd works on its own; usepam only controls the sshd_config
+  # UsePAM entry.
+  context 'with manage_pam_sshd alone' do
+    let(:facts) { base_facts.merge(custom_hiera: 'conf_pam_sshd') }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.to contain_file('/etc/pam.d/sshd') }
+    it { is_expected.not_to contain_sshd_config('UsePAM') }
   end
 
   context 'with remove_entries' do

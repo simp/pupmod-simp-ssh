@@ -1,11 +1,21 @@
 ---
-# The `simp:defaults` profile is a drop-in restoration of the pre-9.0.0
-# `pupmod-simp-ssh` behavior.  Enabling it
+# The `simp:defaults` profile restores the pre-9.0.0 `pupmod-simp-ssh`
+# behavior *as deployed on a typical SIMP site*.  Enabling it
 # (`compliance_engine::enforcement: [simp:defaults]`) re-applies the hardening
-# defaults, manages the `sshd` service, and re-enables the SIMP integrations
-# (firewall/pki/haveged/tcpwrappers) that a bare `include ssh` used to opt into
-# automatically.  Site Hiera outranks this profile, so a site can enable it and
-# override individual keys for an "old behavior, but safer" posture.
+# defaults, manages the `sshd` service, and enables the SIMP integrations
+# (firewall/pki/haveged/tcpwrappers).
+#
+# Note that the four integration checks pin the typical SIMP-site value, not
+# the old module default: those parameters used to follow `simp_options::*`
+# (default *false*), so on a site that never set `simp_options::*` this
+# profile *adds* iptables rules, tcpwrappers entries, haveged, and SIMP PKI
+# cert management (including replacing the RSA host key with the SIMP PKI
+# key) rather than restoring anything.  `GSSAPIAuthentication` is deliberately
+# left unmanaged (the old default was IPA-aware; see checks.yaml).
+#
+# Site Hiera outranks this profile, so a site can enable it and override
+# individual keys (e.g. `ssh::server::conf::pki: false`) for an "old
+# behavior, but safer" posture.
 version: 2.0.0
 profiles:
   simp:defaults:
@@ -21,7 +31,6 @@ profiles:
       simp:defaults.ssh.clientalivecountmax: true
       simp:defaults.ssh.clientaliveinterval: true
       simp:defaults.ssh.compression: true
-      simp:defaults.ssh.gssapiauthentication: true
       simp:defaults.ssh.hostbasedauthentication: true
       simp:defaults.ssh.ignorerhosts: true
       simp:defaults.ssh.ignoreuserknownhosts: true
@@ -50,4 +59,3 @@ profiles:
       simp:defaults.ssh.macs.fips: true
       simp:defaults.ssh.kex_algorithms.non_fips: true
       simp:defaults.ssh.kex_algorithms.fips: true
-      simp:defaults.ssh.useprivilegeseparation.el7: true

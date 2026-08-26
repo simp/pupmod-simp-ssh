@@ -63,9 +63,12 @@
 #   whose name matches one of the patterns.
 #
 # @param gssapiauthentication
-#   Specifies whether user authentication based on GSSAPI is allowed. If the
-#   system is connected to an IPA domain, this will be default to true, based
-#   on the existance of the `ipa` fact.
+#   Specifies whether user authentication based on GSSAPI is allowed.
+#
+#   * When unset, no `GSSAPIAuthentication` entry is managed.  This module no
+#     longer auto-enables GSSAPI on IPA-joined hosts, and the `simp:defaults`
+#     profile deliberately leaves this unmanaged so enabling it cannot break
+#     Kerberos SSO — IPA sites should set this to `true` explicitly.
 #
 # @param hostbasedauthentication
 #   @see man page for sshd_config
@@ -105,8 +108,10 @@
 # @param passwordauthentication
 #   Specifies whether password authentication is allowed on the sshd server.
 #
-#   * This setting must be managed by default so that switching to and from
-#     OATH does not lock you out of your system.
+#   * When unset, no `PasswordAuthentication` entry is managed — unless
+#     `$oath` is set: enabling OATH forces this to `no`, and *explicitly*
+#     setting `oath: false` forces it back on (defaulting to `yes`) so that
+#     switching to and from OATH cannot lock you out of your system.
 #
 # @param permitemptypasswords
 #   When password authentication is allowed, it specifies whether the server
@@ -154,11 +159,19 @@
 #   Flag indicating whether or not to manage the pam stack for sshd. This is
 #   required for the oath option to work properly.
 #
+#   * Managed independently of `$usepam`, which only controls the `UsePAM`
+#     entry in `sshd_config`.
+#
 # @param oath
 #   **EXPERIMENTAL FEATURE**
 #   Configures ssh to use pam_oath TOTP in the sshd pam stack.
-#   Also configures sshd_config to use required settings. Inherits from
-#   simp_options::oath, defaults to false if not found.
+#   Also configures sshd_config to use required settings.
+#
+#   * When unset, OATH is not configured and nothing is forced.  Set `true`
+#     to enable (forces `UsePAM` and `ChallengeResponseAuthentication` on and
+#     `PasswordAuthentication` off); set `false` explicitly when disabling a
+#     previously enabled OATH setup so password authentication is restored
+#     (see `$passwordauthentication`).
 #
 # @param oath_window
 #   Sets the TOTP window (Defined in RFC 6238 section 5.2)
@@ -297,8 +310,8 @@ class ssh::server::conf (
   Boolean                                                $firewall                        = false,
   Boolean                                                $haveged                         = false,
   Boolean                                                $ldap                            = false,
-  Boolean                                                $oath                            = false,
-  Boolean                                                $manage_pam_sshd                 = $oath,
+  Optional[Boolean]                                      $oath                            = undef,
+  Boolean                                                $manage_pam_sshd                 = pick($oath, false),
   Integer[0]                                             $oath_window                     = 1,
   Variant[Enum['simp'],Boolean]                          $pki                             = false,
   Boolean                                                $sssd                            = false,
@@ -353,12 +366,18 @@ class ssh::server::conf (
   }
 
   # OATH (when enabled) forces challenge/response on and password auth off.
+  # An *explicit* `oath => false` forces password authentication back on
+  # (unless the site set it) so that toggling OATH off cannot strand the
+  # `PasswordAuthentication no` written while OATH was enabled — the OATH PAM
+  # stack disappears at the same time, which would close both auth paths at
+  # once.  When `$oath` is unset, nothing is forced (reduced blast radius).
   $_challengeresponseauthentication = $oath ? {
     true    => true,
     default => $challengeresponseauthentication,
   }
   $_passwordauthentication = $oath ? {
     true    => false,
+    false   => pick($passwordauthentication, true),
     default => $passwordauthentication,
   }
   $_usepam = $oath ? {
@@ -384,18 +403,19 @@ class ssh::server::conf (
     $_protocol = undef
   }
 
-  if $_usepam {
-    if $oath {
-      simplib::assert_optional_dependency($module_name, 'simp/oath')
+  if $oath {
+    simplib::assert_optional_dependency($module_name, 'simp/oath')
 
-      include 'oath'
-    }
+    include 'oath'
+  }
 
-    if $manage_pam_sshd {
-      file { '/etc/pam.d/sshd':
-        ensure  => file,
-        content => epp('ssh/etc/pam.d/sshd.epp'),
-      }
+  # Managed independently of `$_usepam` so that `manage_pam_sshd: true` on its
+  # own does what its name says; `$usepam` only controls the sshd_config
+  # `UsePAM` entry.  (OATH forces `$_usepam` on, so the OATH path is unchanged.)
+  if $manage_pam_sshd {
+    file { '/etc/pam.d/sshd':
+      ensure  => file,
+      content => epp('ssh/etc/pam.d/sshd.epp'),
     }
   }
 
@@ -411,7 +431,7 @@ class ssh::server::conf (
   # when it is managed it already subscribes to this class.
   if versioncmp($facts['os']['release']['major'], '9') >= 0 {
     file { '/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf':
-      ensure                  => bool2str($oath, 'file', 'absent'),
+      ensure                  => bool2str(pick($oath, false), 'file', 'absent'),
       owner                   => 'root',
       group                   => 'root',
       mode                    => '0600',
@@ -430,7 +450,13 @@ class ssh::server::conf (
       selinux_ignore_defaults => true,
       require                 => Package['openssh-server'],
     }
+  }
 
+  # The central key directory is tied to the parameter that points sshd at it,
+  # not to service management: `AuthorizedKeysFile` takes no fallback to
+  # `~/.ssh/authorized_keys`, so emitting the entry without creating the
+  # directory would break every key-based login.
+  if $manage_authorizedkeysfile and ($authorizedkeysfile =~ NotUndef) {
     file { '/etc/ssh/local_keys':
       ensure  => 'directory',
       owner   => 'root',

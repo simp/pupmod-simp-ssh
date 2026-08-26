@@ -1,7 +1,8 @@
 require 'spec_helper'
+require 'yaml'
 
 # Proves that enabling the bundled `simp:defaults` compliance_engine profile
-# restores the pre-8.0.0 behavior of `include ssh` (service management,
+# restores the pre-9.0.0 behavior of `include ssh` (service management,
 # hardening defaults, FIPS-aware crypto, and the SIMP integrations).
 describe 'ssh' do
   let(:hiera_config) do
@@ -61,10 +62,9 @@ describe 'ssh' do
         it { is_expected.to contain_class('haveged') }
         it { is_expected.to create_pki__copy('sshd') }
 
-        # UsePrivilegeSeparation is only valid on EL7 (confined in the profile)
-        if os.split('-')[1] == '7'
-          it { is_expected.to contain_sshd_config('UsePrivilegeSeparation').with_value('sandbox') }
-        end
+        # Deliberately unmanaged by the profile: the old default was IPA-aware,
+        # so pinning either value would be wrong for someone (see checks.yaml).
+        it { is_expected.not_to contain_sshd_config('GSSAPIAuthentication') }
       end
     end
   end
@@ -106,5 +106,47 @@ describe 'ssh' do
     # The site Hiera value (permitrootlogin: true) sits above the profile, so it
     # must win.  This guards that the profile is at *middle* Hiera priority.
     it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('yes') }
+  end
+
+  # Parity guard: every check the profile ships must actually reach its class
+  # parameter under enforcement.  Iterating the profile's own check list keeps
+  # checks.yaml and the manifests honest with each other — a check whose
+  # parameter is renamed/removed, or whose value stops resolving, fails here
+  # instead of drifting silently.  (The converse — a *new* parameter gaining a
+  # non-undef default without a profile check — is prevented by policy: 9.0.0
+  # defaults everything to undef.)
+  context 'profile/manifest parity' do
+    profile_checks = YAML.safe_load(
+      File.read(File.expand_path('../../SIMP/compliance_profiles/checks.yaml', __dir__)),
+    )['checks']
+
+    { false => 'non-FIPS', true => 'FIPS' }.each do |fips, label|
+      context "under #{label} enforcement" do
+        let(:os_facts) { on_supported_os.first.last }
+        let(:facts) do
+          os_facts.merge(
+            openssh_version: '8.0',
+            timezone_file: '/etc/localtime',
+            fips_enabled: fips,
+            custom_hiera: 'simp_defaults_enforced',
+          )
+        end
+
+        applicable = profile_checks.select do |_name, check|
+          confine = check['confine']
+          confine.nil? || confine == { 'fips_enabled' => fips }
+        end
+
+        applicable.each do |name, check|
+          param_path = check['settings']['parameter']
+          value = check['settings']['value']
+          klass, _sep, param = param_path.rpartition('::')
+
+          it "pins #{param_path} to the profile value (#{name})" do
+            expect(subject).to contain_class(klass).with(param => value)
+          end
+        end
+      end
+    end
   end
 end

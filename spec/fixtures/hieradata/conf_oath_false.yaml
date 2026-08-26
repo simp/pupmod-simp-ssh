@@ -1,0 +1,4 @@
+---
+# OATH *explicitly* disabled (as opposed to unset): the module must restore
+# password authentication so the toggle cannot cause a lockout.
+ssh::server::conf::oath: false
