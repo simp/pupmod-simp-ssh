@@ -85,6 +85,15 @@ describe 'ssh::server::conf' do
       it { is_expected.not_to contain_file('/etc/pam.d/sshd') }
     end
 
+    context 'with oath explicitly false and passwordauthentication explicitly false' do
+      let(:facts) { base_facts.merge(custom_hiera: 'conf_oath_false_pwfalse') }
+
+      # The toggle-safety default is `yes`, but an explicit site value wins
+      # (stdlib `pick` only skips undef, not false).
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('PasswordAuthentication').with_value('no') }
+    end
+
     context 'with oath unset' do
       let(:facts) { base_facts.merge(custom_hiera: 'none') }
 
