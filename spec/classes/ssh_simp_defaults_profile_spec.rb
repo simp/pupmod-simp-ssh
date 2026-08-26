@@ -138,12 +138,9 @@ describe 'ssh' do
         end
 
         applicable.each do |name, check|
-          param_path = check['settings']['parameter']
-          value = check['settings']['value']
-          klass, _sep, param = param_path.rpartition('::')
-
-          it "pins #{param_path} to the profile value (#{name})" do
-            expect(subject).to contain_class(klass).with(param => value)
+          it "pins #{check['settings']['parameter']} to the profile value (#{name})" do
+            klass, _sep, param = check['settings']['parameter'].rpartition('::')
+            is_expected.to contain_class(klass).with(param => check['settings']['value'])
           end
         end
       end
