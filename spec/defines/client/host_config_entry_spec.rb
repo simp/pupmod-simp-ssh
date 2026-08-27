@@ -283,7 +283,7 @@ describe 'ssh::client::host_config_entry' do
         end
 
         example_protocol_sets.each do |example_protocol_set|
-          context "with protocol = #{example_protocol_set}, simp_options::fips = true, and fips_enabled = false" do
+          context "with protocol = #{example_protocol_set}, ssh::client::fips = true, and fips_enabled = false" do
             #  haveged__rngd_enabled is set as workaround for containers in gitlab
             let(:facts) do
               os_facts.merge(
@@ -292,7 +292,7 @@ describe 'ssh::client::host_config_entry' do
               )
             end
             let(:params) { { protocol: example_protocol_set } }
-            let(:hieradata) { 'global_catalysts_enabled' }
+            let(:hieradata) { 'ssh_client_fips' }
 
             # This works for a defined type because APL isn't hit.
             let(:hiera_data) { { invalidate: 'cache' } }

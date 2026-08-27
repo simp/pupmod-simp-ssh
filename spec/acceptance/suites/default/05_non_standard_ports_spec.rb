@@ -23,10 +23,21 @@ describe 'ssh class' do
     {
       'simp_options::trusted_nets'                => ['ALL'],
       'simp_options::firewall'                    => manage_firewall,
+      # 9.0.0 removed the simp_options seams from ssh::server::conf, so the
+      # simp_options::firewall key above no longer reaches the ssh module (it
+      # is kept for the iptables stack); opt in to firewall management directly.
+      'ssh::server::conf::firewall'               => manage_firewall,
+      # Opt in to service management so sshd restarts to bind the
+      # non-standard ports; otherwise the running daemon never sees them.
+      'ssh::server::service_ensure'               => 'running',
+      'ssh::server::service_enable'               => true,
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
       'ssh::server::conf::port'                   => target_ports,
+      # The key-login tests plant keys in the (formerly default, now opt-in)
+      # central authorized-keys location.
+      'ssh::server::conf::authorizedkeysfile'     => '/etc/ssh/local_keys/%u',
     }
   end
 
