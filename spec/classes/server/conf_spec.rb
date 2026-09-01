@@ -137,6 +137,14 @@ describe 'ssh::server::conf' do
     }
     # The main-file resource namespace is untouched.
     it { is_expected.not_to contain_sshd_config('X11Forwarding') }
+
+    # An entry-supplied `require` is merged with -- never replaces -- the
+    # package dependency.
+    it {
+      is_expected.to contain_sshd_config('50-redhat PrintMotd')
+        .that_requires('Package[openssh-server]')
+        .that_requires('File[/etc/ssh]')
+    }
   end
 
   context 'with remove_entries' do

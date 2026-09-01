@@ -175,22 +175,25 @@ each value is a hash of attributes for the ``ssh_config`` type from
 ``augeasproviders_ssh``, applied without validation.
 
 This exposes the full type through Hiera — most notably ``target``, which
-manages a keyword inside a drop-in file.  That is the supported way to
-control a setting the vendor pre-sets under ``/etc/ssh/ssh_config.d/``
-(``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+): ssh ``Include``s
-that directory at the *top* of ``ssh_config`` and uses the first obtained
-value, so a drop-in can silently override entries in the main file.
+manages a keyword inside a drop-in file.  The ``ssh_config`` type only
+manages ``Host`` blocks (``host`` defaults to ``*``); it cannot edit the
+``Match final all`` block that wraps the vendor client drop-ins
+(``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+).  ssh applies a
+``Match final`` block in a final pass, and only for options nothing else
+has set — so the reliable way to pin a client option is a drop-in of your
+own that ssh reads *before* the vendor's: the first obtained value wins.
+Do not point entries at the vendor files themselves.
 
-* Each resource requires ``Package['openssh-clients']`` unless the entry
-  provides its own ``require``.
+* Each resource requires ``Package['openssh-clients']`` in addition to
+  any ``require`` the entry provides.
 
-@example Disable GSSAPIAuthentication in the vendor drop-in on EL9+
+@example Disable GSSAPIAuthentication ahead of the vendor drop-in
   ---
   ssh::client::ssh_config_entries:
-    '50-redhat GSSAPIAuthentication':
+    'simp GSSAPIAuthentication':
       key: 'GSSAPIAuthentication'
       value: 'no'
-      target: '/etc/ssh/ssh_config.d/50-redhat.conf'
+      target: '/etc/ssh/ssh_config.d/00-simp.conf'
 
 Default value: `{}`
 
@@ -762,8 +765,8 @@ main file.
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
-* Each resource requires ``Package['openssh-server']`` unless the entry
-  provides its own ``require``.
+* Each resource requires ``Package['openssh-server']`` in addition to any
+  ``require`` the entry provides.
 * When service management is enabled, changes trigger an sshd restart via
   the service's existing subscription to this class; with an unmanaged
   service nothing is restarted.

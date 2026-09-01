@@ -3,11 +3,17 @@
   `ssh::client::ssh_config_entries`: Hiera-exposed hashes of raw
   `sshd_config`/`ssh_config` resources (augeasproviders_ssh), giving data
   access to the full types — most notably `target`, to manage keywords inside
-  vendor drop-in files (`/etc/ssh/sshd_config.d/50-redhat.conf`,
-  `/etc/ssh/ssh_config.d/*.conf`) that override the main config files via
-  first-match-wins on EL9+. Entries are package-gated, and server entries are
-  declared inside `ssh::server::conf` so a managed sshd restarts on change
-  through its existing class subscription; nothing changes on a bare include.
+  drop-in files. On the server this reaches the vendor
+  `/etc/ssh/sshd_config.d/50-redhat.conf`, which overrides the main
+  sshd_config via first-obtained-value on EL9+ (or a drop-in of your own that
+  sorts before it). On the client, the vendor drop-ins wrap their settings in
+  `Match final all` (applied last, only for still-unset options) and the
+  `ssh_config` type only manages `Host` blocks — so manage a drop-in of your
+  own that ssh reads first instead of pointing entries at the vendor file.
+  Each entry's `require` is merged with (never replaces) the openssh package
+  dependency. Server entries are declared inside `ssh::server::conf` so a
+  managed sshd restarts on change through its existing class subscription;
+  nothing changes on a bare include.
 
 * Wed Aug 26 2026 Steven Pritchard <steve@sicura.us> - 9.0.0
 - BREAKING: Drastically reduce the blast radius of `include ssh`. A bare

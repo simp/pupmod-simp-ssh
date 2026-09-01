@@ -22,22 +22,25 @@
 #   ``augeasproviders_ssh``, applied without validation.
 #
 #   This exposes the full type through Hiera — most notably ``target``, which
-#   manages a keyword inside a drop-in file.  That is the supported way to
-#   control a setting the vendor pre-sets under ``/etc/ssh/ssh_config.d/``
-#   (``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+): ssh ``Include``s
-#   that directory at the *top* of ``ssh_config`` and uses the first obtained
-#   value, so a drop-in can silently override entries in the main file.
+#   manages a keyword inside a drop-in file.  The ``ssh_config`` type only
+#   manages ``Host`` blocks (``host`` defaults to ``*``); it cannot edit the
+#   ``Match final all`` block that wraps the vendor client drop-ins
+#   (``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+).  ssh applies a
+#   ``Match final`` block in a final pass, and only for options nothing else
+#   has set — so the reliable way to pin a client option is a drop-in of your
+#   own that ssh reads *before* the vendor's: the first obtained value wins.
+#   Do not point entries at the vendor files themselves.
 #
-#   * Each resource requires ``Package['openssh-clients']`` unless the entry
-#     provides its own ``require``.
+#   * Each resource requires ``Package['openssh-clients']`` in addition to
+#     any ``require`` the entry provides.
 #
-#   @example Disable GSSAPIAuthentication in the vendor drop-in on EL9+
+#   @example Disable GSSAPIAuthentication ahead of the vendor drop-in
 #     ---
 #     ssh::client::ssh_config_entries:
-#       '50-redhat GSSAPIAuthentication':
+#       'simp GSSAPIAuthentication':
 #         key: 'GSSAPIAuthentication'
 #         value: 'no'
-#         target: '/etc/ssh/ssh_config.d/50-redhat.conf'
+#         target: '/etc/ssh/ssh_config.d/00-simp.conf'
 #
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
@@ -78,10 +81,20 @@ class ssh::client (
     include 'haveged'
   }
 
-  # Raw ssh_config resources from Hiera (see the parameter docs).
+  # Raw ssh_config resources from Hiera (see the parameter docs).  Merge
+  # (never replace) the package edge: an entry adding its own ordering
+  # constraint must not lose the guarantee that openssh-clients is installed
+  # before augeas touches its config files.
   $ssh_config_entries.each |$entry_title, $entry_attrs| {
+    if 'require' in $entry_attrs {
+      $_entry_require = [Package['openssh-clients']] + Array($entry_attrs['require'], true)
+    } else {
+      $_entry_require = Package['openssh-clients']
+    }
+
     ssh_config { $entry_title:
-      * => { 'require' => Package['openssh-clients'] } + $entry_attrs,
+      *       => $entry_attrs - ['require'],
+      require => $_entry_require,
     }
   }
 }

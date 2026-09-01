@@ -216,8 +216,8 @@
 #
 #   * Give each entry a title distinct from any module-managed keyword (module
 #     entries use the bare keyword as the title) and set ``key`` explicitly.
-#   * Each resource requires ``Package['openssh-server']`` unless the entry
-#     provides its own ``require``.
+#   * Each resource requires ``Package['openssh-server']`` in addition to any
+#     ``require`` the entry provides.
 #   * When service management is enabled, changes trigger an sshd restart via
 #     the service's existing subscription to this class; with an unmanaged
 #     service nothing is restarted.
@@ -575,8 +575,18 @@ class ssh::server::conf (
   # existing subscription; an unmanaged service is neither referenced nor
   # restarted.
   $sshd_config_entries.each |$entry_title, $entry_attrs| {
+    # Merge (never replace) the package edge: an entry adding its own ordering
+    # constraint must not lose the guarantee that openssh-server is installed
+    # before augeas touches its config files.
+    if 'require' in $entry_attrs {
+      $_entry_require = [Package['openssh-server']] + Array($entry_attrs['require'], true)
+    } else {
+      $_entry_require = Package['openssh-server']
+    }
+
     sshd_config { $entry_title:
-      * => { 'require' => Package['openssh-server'] } + $entry_attrs,
+      *       => $entry_attrs - ['require'],
+      require => $_entry_require,
     }
   }
 

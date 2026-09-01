@@ -312,12 +312,34 @@ Give each entry a title distinct from any module-managed keyword (module
 entries use the bare keyword as the title) and set ``key`` explicitly.  When
 the ``sshd`` service is managed, changes trigger a restart through the
 service's subscription to ``ssh::server::conf``; with an unmanaged service
-nothing is restarted.
+nothing is restarted.  Each entry gets a ``require`` on the openssh package
+merged with any ``require`` it declares itself.
+
+Instead of editing the vendor file you may also point entries at a drop-in of
+your own that sorts before it (e.g.
+``target: '/etc/ssh/sshd_config.d/00-simp.conf'`` — augeas creates the file):
+that wins the same first-obtained-value race without modifying vendor content,
+so the next openssh update does not leave an ``.rpmnew`` behind.  Editing the
+vendor file remains supported — some compliance audits check the vendor file's
+own contents, which only an in-place edit satisfies.
 
 The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
-``ssh_config`` resources (e.g. the vendor client drop-ins
-``/etc/ssh/ssh_config.d/05-redhat.conf`` on EL8 and ``50-redhat.conf`` on
-EL9+).
+``ssh_config`` resources.  Note that the vendor *client* drop-ins
+(``/etc/ssh/ssh_config.d/05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+)
+wrap their settings in a ``Match final all`` block, which the ``ssh_config``
+type cannot edit (it only manages ``Host`` blocks) and which ssh applies last,
+only for options nothing else has set.  So on the client, do **not** point
+entries at the vendor file — manage a drop-in of your own that ssh reads
+first, e.g.:
+
+```yaml
+---
+ssh::client::ssh_config_entries:
+  'simp GSSAPIAuthentication':
+    key: 'GSSAPIAuthentication'
+    value: 'no'
+    target: '/etc/ssh/ssh_config.d/00-simp.conf'
+```
 
 ##### Using ``sshd_config``
 
