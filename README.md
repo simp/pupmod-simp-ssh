@@ -288,6 +288,37 @@ options that are allowed for your particular SSH daemon. Invalid options may
 cause the ssh service to fail on restart. Duplicate settings will result in
 duplicate Puppet resources (i.e., manifest compilation failures).
 
+##### Managing settings in drop-in files (``sshd_config.d``)
+
+On EL9+ the vendor ``sshd_config`` ``Include``s ``/etc/ssh/sshd_config.d/*.conf``
+at the *top* of the file, and ``sshd`` uses the first obtained value — so a
+keyword the vendor pre-sets in ``50-redhat.conf`` (``X11Forwarding``,
+``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything this
+module writes to the main file.  To control such a keyword, manage it in the
+drop-in itself with ``ssh::server::conf::sshd_config_entries``, which exposes
+raw [`sshd_config`][aug_ssh__sshd_config] resources (including ``target``)
+through Hiera:
+
+```yaml
+---
+ssh::server::conf::sshd_config_entries:
+  '50-redhat X11Forwarding':
+    key: 'X11Forwarding'
+    value: 'no'
+    target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+```
+
+Give each entry a title distinct from any module-managed keyword (module
+entries use the bare keyword as the title) and set ``key`` explicitly.  When
+the ``sshd`` service is managed, changes trigger a restart through the
+service's subscription to ``ssh::server::conf``; with an unmanaged service
+nothing is restarted.
+
+The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
+``ssh_config`` resources (e.g. the vendor client drop-ins
+``/etc/ssh/ssh_config.d/05-redhat.conf`` on EL8 and ``50-redhat.conf`` on
+EL9+).
+
 ##### Using ``sshd_config``
 
 Prior to version 6.7.0 of the `simp-ssh` module, undefined ``sshd`` settings

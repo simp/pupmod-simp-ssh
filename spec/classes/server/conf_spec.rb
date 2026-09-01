@@ -113,6 +113,32 @@ describe 'ssh::server::conf' do
     it { is_expected.not_to contain_sshd_config('UsePAM') }
   end
 
+  # Raw sshd_config resources from Hiera reach the full type — notably
+  # `target`, for keys the vendor pre-sets in a drop-in that overrides the
+  # main sshd_config (first-match-wins on EL9+).  No notify assertion: like
+  # every other entry in this class, restart-on-change comes from the managed
+  # service's subscription to the whole class.
+  context 'with sshd_config_entries' do
+    let(:facts) { base_facts.merge(custom_hiera: 'conf_sshd_config_entries') }
+
+    it { is_expected.to compile.with_all_deps }
+    it {
+      is_expected.to contain_sshd_config('50-redhat X11Forwarding')
+        .with_key('X11Forwarding')
+        .with_value('no')
+        .with_target('/etc/ssh/sshd_config.d/50-redhat.conf')
+        .that_requires('Package[openssh-server]')
+    }
+    it {
+      is_expected.to contain_sshd_config('50-redhat GSSAPIAuthentication')
+        .with_ensure('absent')
+        .with_key('GSSAPIAuthentication')
+        .with_target('/etc/ssh/sshd_config.d/50-redhat.conf')
+    }
+    # The main-file resource namespace is untouched.
+    it { is_expected.not_to contain_sshd_config('X11Forwarding') }
+  end
+
   context 'with remove_entries' do
     let(:facts) { base_facts.merge(custom_hiera: 'conf_remove') }
 

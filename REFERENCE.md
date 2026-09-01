@@ -131,6 +131,7 @@ The following parameters are available in the `ssh::client` class:
 * [`fips`](#-ssh--client--fips)
 * [`haveged`](#-ssh--client--haveged)
 * [`package_ensure`](#-ssh--client--package_ensure)
+* [`ssh_config_entries`](#-ssh--client--ssh_config_entries)
 
 ##### <a name="-ssh--client--add_default_entry"></a>`add_default_entry`
 
@@ -164,6 +165,34 @@ Data type: `String`
 The ensure status the openssh-clients package
 
 Default value: `'installed'`
+
+##### <a name="-ssh--client--ssh_config_entries"></a>`ssh_config_entries`
+
+Data type: `Hash[String[1],Hash[String[1],NotUndef]]`
+
+A Hash of raw ``ssh_config`` resources.  Each key is a resource title and
+each value is a hash of attributes for the ``ssh_config`` type from
+``augeasproviders_ssh``, applied without validation.
+
+This exposes the full type through Hiera — most notably ``target``, which
+manages a keyword inside a drop-in file.  That is the supported way to
+control a setting the vendor pre-sets under ``/etc/ssh/ssh_config.d/``
+(``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+): ssh ``Include``s
+that directory at the *top* of ``ssh_config`` and uses the first obtained
+value, so a drop-in can silently override entries in the main file.
+
+* Each resource requires ``Package['openssh-clients']`` unless the entry
+  provides its own ``require``.
+
+@example Disable GSSAPIAuthentication in the vendor drop-in on EL9+
+  ---
+  ssh::client::ssh_config_entries:
+    '50-redhat GSSAPIAuthentication':
+      key: 'GSSAPIAuthentication'
+      value: 'no'
+      target: '/etc/ssh/ssh_config.d/50-redhat.conf'
+
+Default value: `{}`
 
 ### <a name="ssh--client--params"></a>`ssh::client::params`
 
@@ -283,6 +312,7 @@ The following parameters are available in the `ssh::server::conf` class:
 * [`useprivilegeseparation`](#-ssh--server--conf--useprivilegeseparation)
 * [`x11forwarding`](#-ssh--server--conf--x11forwarding)
 * [`custom_entries`](#-ssh--server--conf--custom_entries)
+* [`sshd_config_entries`](#-ssh--server--conf--sshd_config_entries)
 * [`remove_entries`](#-ssh--server--conf--remove_entries)
 * [`remove_subsystems`](#-ssh--server--conf--remove_subsystems)
 * [`app_pki_external_source`](#-ssh--server--conf--app_pki_external_source)
@@ -712,6 +742,41 @@ without any validation.
     AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 
 Default value: `undef`
+
+##### <a name="-ssh--server--conf--sshd_config_entries"></a>`sshd_config_entries`
+
+Data type: `Hash[String[1],Hash[String[1],NotUndef]]`
+
+A Hash of raw ``sshd_config`` resources.  Each key is a resource title and
+each value is a hash of attributes for the ``sshd_config`` type from
+``augeasproviders_ssh``, applied without validation.
+
+Unlike ``$custom_entries`` (bare keyword/value pairs in the default
+``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
+notably ``target``, which manages a keyword inside a drop-in file.  That is
+the supported way to control a setting the vendor pre-sets in
+``/etc/ssh/sshd_config.d/50-redhat.conf`` on EL9+: sshd ``Include``s that
+directory at the *top* of ``sshd_config`` and uses the first obtained
+value, so the drop-in silently overrides anything this class writes to the
+main file.
+
+* Give each entry a title distinct from any module-managed keyword (module
+  entries use the bare keyword as the title) and set ``key`` explicitly.
+* Each resource requires ``Package['openssh-server']`` unless the entry
+  provides its own ``require``.
+* When service management is enabled, changes trigger an sshd restart via
+  the service's existing subscription to this class; with an unmanaged
+  service nothing is restarted.
+
+@example Override the vendor drop-in on EL9+
+  ---
+  ssh::server::conf::sshd_config_entries:
+    '50-redhat X11Forwarding':
+      key: 'X11Forwarding'
+      value: 'no'
+      target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+
+Default value: `{}`
 
 ##### <a name="-ssh--server--conf--remove_entries"></a>`remove_entries`
 

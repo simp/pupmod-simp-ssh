@@ -16,13 +16,37 @@
 #
 # @param package_ensure The ensure status the openssh-clients package
 #
+# @param ssh_config_entries
+#   A Hash of raw ``ssh_config`` resources.  Each key is a resource title and
+#   each value is a hash of attributes for the ``ssh_config`` type from
+#   ``augeasproviders_ssh``, applied without validation.
+#
+#   This exposes the full type through Hiera — most notably ``target``, which
+#   manages a keyword inside a drop-in file.  That is the supported way to
+#   control a setting the vendor pre-sets under ``/etc/ssh/ssh_config.d/``
+#   (``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+): ssh ``Include``s
+#   that directory at the *top* of ``ssh_config`` and uses the first obtained
+#   value, so a drop-in can silently override entries in the main file.
+#
+#   * Each resource requires ``Package['openssh-clients']`` unless the entry
+#     provides its own ``require``.
+#
+#   @example Disable GSSAPIAuthentication in the vendor drop-in on EL9+
+#     ---
+#     ssh::client::ssh_config_entries:
+#       '50-redhat GSSAPIAuthentication':
+#         key: 'GSSAPIAuthentication'
+#         value: 'no'
+#         target: '/etc/ssh/ssh_config.d/50-redhat.conf'
+#
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::client (
-  Boolean $add_default_entry = false,
-  Boolean $haveged           = false,
-  Boolean $fips              = false,
-  String  $package_ensure    = 'installed',
+  Boolean                                  $add_default_entry  = false,
+  Boolean                                  $haveged            = false,
+  Boolean                                  $fips               = false,
+  String                                   $package_ensure     = 'installed',
+  Hash[String[1],Hash[String[1],NotUndef]] $ssh_config_entries = {},
 ) {
   simplib::assert_metadata( $module_name )
 
@@ -52,5 +76,12 @@ class ssh::client (
     simplib::assert_optional_dependency($module_name, 'simp/haveged')
 
     include 'haveged'
+  }
+
+  # Raw ssh_config resources from Hiera (see the parameter docs).
+  $ssh_config_entries.each |$entry_title, $entry_attrs| {
+    ssh_config { $entry_title:
+      * => { 'require' => Package['openssh-clients'] } + $entry_attrs,
+    }
   }
 }

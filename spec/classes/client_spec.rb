@@ -26,6 +26,32 @@ describe 'ssh::client' do
         it { is_expected.to contain_file('/etc/ssh/ssh_known_hosts') }
       end
 
+      context 'with ssh_config_entries' do
+        let(:params) do
+          {
+            ssh_config_entries: {
+              '50-redhat GSSAPIAuthentication' => {
+                'key'    => 'GSSAPIAuthentication',
+                'value'  => 'no',
+                'target' => '/etc/ssh/ssh_config.d/50-redhat.conf',
+              },
+            },
+          }
+        end
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_ssh_config('50-redhat GSSAPIAuthentication')
+            .with_key('GSSAPIAuthentication')
+            .with_value('no')
+            .with_target('/etc/ssh/ssh_config.d/50-redhat.conf')
+            .that_requires('Package[openssh-clients]')
+        }
+        # Everything else stays reduced-blast-radius.
+        it { is_expected.not_to create_ssh__client__host_config_entry('*') }
+        it { is_expected.not_to contain_file('/etc/ssh/ssh_config') }
+      end
+
       context 'with haveged enabled' do
         let(:params) { { haveged: true } }
 

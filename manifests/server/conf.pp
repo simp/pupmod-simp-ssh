@@ -200,6 +200,36 @@
 #     ssh::server::conf::custom_entries:
 #       AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 #
+# @param sshd_config_entries
+#   A Hash of raw ``sshd_config`` resources.  Each key is a resource title and
+#   each value is a hash of attributes for the ``sshd_config`` type from
+#   ``augeasproviders_ssh``, applied without validation.
+#
+#   Unlike ``$custom_entries`` (bare keyword/value pairs in the default
+#   ``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
+#   notably ``target``, which manages a keyword inside a drop-in file.  That is
+#   the supported way to control a setting the vendor pre-sets in
+#   ``/etc/ssh/sshd_config.d/50-redhat.conf`` on EL9+: sshd ``Include``s that
+#   directory at the *top* of ``sshd_config`` and uses the first obtained
+#   value, so the drop-in silently overrides anything this class writes to the
+#   main file.
+#
+#   * Give each entry a title distinct from any module-managed keyword (module
+#     entries use the bare keyword as the title) and set ``key`` explicitly.
+#   * Each resource requires ``Package['openssh-server']`` unless the entry
+#     provides its own ``require``.
+#   * When service management is enabled, changes trigger an sshd restart via
+#     the service's existing subscription to this class; with an unmanaged
+#     service nothing is restarted.
+#
+#   @example Override the vendor drop-in on EL9+
+#     ---
+#     ssh::server::conf::sshd_config_entries:
+#       '50-redhat X11Forwarding':
+#         key: 'X11Forwarding'
+#         value: 'no'
+#         target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+#
 # @param remove_entries
 #   List of configuration parameters that will be removed.
 #
@@ -301,6 +331,7 @@ class ssh::server::conf (
   Optional[Variant[Boolean,Enum['sandbox']]]             $useprivilegeseparation          = undef,
   Optional[Boolean]                                      $x11forwarding                   = undef,
   Optional[Hash[String[1],NotUndef]]                     $custom_entries                  = undef,
+  Hash[String[1],Hash[String[1],NotUndef]]               $sshd_config_entries             = {},
   Optional[Array[String[1]]]                             $remove_entries                  = undef,
   Optional[Array[String[1]]]                             $remove_subsystems               = undef,
 
@@ -536,6 +567,16 @@ class ssh::server::conf (
         value   => $value,
         require => Package['openssh-server'],
       }
+    }
+  }
+
+  # Raw sshd_config resources from Hiera (see the parameter docs).  Declared
+  # inside this class so a managed sshd service restarts on change through its
+  # existing subscription; an unmanaged service is neither referenced nor
+  # restarted.
+  $sshd_config_entries.each |$entry_title, $entry_attrs| {
+    sshd_config { $entry_title:
+      * => { 'require' => Package['openssh-server'] } + $entry_attrs,
     }
   }
 
