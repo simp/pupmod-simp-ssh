@@ -5,6 +5,11 @@
   when service management has been requested, so a consumer no longer has to
   reference `Package['openssh-server']` or `Service['sshd']` directly (neither
   is guaranteed to be in the catalog since 9.0.0).
+- `ssh::server::conf::sshd_config_entries` (Hiera) now declares
+  `ssh::server::sshd_config_entry` resources instead of raw `sshd_config`
+  resources, so both paths share one implementation. Entry hashes are now
+  checked against that defined type's parameters (`ensure`, `key`, `value`,
+  `condition`, `target`, `array_append`, `comment`, plus metaparameters).
 
 * Tue Sep 01 2026 Steven Pritchard <steve@sicura.us> - 9.1.0
 - Add `ssh::server::conf::sshd_config_entries` and

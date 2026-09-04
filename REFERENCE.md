@@ -752,9 +752,12 @@ Default value: `undef`
 
 Data type: `Hash[String[1],Hash[String[1],NotUndef]]`
 
-A Hash of raw ``sshd_config`` resources.  Each key is a resource title and
-each value is a hash of attributes for the ``sshd_config`` type from
-``augeasproviders_ssh``, applied without validation.
+A Hash of additional ``sshd_config`` entries, each declared as an
+``ssh::server::sshd_config_entry``.  Each key is a resource title and each
+value is a hash of parameters for that defined type (``ensure``, ``key``,
+``value``, ``condition``, ``target``, ``array_append``, ``comment``, plus
+any metaparameters such as ``require``).  Values are not validated against
+what ``sshd`` accepts.
 
 Unlike ``$custom_entries`` (bare keyword/value pairs in the default
 ``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
@@ -767,11 +770,10 @@ main file.
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
-* Each resource requires ``Package['openssh-server']`` in addition to any
+* Each entry requires ``Package['openssh-server']`` in addition to any
   ``require`` the entry provides.
-* When service management is enabled, changes trigger an sshd restart via
-  the service's existing subscription to this class; with an unmanaged
-  service nothing is restarted.
+* When service management is enabled, changes notify the sshd service;
+  with an unmanaged service nothing is restarted.
 
 @example Override the vendor drop-in on EL9+
   ---
