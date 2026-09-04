@@ -341,6 +341,29 @@ ssh::client::ssh_config_entries:
     target: '/etc/ssh/ssh_config.d/00-simp.conf'
 ```
 
+##### Managing an entry from another module
+
+Other modules (e.g. application profiles) that need an ``sshd`` setting should
+declare it with ``ssh::server::sshd_config_entry`` rather than a raw
+``sshd_config`` resource.  The defined type includes ``ssh::server``, orders
+the entry after the ``openssh-server`` package, and notifies ``Service['sshd']``
+only when this module has been asked to manage the service — so the catalog
+compiles whether or not the service is managed, and neither
+``Package['openssh-server']`` nor ``Service['sshd']`` has to be referenced from
+outside this module:
+
+```puppet
+ssh::server::sshd_config_entry { 'AuthorizedKeysFile GitLab user':
+  key       => 'AuthorizedKeysFile',
+  condition => 'User git',
+  value     => '/var/opt/gitlab/.ssh/authorized_keys',
+}
+```
+
+It accepts the ``sshd_config`` type's attributes (``ensure``, ``key``,
+``value``, ``condition``, ``target``, ``array_append``, ``comment``); ``key``
+defaults to the title.
+
 ##### Using ``sshd_config``
 
 Prior to version 6.7.0 of the `simp-ssh` module, undefined ``sshd`` settings
