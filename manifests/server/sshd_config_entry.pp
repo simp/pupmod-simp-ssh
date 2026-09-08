@@ -39,7 +39,9 @@
 # @param key  The ``sshd_config`` keyword.  Defaults to the resource title.
 #
 # @param value  The value(s) of the keyword.  Required unless ``ensure`` is
-#   ``absent``.
+#   ``absent``.  Integers are accepted (and stringified by the type) so that
+#   e.g. ``value: 22`` from Hiera works; use a non-empty Array for keywords
+#   that take multiple values.
 #
 # @param condition  A ``Match`` block condition (e.g. ``User git``) to place
 #   the entry in
@@ -56,7 +58,7 @@
 define ssh::server::sshd_config_entry (
   Enum['present','absent']                    $ensure       = 'present',
   String[1]                                   $key          = $title,
-  Optional[Variant[String[1],Array[String[1]]]] $value        = undef,
+  Optional[Variant[String[1],Integer,Array[Variant[String[1],Integer],1]]] $value        = undef,
   Optional[String[1]]                         $condition    = undef,
   Optional[Stdlib::Absolutepath]              $target       = undef,
   Optional[Boolean]                           $array_append = undef,

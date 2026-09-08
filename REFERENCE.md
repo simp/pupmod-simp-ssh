@@ -1738,10 +1738,12 @@ Default value: `$title`
 
 ##### <a name="-ssh--server--sshd_config_entry--value"></a>`value`
 
-Data type: `Optional[Variant[String[1],Array[String[1]]]]`
+Data type: `Optional[Variant[String[1],Integer,Array[Variant[String[1],Integer],1]]]`
 
 The value(s) of the keyword.  Required unless ``ensure`` is
-``absent``.
+``absent``.  Integers are accepted (and stringified by the type) so that
+e.g. ``value: 22`` from Hiera works; use a non-empty Array for keywords
+that take multiple values.
 
 Default value: `undef`
 

@@ -296,8 +296,8 @@ keyword the vendor pre-sets in ``50-redhat.conf`` (``X11Forwarding``,
 ``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything this
 module writes to the main file.  To control such a keyword, manage it in the
 drop-in itself with ``ssh::server::conf::sshd_config_entries``, which declares
-``ssh::server::sshd_config_entry`` resources (see below) — and so the full
-[`sshd_config`][aug_ssh__sshd_config] type, including ``target`` — through
+``ssh::server::sshd_config_entry`` resources (see below) — including the
+[`sshd_config`][aug_ssh__sshd_config] type's ``target`` attribute — through
 Hiera:
 
 ```yaml

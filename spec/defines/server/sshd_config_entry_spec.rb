@@ -74,6 +74,39 @@ describe 'ssh::server::sshd_config_entry' do
         it { is_expected.to contain_sshd_config('MaxSessions').with_key('MaxSessions').with_value('5') }
       end
 
+      context 'with an Integer value' do
+        let(:facts) { base_facts.merge(custom_hiera: 'none') }
+        let(:title) { 'MaxSessions' }
+        let(:params) { { value: 5 } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_sshd_config('MaxSessions').with_value(5) }
+      end
+
+      context 'with an Array value' do
+        let(:facts) { base_facts.merge(custom_hiera: 'none') }
+        let(:title) { 'Port' }
+        let(:params) { { value: [22, '2222'] } }
+
+        it { is_expected.to contain_sshd_config('Port').with_value([22, '2222']) }
+      end
+
+      context 'with an empty Array value' do
+        let(:facts) { base_facts.merge(custom_hiera: 'none') }
+        let(:title) { 'Port' }
+        let(:params) { { value: [] } }
+
+        it { is_expected.to compile.and_raise_error(%r{expects size to be at least 1}) }
+      end
+
+      context 'with a Boolean value' do
+        let(:facts) { base_facts.merge(custom_hiera: 'none') }
+        let(:title) { 'X11Forwarding' }
+        let(:params) { { value: false } }
+
+        it { is_expected.to compile.and_raise_error(%r{expects a value of type}) }
+      end
+
       context 'with ensure => present and no value' do
         let(:facts) { base_facts.merge(custom_hiera: 'none') }
         let(:params) { { key: 'AuthorizedKeysFile' } }
