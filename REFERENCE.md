@@ -16,6 +16,8 @@
 ### Defined types
 
 * [`ssh::client::host_config_entry`](#ssh--client--host_config_entry): Creates a host entry to ssh_config
+* [`ssh::server::sshd_config_entry`](#ssh--server--sshd_config_entry): Manage a single ``sshd_config`` entry that is safe to declare from
+outside this module
 
 ### Resource types
 
@@ -750,9 +752,12 @@ Default value: `undef`
 
 Data type: `Hash[String[1],Hash[String[1],NotUndef]]`
 
-A Hash of raw ``sshd_config`` resources.  Each key is a resource title and
-each value is a hash of attributes for the ``sshd_config`` type from
-``augeasproviders_ssh``, applied without validation.
+A Hash of additional ``sshd_config`` entries, each declared as an
+``ssh::server::sshd_config_entry``.  Each key is a resource title and each
+value is a hash of parameters for that defined type (``ensure``, ``key``,
+``value``, ``condition``, ``target``, ``array_append``, ``comment``, plus
+any metaparameters such as ``require``).  Values are not validated against
+what ``sshd`` accepts.
 
 Unlike ``$custom_entries`` (bare keyword/value pairs in the default
 ``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
@@ -765,11 +770,10 @@ main file.
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
-* Each resource requires ``Package['openssh-server']`` in addition to any
+* Each entry requires ``Package['openssh-server']`` in addition to any
   ``require`` the entry provides.
-* When service management is enabled, changes trigger an sshd restart via
-  the service's existing subscription to this class; with an unmanaged
-  service nothing is restarted.
+* When service management is enabled, changes notify the sshd service;
+  with an unmanaged service nothing is restarted.
 
 @example Override the vendor drop-in on EL9+
   ---
@@ -1660,6 +1664,122 @@ Specifies the full pathname of the xauth
 program.
 
 Default value: `'/usr/bin/xauth'`
+
+### <a name="ssh--server--sshd_config_entry"></a>`ssh::server::sshd_config_entry`
+
+A thin wrapper around the [`sshd_config`][aug_ssh__sshd_config] type from
+``augeasproviders_ssh`` that wires the entry into this module's opt-in
+service management:
+
+* ``ssh::server`` is included, so the ``openssh-server`` package is in the
+  catalog and the entry is applied only after it is installed.
+* When ``ssh::server`` manages the ``sshd`` service
+  (``ssh::server::service_ensure``/``ssh::server::service_enable``), the
+  entry notifies ``Service['sshd']`` so the change takes effect.  When the
+  service is unmanaged, nothing is notified and the catalog still compiles.
+
+Other modules should use this instead of a raw ``sshd_config`` resource that
+references ``Package['openssh-server']`` or ``Service['sshd']`` directly,
+since neither resource is guaranteed to be in the catalog.
+
+Give each entry a title distinct from any module-managed keyword (module
+entries use the bare keyword as the title) and set ``key`` explicitly when
+the title is not the keyword itself.
+
+#### Examples
+
+##### Match-block entry from a profile module
+
+```puppet
+ssh::server::sshd_config_entry { 'AuthorizedKeysFile GitLab user':
+  key       => 'AuthorizedKeysFile',
+  condition => 'User git',
+  value     => '/var/opt/gitlab/.ssh/authorized_keys',
+}
+```
+
+##### Remove a setting from the EL9+ vendor drop-in
+
+```puppet
+ssh::server::sshd_config_entry { '50-redhat GSSAPIAuthentication':
+  ensure => 'absent',
+  key    => 'GSSAPIAuthentication',
+  target => '/etc/ssh/sshd_config.d/50-redhat.conf',
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `ssh::server::sshd_config_entry` defined type:
+
+* [`ensure`](#-ssh--server--sshd_config_entry--ensure)
+* [`key`](#-ssh--server--sshd_config_entry--key)
+* [`value`](#-ssh--server--sshd_config_entry--value)
+* [`condition`](#-ssh--server--sshd_config_entry--condition)
+* [`target`](#-ssh--server--sshd_config_entry--target)
+* [`array_append`](#-ssh--server--sshd_config_entry--array_append)
+* [`comment`](#-ssh--server--sshd_config_entry--comment)
+
+##### <a name="-ssh--server--sshd_config_entry--ensure"></a>`ensure`
+
+Data type: `Enum['present','absent']`
+
+Whether the entry should be present or absent
+
+Default value: `'present'`
+
+##### <a name="-ssh--server--sshd_config_entry--key"></a>`key`
+
+Data type: `String[1]`
+
+The ``sshd_config`` keyword.  Defaults to the resource title.
+
+Default value: `$title`
+
+##### <a name="-ssh--server--sshd_config_entry--value"></a>`value`
+
+Data type: `Optional[Variant[String[1],Integer,Array[Variant[String[1],Integer],1]]]`
+
+The value(s) of the keyword.  Required unless ``ensure`` is
+``absent``.  Integers are accepted (and stringified by the type) so that
+e.g. ``value: 22`` from Hiera works; use a non-empty Array for keywords
+that take multiple values.
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--condition"></a>`condition`
+
+Data type: `Optional[String[1]]`
+
+A ``Match`` block condition (e.g. ``User git``) to place
+the entry in
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--target"></a>`target`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+The file to manage the entry in.  Defaults to
+``/etc/ssh/sshd_config``.
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--array_append"></a>`array_append`
+
+Data type: `Optional[Boolean]`
+
+Whether to add to existing array values or replace them
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--comment"></a>`comment`
+
+Data type: `Optional[String]`
+
+Text to store in a comment immediately above the entry
+
+Default value: `undef`
 
 ## Resource types
 

@@ -31,12 +31,14 @@ class ssh::server (
 ) {
   simplib::assert_metadata( $module_name )
 
+  # Service management (and everything that only matters when sshd actually
+  # runs) is opt-in.  A bare include declares only the package.  Computed
+  # before anything else is included so that every consumer (including
+  # `ssh::server::sshd_config_entry`) reads a value that is already set.
+  $_manage_service = ($service_ensure =~ NotUndef) or ($service_enable =~ NotUndef)
+
   include 'ssh'
   include 'ssh::server::conf'
-
-  # Service management (and everything that only matters when sshd actually
-  # runs) is opt-in.  A bare include declares only the package.
-  $_manage_service = ($service_ensure =~ NotUndef) or ($service_enable =~ NotUndef)
 
   package { 'openssh-server':
     ensure => $server_ensure

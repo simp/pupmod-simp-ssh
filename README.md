@@ -295,9 +295,10 @@ at the *top* of the file, and ``sshd`` uses the first obtained value — so a
 keyword the vendor pre-sets in ``50-redhat.conf`` (``X11Forwarding``,
 ``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything this
 module writes to the main file.  To control such a keyword, manage it in the
-drop-in itself with ``ssh::server::conf::sshd_config_entries``, which exposes
-raw [`sshd_config`][aug_ssh__sshd_config] resources (including ``target``)
-through Hiera:
+drop-in itself with ``ssh::server::conf::sshd_config_entries``, which declares
+``ssh::server::sshd_config_entry`` resources (see below) — including the
+[`sshd_config`][aug_ssh__sshd_config] type's ``target`` attribute — through
+Hiera:
 
 ```yaml
 ---
@@ -310,10 +311,9 @@ ssh::server::conf::sshd_config_entries:
 
 Give each entry a title distinct from any module-managed keyword (module
 entries use the bare keyword as the title) and set ``key`` explicitly.  When
-the ``sshd`` service is managed, changes trigger a restart through the
-service's subscription to ``ssh::server::conf``; with an unmanaged service
-nothing is restarted.  Each entry gets a ``require`` on the openssh package
-merged with any ``require`` it declares itself.
+the ``sshd`` service is managed, changes notify it; with an unmanaged service
+nothing is restarted.  Each entry is ordered after the openssh package in
+addition to any ``require`` it declares itself.
 
 Instead of editing the vendor file you may also point entries at a drop-in of
 your own that sorts before it (e.g.
@@ -340,6 +340,31 @@ ssh::client::ssh_config_entries:
     value: 'no'
     target: '/etc/ssh/ssh_config.d/00-simp.conf'
 ```
+
+##### Managing an entry from another module
+
+Other modules (e.g. application profiles) that need an ``sshd`` setting should
+declare it with ``ssh::server::sshd_config_entry`` rather than a raw
+``sshd_config`` resource.  The defined type includes ``ssh::server``, orders
+the entry after the ``openssh-server`` package, and notifies ``Service['sshd']``
+only when this module has been asked to manage the service — so the catalog
+compiles whether or not the service is managed, and neither
+``Package['openssh-server']`` nor ``Service['sshd']`` has to be referenced from
+outside this module:
+
+```puppet
+ssh::server::sshd_config_entry { 'AuthorizedKeysFile GitLab user':
+  key       => 'AuthorizedKeysFile',
+  condition => 'User git',
+  value     => '/var/opt/gitlab/.ssh/authorized_keys',
+}
+```
+
+It accepts the ``sshd_config`` type's attributes (``ensure``, ``key``,
+``value``, ``condition``, ``target``, ``array_append``, ``comment``); ``key``
+defaults to the title.  The same entries can be declared from Hiera with
+``ssh::server::conf::sshd_config_entries`` (above), which is implemented with
+this defined type.
 
 ##### Using ``sshd_config``
 
