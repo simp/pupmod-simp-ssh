@@ -2098,4 +2098,3 @@ Alias of `Variant[Boolean, Enum['prohibit-password', 'without-password', 'forced
 Valid SSH Syslog Facility Settings
 
 Alias of `Enum['DAEMON', 'USER', 'AUTH', 'AUTHPRIV', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']`
-
