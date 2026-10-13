@@ -1,3 +1,7 @@
+* Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 9.3.0
+- Add support for OpenVox 9
+- Update metadata.json dependency ranges from the Forge
+
 * Fri Sep 04 2026 Steven Pritchard <steve@sicura.us> - 9.2.0
 - Add the `ssh::server::sshd_config_entry` defined type: a wrapper around the
   `sshd_config` type for use by other modules. It includes `ssh::server`,
