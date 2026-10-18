@@ -1,3 +1,19 @@
+* Sun Oct 18 2026 Steven Pritchard <steve@sicura.us> - 9.4.0
+- Add support for Ubuntu 22.04 and 24.04
+- Add `ssh::server::service_name` (`ssh` on Debian-family systems; the
+  resource is still `Service['sshd']`) and `ssh::client::package_name`
+  (`openssh-client` on Debian-family systems; the resource is still
+  `Package['openssh-clients']`)
+- Add `ssh::server::manage_privsep` to control management of the EL `sshd`
+  user/group (UID/GID 74) and `/var/empty/sshd` chroot along with the service;
+  `false` on Debian-family systems
+- Add `ssh::server::conf::sshd_config_d`, replacing the OS release check that
+  decided whether to manage the OATH `sshd_config.d` drop-in
+- Add `ssh::server::conf::pam_sshd_template`, with a Debian-family
+  `/etc/pam.d/sshd` template
+- The `simp:defaults` profile's `subsystem` check (an EL sftp-server path) now
+  applies only to EL
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 9.3.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

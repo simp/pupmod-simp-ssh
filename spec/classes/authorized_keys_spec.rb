@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'ssh::authorized_keys' do
   on_supported_os.each do |os, os_facts|

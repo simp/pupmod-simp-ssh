@@ -162,6 +162,22 @@
 #   * Managed independently of `$usepam`, which only controls the `UsePAM`
 #     entry in `sshd_config`.
 #
+# @param pam_sshd_template
+#   The EPP template rendered into `/etc/pam.d/sshd` when `$manage_pam_sshd`
+#   is set.  Set by module data: the EL stack (`password-auth`, `postlogin`)
+#   by default, and a Debian-family stack (`common-*`) on Debian and Ubuntu.
+#
+# @param sshd_config_d
+#   Whether this OS's `sshd_config` starts with
+#   `Include /etc/ssh/sshd_config.d/*.conf`, so that drop-ins there override
+#   the main file (sshd keeps the first value it reads for a keyword).  Set
+#   by module data: `true` (EL9+, Ubuntu 22.04+), `false` on EL8.  When
+#   `true`, the module manages
+#   `/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf` for `$oath`, since
+#   both the EL9+ vendor drop-in and Ubuntu's main `sshd_config` set
+#   keyboard-interactive authentication to `no` ahead of anything this class
+#   writes.
+#
 # @param oath
 #   **EXPERIMENTAL FEATURE**
 #   Configures ssh to use pam_oath TOTP in the sshd pam stack.
@@ -215,7 +231,10 @@
 #   ``/etc/ssh/sshd_config.d/50-redhat.conf`` on EL9+: sshd ``Include``s that
 #   directory at the *top* of ``sshd_config`` and uses the first obtained
 #   value, so the drop-in silently overrides anything this class writes to the
-#   main file.
+#   main file.  Ubuntu reads the same directory first; it ships no vendor
+#   drop-in, but cloud-init writes ``50-cloud-init.conf`` there (e.g.
+#   ``PasswordAuthentication``), and Ubuntu cloud images may also carry
+#   ``60-cloudimg-settings.conf``.
 #
 #   * Give each entry a title distinct from any module-managed keyword (module
 #     entries use the bare keyword as the title) and set ``key`` explicitly.
@@ -345,6 +364,8 @@ class ssh::server::conf (
   Boolean                                                $ldap                            = false,
   Optional[Boolean]                                      $oath                            = undef,
   Boolean                                                $manage_pam_sshd                 = pick($oath, false),
+  String[1]                                              $pam_sshd_template               = 'ssh/etc/pam.d/sshd.epp',
+  Boolean                                                $sshd_config_d                   = true,
   Integer[0]                                             $oath_window                     = 1,
   Variant[Enum['simp'],Boolean]                          $pki                             = false,
   Boolean                                                $sssd                            = false,
@@ -448,21 +469,23 @@ class ssh::server::conf (
   if $manage_pam_sshd {
     file { '/etc/pam.d/sshd':
       ensure  => file,
-      content => epp('ssh/etc/pam.d/sshd.epp'),
+      content => epp($pam_sshd_template),
     }
   }
 
-  # On EL9+, the vendor sshd_config Includes /etc/ssh/sshd_config.d/*.conf at
-  # the TOP of the file and sshd uses first-match-wins, so the vendor
-  # 50-redhat.conf (ChallengeResponseAuthentication no) silently overrides
-  # any keyboard-interactive setting in the main sshd_config. When OATH is
+  # On EL9+ and Ubuntu, the vendor sshd_config Includes
+  # /etc/ssh/sshd_config.d/*.conf at the TOP of the file and sshd uses
+  # first-match-wins, so the vendor 50-redhat.conf on EL9+
+  # (ChallengeResponseAuthentication no), and on Ubuntu the main file's own
+  # `KbdInteractiveAuthentication no` (which precedes anything augeas
+  # appends), silently override the setting this class writes. When OATH is
   # enabled, manage a drop-in that sorts before the vendor file so the
   # required setting actually takes effect; remove it otherwise so vendor
   # behavior is restored when OATH is disabled.  Ensuring absence is a no-op
   # on systems this module never configured, so a bare include still changes
   # nothing.  No notify: the sshd service is not always in the catalog, and
   # when it is managed it already subscribes to this class.
-  if versioncmp($facts['os']['release']['major'], '9') >= 0 {
+  if $sshd_config_d {
     file { '/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf':
       ensure                  => bool2str(pick($oath, false), 'file', 'absent'),
       owner                   => 'root',
@@ -609,7 +632,7 @@ class ssh::server::conf (
   }
 
   $_ports.each |Simplib::Port $sel_port| {
-    if ($sel_port != 22) and $facts['os']['selinux']['enforced'] {
+    if ($sel_port != 22) and $facts.dig('os', 'selinux', 'enforced') {
       if simplib::module_exist('simp/selinux') {
         simplib::assert_optional_dependency($module_name, 'simp/selinux')
         simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')

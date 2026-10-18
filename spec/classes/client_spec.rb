@@ -1,16 +1,21 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'ssh::client' do
   on_supported_os.each do |os, os_facts|
-    let(:facts) { os_facts }
-
     context "on #{os}" do
+      let(:facts) { os_facts }
+
       context 'with default parameters' do
         # Reduced blast radius: a bare include installs the package and does
         # nothing else.
         it { is_expected.to create_class('ssh::client') }
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_package('openssh-clients').with_ensure('installed') }
+        it {
+          is_expected.to contain_package('openssh-clients')
+            .with_name((os_family(os_facts) == 'Debian') ? 'openssh-client' : 'openssh-clients')
+        }
         it { is_expected.not_to create_ssh__client__host_config_entry('*') }
         it { is_expected.not_to contain_file('/etc/ssh/ssh_config') }
         it { is_expected.not_to contain_file('/etc/ssh/ssh_known_hosts') }

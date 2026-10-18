@@ -204,8 +204,11 @@ Runtime requirement (from `metadata.json` `requirements`):
 **puppet**. SIMP is migrating Puppet → OpenVox; when `metadata.json` switches
 this requirement to `openvox`, update this line to match.
 
-Supported OS matrix (from `metadata.json`): CentOS 7/8/9; RedHat 7/8/9;
-OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
+Supported OS matrix: see `metadata.json` (EL 8/9/10 variants and Ubuntu
+22.04/24.04). OS differences (package and service names, the EL privsep
+user/chroot, the PAM template, whether `sshd_config.d` is included) live in
+module Hiera data (`hiera.yaml`, `data/os/*.yaml`), never in manifest OS
+conditionals.
 
 ## Repository layout
 
