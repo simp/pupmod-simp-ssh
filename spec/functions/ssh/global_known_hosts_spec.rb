@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 shared_examples_for 'a sshkey resource generator' do |catalogue, fqdn, rsakey, ensure_val|
 end
@@ -7,7 +8,6 @@ describe 'ssh::global_known_hosts' do
   let(:environment) { 'testenv' }
 
   on_supported_os.each do |os, os_facts|
-    let(:facts) { os_facts }
     # rubocop:disable Layout/LineLength
     let(:rsakey1) do
       'AAAAB3NzaC1yc2EAAAADAQABAAABAQCwleF+W/kETFTKeG8TxkFwWivC/24XR3N/fAeq210bt/8Txf5uel3NQL3RkgFIvwEFcghucE9VUvk1Jtn+vr0ncKp7uNP10oXlLKeCmuUEsCPKd4L7aMg1yeITYL1imLQt0/SFaHpehKI4V+remCTVY+ccwKsCk++AL6s/cas22roh031ZkLZIkf4ipvpM2A4mBbwzwdzlx+KPgBa/YylSm5pUEmKW5er/SMrloglHs5B90f8FJ0oiHOlkLZaCJLKMUIS5zNj365ZUf/omCqeeWqT1tHqTYm6dJM2No/c6Gw+9bHTL5HRq1Al1ztSqitffD/W2ctItr1d0C7ogL2Xv'
@@ -19,6 +19,8 @@ describe 'ssh::global_known_hosts' do
     # rubocop:enable Layout/LineLength
 
     context "on #{os}" do
+      let(:facts) { os_facts }
+
       context 'with default param & no pre-existing ssh_global_known_hosts dir' do
         it 'creates ssh_global_known_hosts dir, host key file and sshkey resource' do
           # Puppet[:vardir] is dynamically created as a tmpdir by the test

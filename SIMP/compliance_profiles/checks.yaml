@@ -167,6 +167,10 @@ checks:
     settings:
       parameter: ssh::server::conf::subsystem
       value: 'sftp /usr/libexec/openssh/sftp-server'
+    # EL path; Debian-family systems ship `/usr/lib/openssh/sftp-server` and
+    # already configure it in the packaged sshd_config.
+    confine:
+      os.family: RedHat
   simp:defaults.ssh.syslogfacility:
     type: puppet-class-parameter
     settings:

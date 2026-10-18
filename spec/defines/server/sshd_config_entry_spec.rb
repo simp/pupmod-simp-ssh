@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'ssh::server::sshd_config_entry' do
   let(:hiera_config) do

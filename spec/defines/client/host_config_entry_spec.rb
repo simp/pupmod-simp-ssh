@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'ssh::client::host_config_entry' do
   context 'supported operating systems' do

@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 describe 'ssh' do
   context 'supported operating systems' do

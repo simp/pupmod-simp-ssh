@@ -16,6 +16,11 @@
 #
 # @param package_ensure The ensure status the openssh-clients package
 #
+# @param package_name
+#   The name of the OpenSSH client package.  Set by module data:
+#   `openssh-clients` on EL and `openssh-client` on Debian-family systems.
+#   The resource is always titled `Package['openssh-clients']`.
+#
 # @param ssh_config_entries
 #   A Hash of raw ``ssh_config`` resources.  Each key is a resource title and
 #   each value is a hash of attributes for the ``ssh_config`` type from
@@ -49,12 +54,14 @@ class ssh::client (
   Boolean                                  $haveged            = false,
   Boolean                                  $fips               = false,
   String                                   $package_ensure     = 'installed',
+  String[1]                                $package_name       = 'openssh-clients',
   Hash[String[1],Hash[String[1],NotUndef]] $ssh_config_entries = {},
 ) {
   simplib::assert_metadata( $module_name )
 
   package { 'openssh-clients':
-    ensure => $package_ensure
+    ensure => $package_ensure,
+    name   => $package_name,
   }
 
   if $add_default_entry {

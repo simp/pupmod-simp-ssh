@@ -1,0 +1,3 @@
+---
+# The EL8 sshd_config has no `Include /etc/ssh/sshd_config.d/*.conf`.
+ssh::server::conf::sshd_config_d: false

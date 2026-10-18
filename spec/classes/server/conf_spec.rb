@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 # `ssh::server::conf` is a private class configured via APL (Hiera).  It is
 # declared here through `include ssh::server` (its public parent) so the
@@ -109,7 +110,7 @@ describe 'ssh::server::conf' do
     let(:facts) { base_facts.merge(custom_hiera: 'conf_pam_sshd') }
 
     it { is_expected.to compile.with_all_deps }
-    it { is_expected.to contain_file('/etc/pam.d/sshd') }
+    it { is_expected.to contain_file('/etc/pam.d/sshd').with_content(%r{^auth\s+substack\s+password-auth$}) }
     it { is_expected.not_to contain_sshd_config('UsePAM') }
   end
 
@@ -196,6 +197,74 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.not_to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf') }
+    end
+  end
+
+  context 'with a non-standard port' do
+    let(:facts) { base_facts.merge(custom_hiera: 'conf_port_2222') }
+
+    it { is_expected.to compile.with_all_deps }
+    it { is_expected.to contain_sshd_config('Port').with_value([2222]) }
+    it { is_expected.to contain_selinux_port('tcp_2222-2222').with_seltype('ssh_port_t') }
+  end
+
+  # Debian-family data: the kbdinteractive drop-in is managed (Ubuntu's
+  # sshd_config Includes sshd_config.d first and sets
+  # `KbdInteractiveAuthentication no` ahead of anything augeas appends), and
+  # /etc/pam.d/sshd uses the Debian `common-*` stacks.
+  ['ubuntu-22.04-x86_64', 'ubuntu-24.04-x86_64'].each do |os|
+    context "on #{os}" do
+      let(:base_facts) { on_supported_os.fetch(os) }
+
+      context 'with oath=true' do
+        let(:facts) { base_facts.merge(custom_hiera: 'conf_oath') }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+            .with_ensure('file')
+            .with_content(%r{^KbdInteractiveAuthentication yes$})
+        }
+        it {
+          is_expected.to contain_file('/etc/pam.d/sshd')
+            .with_content(%r{^auth\s+\[success=1 default=bad\]\s+pam_oath\.so .*window=1$})
+            .with_content(%r{pam_deny\.so\n@include common-auth$})
+            .without_content(%r{password-auth|postlogin|pam_sepermit})
+        }
+      end
+
+      context 'with oath unset' do
+        let(:facts) { base_facts.merge(custom_hiera: 'none') }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+            .with_ensure('absent')
+        }
+        it { is_expected.not_to contain_file('/etc/pam.d/sshd') }
+      end
+
+      context 'with manage_pam_sshd alone' do
+        let(:facts) { base_facts.merge(custom_hiera: 'conf_pam_sshd') }
+
+        it {
+          is_expected.to contain_file('/etc/pam.d/sshd')
+            .with_content(%r{^@include common-auth$})
+            .with_content(%r{^@include common-account$})
+            .with_content(%r{^@include common-session$})
+            .with_content(%r{^@include common-password$})
+            .without_content(%r{pam_oath})
+        }
+      end
+
+      # No SELinux on Ubuntu: a non-22 port must not try to label it.
+      context 'with a non-standard port' do
+        let(:facts) { base_facts.merge(custom_hiera: 'conf_port_2222') }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_sshd_config('Port').with_value([2222]) }
+        it { is_expected.not_to contain_selinux_port('tcp_2222-2222') }
+      end
     end
   end
 end

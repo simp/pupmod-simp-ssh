@@ -133,6 +133,7 @@ The following parameters are available in the `ssh::client` class:
 * [`fips`](#-ssh--client--fips)
 * [`haveged`](#-ssh--client--haveged)
 * [`package_ensure`](#-ssh--client--package_ensure)
+* [`package_name`](#-ssh--client--package_name)
 * [`ssh_config_entries`](#-ssh--client--ssh_config_entries)
 
 ##### <a name="-ssh--client--add_default_entry"></a>`add_default_entry`
@@ -167,6 +168,16 @@ Data type: `String`
 The ensure status the openssh-clients package
 
 Default value: `'installed'`
+
+##### <a name="-ssh--client--package_name"></a>`package_name`
+
+Data type: `String[1]`
+
+The name of the OpenSSH client package.  Set by module data:
+`openssh-clients` on EL and `openssh-client` on Debian-family systems.
+The resource is always titled `Package['openssh-clients']`.
+
+Default value: `'openssh-clients'`
 
 ##### <a name="-ssh--client--ssh_config_entries"></a>`ssh_config_entries`
 
@@ -213,6 +224,11 @@ requested via `$service_ensure`/`$service_enable`.  Activate the bundled
 `simp:defaults` compliance_engine profile (or set these parameters) to
 restore the pre-9.0.0 behavior.
 
+The service resource is always titled `Service['sshd']`, whatever
+`$service_name` is, so other code can refer to it the same way on every OS.
+The `sshd` user/group and `/var/empty/sshd` are also subject to
+`$manage_privsep`.
+
 #### Parameters
 
 The following parameters are available in the `ssh::server` class:
@@ -221,6 +237,8 @@ The following parameters are available in the `ssh::server` class:
 * [`ldap_ensure`](#-ssh--server--ldap_ensure)
 * [`service_ensure`](#-ssh--server--service_ensure)
 * [`service_enable`](#-ssh--server--service_enable)
+* [`service_name`](#-ssh--server--service_name)
+* [`manage_privsep`](#-ssh--server--manage_privsep)
 
 ##### <a name="-ssh--server--server_ensure"></a>`server_ensure`
 
@@ -256,6 +274,37 @@ The `enable` status of the `sshd` service.  Leave `undef` (the default)
 to leave the service unmanaged.
 
 Default value: `undef`
+
+##### <a name="-ssh--server--service_name"></a>`service_name`
+
+Data type: `String[1]`
+
+The name of the sshd systemd unit.  Set by module data: `sshd` on EL and
+`ssh` on Debian-family systems, where `sshd.service` is only an alias
+that systemd will not enable or disable.
+
+* On Ubuntu 24.04, `ssh.service` is socket-activated by default: the
+  package enables `ssh.socket` and leaves `ssh.service` disabled, so
+  `service_enable: true` adds a boot-time start of `ssh.service` (still
+  fed by the socket).  A generator builds the socket's listen addresses
+  from `Port`/`ListenAddress` in `sshd_config` at `systemctl
+  daemon-reload`, so restarting the service does not apply a change to
+  either; run `systemctl daemon-reload && systemctl restart ssh.socket`,
+  or turn socket activation off (`systemctl disable --now ssh.socket`).
+
+Default value: `'sshd'`
+
+##### <a name="-ssh--server--manage_privsep"></a>`manage_privsep`
+
+Data type: `Boolean`
+
+When the service is managed, also manage the `sshd` privilege-separation
+user and group (UID/GID 74) and the `/var/empty/sshd` chroot.  These
+match EL packaging.  Set to `false` by module data on Debian-family
+systems, whose package creates its own `sshd` user (dynamic UID) and
+uses `/run/sshd`, created by systemd.
+
+Default value: `true`
 
 ### <a name="ssh--server--conf"></a>`ssh::server::conf`
 
@@ -312,6 +361,8 @@ The following parameters are available in the `ssh::server::conf` class:
 * [`tcpwrappers`](#-ssh--server--conf--tcpwrappers)
 * [`usepam`](#-ssh--server--conf--usepam)
 * [`manage_pam_sshd`](#-ssh--server--conf--manage_pam_sshd)
+* [`pam_sshd_template`](#-ssh--server--conf--pam_sshd_template)
+* [`sshd_config_d`](#-ssh--server--conf--sshd_config_d)
 * [`oath`](#-ssh--server--conf--oath)
 * [`oath_window`](#-ssh--server--conf--oath_window)
 * [`useprivilegeseparation`](#-ssh--server--conf--useprivilegeseparation)
@@ -687,6 +738,32 @@ required for the oath option to work properly.
 
 Default value: `pick($oath, false)`
 
+##### <a name="-ssh--server--conf--pam_sshd_template"></a>`pam_sshd_template`
+
+Data type: `String[1]`
+
+The EPP template rendered into `/etc/pam.d/sshd` when `$manage_pam_sshd`
+is set.  Set by module data: the EL stack (`password-auth`, `postlogin`)
+by default, and a Debian-family stack (`common-*`) on Debian and Ubuntu.
+
+Default value: `'ssh/etc/pam.d/sshd.epp'`
+
+##### <a name="-ssh--server--conf--sshd_config_d"></a>`sshd_config_d`
+
+Data type: `Boolean`
+
+Whether this OS's `sshd_config` starts with
+`Include /etc/ssh/sshd_config.d/*.conf`, so that drop-ins there override
+the main file (sshd keeps the first value it reads for a keyword).  Set
+by module data: `true` (EL9+, Ubuntu 22.04+), `false` on EL8.  When
+`true`, the module manages
+`/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf` for `$oath`, since
+both the EL9+ vendor drop-in and Ubuntu's main `sshd_config` set
+keyboard-interactive authentication to `no` ahead of anything this class
+writes.
+
+Default value: `true`
+
 ##### <a name="-ssh--server--conf--oath"></a>`oath`
 
 Data type: `Optional[Boolean]`
@@ -766,7 +843,10 @@ the supported way to control a setting the vendor pre-sets in
 ``/etc/ssh/sshd_config.d/50-redhat.conf`` on EL9+: sshd ``Include``s that
 directory at the *top* of ``sshd_config`` and uses the first obtained
 value, so the drop-in silently overrides anything this class writes to the
-main file.
+main file.  Ubuntu reads the same directory first; it ships no vendor
+drop-in, but cloud-init writes ``50-cloud-init.conf`` there (e.g.
+``PasswordAuthentication``), and Ubuntu cloud images may also carry
+``60-cloudimg-settings.conf``.
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.

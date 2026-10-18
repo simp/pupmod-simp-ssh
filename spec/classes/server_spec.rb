@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 
 # Resources that are only declared once service management is requested.
 shared_examples_for 'a managed ssh server' do |os_facts|
@@ -6,50 +7,70 @@ shared_examples_for 'a managed ssh server' do |os_facts|
   it { is_expected.to compile.with_all_deps }
   it { is_expected.to contain_class('ssh') }
 
-  it {
-    is_expected.to create_file('/var/empty/sshd').with(
-      ensure: 'directory',
-      require: 'Package[openssh-server]',
-    )
-  }
-
-  it {
-    is_expected.to create_file('/var/empty/sshd/etc').with(
-      ensure: 'directory',
-      require: 'Package[openssh-server]',
-    )
-  }
-
-  it {
-    is_expected.to create_file('/var/empty/sshd/etc/localtime').with(
-      source: 'file:///etc/localtime',
-      require: 'Package[openssh-server]',
-    )
-  }
-
-  it { is_expected.to contain_group('sshd') }
-
   it { is_expected.to contain_package('openssh-server').with_ensure('installed') }
 
-  it {
-    is_expected.to contain_user('sshd').with(
-      ensure: 'present',
-      allowdupe: false,
-      gid: '74',
-      uid: '74',
-    )
-  }
+  if os_family(os_facts) == 'RedHat'
+    it {
+      is_expected.to create_file('/var/empty/sshd').with(
+        ensure: 'directory',
+        require: 'Package[openssh-server]',
+      )
+    }
 
-  it {
-    is_expected.to contain_service('sshd').with(
-      ensure: 'running',
-      enable: true,
-      require: [
-        'Package[openssh-server]',
-        'User[sshd]',
-      ],
-    )
-  }
+    it {
+      is_expected.to create_file('/var/empty/sshd/etc').with(
+        ensure: 'directory',
+        require: 'Package[openssh-server]',
+      )
+    }
+
+    it {
+      is_expected.to create_file('/var/empty/sshd/etc/localtime').with(
+        source: 'file:///etc/localtime',
+        require: 'Package[openssh-server]',
+      )
+    }
+
+    it { is_expected.to contain_group('sshd') }
+
+    it {
+      is_expected.to contain_user('sshd').with(
+        ensure: 'present',
+        allowdupe: false,
+        gid: '74',
+        uid: '74',
+      )
+    }
+
+    it {
+      is_expected.to contain_service('sshd').with(
+        ensure: 'running',
+        enable: true,
+        name: 'sshd',
+        require: [
+          'Package[openssh-server]',
+          'User[sshd]',
+        ],
+      )
+    }
+  else
+    # Debian-family packages create their own `sshd` user (dynamic UID) and
+    # use /run/sshd; the unit is `ssh.service` (`sshd.service` is an alias).
+    it { is_expected.not_to contain_file('/var/empty/sshd') }
+    it { is_expected.not_to contain_file('/var/empty/sshd/etc') }
+    it { is_expected.not_to contain_file('/var/empty/sshd/etc/localtime') }
+    it { is_expected.not_to contain_group('sshd') }
+    it { is_expected.not_to contain_user('sshd') }
+
+    it {
+      is_expected.to contain_service('sshd').with(
+        ensure: 'running',
+        enable: true,
+        name: 'ssh',
+        require: ['Package[openssh-server]'],
+      )
+    }
+  end
 
   os_facts[:ssh_host_keys].each do |host_key|
     it {

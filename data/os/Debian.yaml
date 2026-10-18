@@ -1,0 +1,17 @@
+---
+# Debian-family packaging (verified on Ubuntu 22.04 and 24.04).
+
+# The client package is `openssh-client` (singular).
+ssh::client::package_name: 'openssh-client'
+
+# The unit is `ssh.service`; `sshd.service` is only an alias, and systemd
+# refuses to enable or disable a unit by its alias.
+ssh::server::service_name: 'ssh'
+
+# The package creates its own `sshd` user (dynamic UID, group `nogroup`,
+# home `/run/sshd`), and the privilege-separation directory is `/run/sshd`
+# (the unit's RuntimeDirectory), not `/var/empty/sshd`.
+ssh::server::manage_privsep: false
+
+# /etc/pam.d/sshd uses the `common-*` stacks, not EL's `password-auth`.
+ssh::server::conf::pam_sshd_template: 'ssh/etc/pam.d/sshd_debian.epp'

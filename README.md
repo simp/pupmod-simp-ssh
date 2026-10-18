@@ -33,6 +33,7 @@
     * [Client ciphers](#client-ciphers)
   * [Managing ssh_authorized_keys](#managing-ssh_authorized_keys)
 * [Limitations](#limitations)
+  * [Ubuntu notes](#ubuntu-notes)
 * [Development](#development)
 * [Acceptance tests](#acceptance-tests)
   * [Environment variables specific to pupmod-simp-ssh](#environment-variables-specific-to-pupmod-simp-ssh)
@@ -323,6 +324,12 @@ so the next openssh update does not leave an ``.rpmnew`` behind.  Editing the
 vendor file remains supported — some compliance audits check the vendor file's
 own contents, which only an in-place edit satisfies.
 
+Ubuntu 22.04 and 24.04 also ``Include`` ``/etc/ssh/sshd_config.d/*.conf`` at
+the top of ``sshd_config``.  The package ships no drop-in there, but cloud-init
+writes ``50-cloud-init.conf`` (``PasswordAuthentication``) and Ubuntu cloud
+images may carry ``60-cloudimg-settings.conf``; both override the main file
+the same way, and the same two approaches apply.
+
 The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
 ``ssh_config`` resources.  Note that the vendor *client* drop-ins
 (``/etc/ssh/ssh_config.d/05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+)
@@ -330,7 +337,8 @@ wrap their settings in a ``Match final all`` block, which the ``ssh_config``
 type cannot edit (it only manages ``Host`` blocks) and which ssh applies last,
 only for options nothing else has set.  So on the client, do **not** point
 entries at the vendor file — manage a drop-in of your own that ssh reads
-first, e.g.:
+first (Ubuntu ships no client drop-in, but its ``ssh_config`` also
+``Include``s ``/etc/ssh/ssh_config.d/*.conf`` first), e.g.:
 
 ```yaml
 ---
@@ -502,7 +510,47 @@ ssh::authorized_keys::keys:
 ## Limitations
 
 SIMP Puppet modules are generally intended to be used on a Red Hat Enterprise
-Linux-compatible distribution.
+Linux-compatible distribution.  This module also supports Ubuntu 22.04 and
+24.04; see `metadata.json` for the full list.
+
+### Ubuntu notes
+
+OS differences are set in the module's Hiera data (`data/os/Debian.yaml`):
+
+* The client package is `openssh-client` (`ssh::client::package_name`); the
+  resource is still `Package['openssh-clients']`.
+* The service unit is `ssh` (`ssh::server::service_name`); `sshd.service` is
+  only an alias, which systemd will not enable or disable.  The resource is
+  still `Service['sshd']`.
+* The package creates its own `sshd` user (dynamic UID) and uses `/run/sshd`,
+  so the EL `sshd` user/group (UID/GID 74) and `/var/empty/sshd` chroot are not
+  managed (`ssh::server::manage_privsep: false`).
+* `/etc/pam.d/sshd`, when managed, is rendered from a Debian-family template
+  using the `common-*` stacks (`ssh::server::conf::pam_sshd_template`).
+* The `simp:defaults` profile's `Subsystem sftp` check uses the EL path and is
+  confined to EL; Ubuntu's packaged `sshd_config` already sets
+  `Subsystem sftp /usr/lib/openssh/sftp-server`.
+* There is no `openssh-ldap` package, so `ssh::server::conf::ldap` (without
+  `sssd`) is not usable.  `sssd` works: `sss_ssh_authorizedkeys` is at
+  `/usr/bin/sss_ssh_authorizedkeys` in `sssd-common`, as on EL.
+
+Ubuntu 24.04 uses systemd socket activation by default: the package enables
+`ssh.socket` and leaves `ssh.service` disabled until the first connection.
+
+* `ssh::server::service_enable: true` enables `ssh.service`, which then starts
+  at boot (it still receives its listening sockets from `ssh.socket`).
+* A generator turns `Port` and `ListenAddress` in `sshd_config` into the
+  socket's listen addresses at `systemctl daemon-reload`.  Restarting
+  `ssh.service` (what a managed service does when the configuration changes)
+  does not apply a change to either.  Run
+  `systemctl daemon-reload && systemctl restart ssh.socket`, or turn socket
+  activation off with `systemctl disable --now ssh.socket` and manage
+  `ssh.service` alone.
+* `sshd -T` refuses to run while `/run/sshd` is missing, which is the case
+  until `ssh.service` first starts.  Until then the `ssh_host_keys` fact is
+  empty and host key permissions are not managed.
+
+Ubuntu 22.04 runs `ssh.service` directly (`ssh.socket` exists but is disabled).
 
 ## Development
 

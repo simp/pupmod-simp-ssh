@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'support/supported_os_facts'
 require 'yaml'
 
 # Proves that enabling the bundled `simp:defaults` compliance_engine profile
@@ -30,9 +31,17 @@ describe 'ssh' do
             enable: true,
           )
         }
-        it { is_expected.to contain_user('sshd') }
-        it { is_expected.to contain_group('sshd') }
-        it { is_expected.to create_file('/var/empty/sshd') }
+        if os_family(os_facts) == 'RedHat'
+          it { is_expected.to contain_user('sshd') }
+          it { is_expected.to contain_group('sshd') }
+          it { is_expected.to create_file('/var/empty/sshd') }
+        else
+          # Debian-family packages manage their own privsep user and directory.
+          it { is_expected.to contain_service('sshd').with_name('ssh') }
+          it { is_expected.not_to contain_user('sshd') }
+          it { is_expected.not_to contain_group('sshd') }
+          it { is_expected.not_to contain_file('/var/empty/sshd') }
+        end
         it { is_expected.to create_file('/etc/ssh/sshd_config') }
 
         # Hardening defaults restored
@@ -43,7 +52,13 @@ describe 'ssh' do
         it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('6') }
         it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
         it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
-        it { is_expected.to contain_sshd_config_subsystem('sftp') }
+        # The profile's sftp-server path is EL's, so that check is confined to
+        # EL; Debian-family packages already configure their own.
+        if os_family(os_facts) == 'RedHat'
+          it { is_expected.to contain_sshd_config_subsystem('sftp') }
+        else
+          it { is_expected.not_to contain_sshd_config_subsystem('sftp') }
+        end
 
         # Non-FIPS crypto restored
         it {
@@ -132,9 +147,15 @@ describe 'ssh' do
           )
         end
 
-        applicable = profile_checks.select do |_name, check|
-          confine = check['confine']
-          confine.nil? || confine == { 'fips_enabled' => fips }
+        parity_facts = on_supported_os.first.last
+        applicable = profile_checks.select do |name, check|
+          (check['confine'] || {}).all? do |fact, value|
+            case fact
+            when 'fips_enabled' then value == fips
+            when 'os.family' then value == os_family(parity_facts)
+            else raise "Unhandled confine fact '#{fact}' in #{name}"
+            end
+          end
         end
 
         applicable.each do |name, check|
