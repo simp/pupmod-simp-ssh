@@ -23,8 +23,9 @@ describe 'sshd_config drop-in' do
       # The vendor 50-redhat.conf sets X11Forwarding yes.
       'ssh::server::conf::x11forwarding'   => false,
       'ssh::server::conf::maxauthtries'    => 4,
-      # Accumulated across files, so it stays in sshd_config.
-      'ssh::server::conf::port'            => 22,
+      # No accumulating keyword such as Port: those stay in sshd_config, which
+      # the last example asserts is unchanged.  05_non_standard_ports_spec
+      # covers Port taking effect from sshd_config.
     }
   end
 
@@ -55,7 +56,6 @@ describe 'sshd_config drop-in' do
         expect(sshd_t(host, 'permitrootlogin')).to match(%r{^permitrootlogin (prohibit-password|without-password)$})
         expect(sshd_t(host, 'x11forwarding')).to eq('x11forwarding no')
         expect(sshd_t(host, 'maxauthtries')).to eq('maxauthtries 4')
-        expect(sshd_t(host, 'port')).to eq('port 22')
       end
 
       it 'writes first-wins keywords to a root-only drop-in on EL9+' do
@@ -66,7 +66,6 @@ describe 'sshd_config drop-in' do
         end
         on(host, %(grep -E '^PermitRootLogin prohibit-password$' #{dropin}))
         on(host, %(grep -E '^X11Forwarding no$' #{dropin}))
-        on(host, %(grep -E '^Port ' #{dropin}), acceptable_exit_codes: [1])
       end
 
       it 'leaves sshd_config and the other drop-ins untouched on EL9+' do
