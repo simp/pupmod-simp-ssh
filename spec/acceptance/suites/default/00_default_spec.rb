@@ -57,6 +57,12 @@ describe 'ssh class' do
     context "on #{os}:" do
       let(:server) { sut_server }
 
+      # On EL9+ the class writes first-wins keywords such as LogLevel to the
+      # 00-simp.conf drop-in, so read it along with sshd_config.
+      let(:sshd_conf_cmd) do
+        'cat /etc/ssh/sshd_config; cat /etc/ssh/sshd_config.d/00-simp.conf 2>/dev/null || :'
+      end
+
       let(:client) do
         os = server.hostname.split('-').first
         hosts_as('client').find { |x| x.hostname =~ %r{^#{os}-.+} }
@@ -262,12 +268,12 @@ describe 'ssh class' do
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest)
 
-          normal_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
+          normal_sshd_conf = on(server, sshd_conf_cmd).stdout.to_s.split("\n")
 
           # Create the new test setup
           set_hieradata_on(server, server_hieradata_w_additions)
           apply_manifest_on(server, server_manifest_w_additions)
-          custom_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
+          custom_sshd_conf = on(server, sshd_conf_cmd).stdout.to_s.split("\n")
 
           # Compare the results
           expect((custom_sshd_conf - normal_sshd_conf).sort).to eq [
@@ -342,7 +348,7 @@ describe 'ssh class' do
           set_hieradata_on(server, disable_manage_authorizedkeysfile)
           apply_manifest_on(server, server_manifest, catch_changes: true)
 
-          expect(file_content_on(server, '/etc/ssh/sshd_config').strip).not_to match('AuthorizedKeysFile\s*/foo/bar')
+          expect(on(server, sshd_conf_cmd).stdout).not_to match(%r{AuthorizedKeysFile\s*/foo/bar})
         end
       end
 
