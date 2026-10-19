@@ -43,7 +43,10 @@ describe 'sshd_config drop-in' do
         on(host, 'chmod 0600 /etc/ssh/sshd_config.d/01-permitrootlogin.conf')
         # A value an earlier release of this module wrote to sshd_config.
         on(host, %(sed -i '/^MaxAuthTries /d' /etc/ssh/sshd_config && echo 'MaxAuthTries 9' >> /etc/ssh/sshd_config))
-        on(host, 'sha256sum /etc/ssh/sshd_config > /root/sshd_config.sha256')
+        # Earlier suites edit these files (15_config_entries_spec writes to
+        # 50-redhat.conf), so compare against their state now, not the vendor's.
+        on(host, 'cd /etc/ssh && sha256sum sshd_config sshd_config.d/01-permitrootlogin.conf ' \
+                 'sshd_config.d/50-redhat.conf > /root/sshd_config.sha256')
       end
 
       it 'applies idempotently' do
@@ -71,9 +74,7 @@ describe 'sshd_config drop-in' do
       it 'leaves sshd_config and the other drop-ins untouched on EL9+' do
         next unless os_major(host) >= 9
 
-        on(host, 'sha256sum -c /root/sshd_config.sha256')
-        on(host, %(grep -Fx 'PermitRootLogin yes' /etc/ssh/sshd_config.d/01-permitrootlogin.conf))
-        on(host, %(grep -E '^X11Forwarding yes' /etc/ssh/sshd_config.d/50-redhat.conf))
+        on(host, 'cd /etc/ssh && sha256sum -c /root/sshd_config.sha256')
       end
 
       it 'cleans up the planted drop-in' do
