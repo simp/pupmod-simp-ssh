@@ -155,6 +155,66 @@ describe 'ssh::server::conf' do
     it { is_expected.to contain_sshd_config('PermitRootLogin').with_ensure('absent') }
     # ...and an explicit removal is declared.
     it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_ensure('absent') }
+    # On EL9+ a key the class writes to the drop-in is removed from there too.
+    it {
+      is_expected.to contain_sshd_config('GSSAPIAuthentication in /etc/ssh/sshd_config.d/00-simp.conf')
+        .with_ensure('absent')
+        .with_key('GSSAPIAuthentication')
+        .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
+    }
+  end
+
+  # On EL9+ drop-ins override sshd_config (first value wins), so the class
+  # writes first-wins keywords to a drop-in that sorts before them.
+  context 'sshd_config drop-in' do
+    let(:dropin) { '/etc/ssh/sshd_config.d/00-simp.conf' }
+
+    def facts_for(major)
+      os = base_facts[:os].merge(release: { 'major' => major, 'full' => "#{major}.0" })
+      base_facts.merge(os: os)
+    end
+
+    ['9', '10'].each do |major|
+      context "with sshd_config settings on EL#{major}" do
+        let(:facts) { facts_for(major).merge(custom_hiera: 'conf_settings') }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_file(dropin)
+            .with_ensure('file')
+            .with_owner('root')
+            .with_group('root')
+            .with_mode('0600')
+            .with_selinux_ignore_defaults(true)
+        }
+
+        ['Banner', 'PermitRootLogin', 'PasswordAuthentication', 'MaxAuthTries', 'X11Forwarding'].each do |key|
+          it { is_expected.to contain_sshd_config(key).with_target(dropin).that_requires("File[#{dropin}]") }
+        end
+
+        # Accumulated across files, or left to the crypto policy.
+        ['Port', 'Ciphers'].each do |key|
+          it { is_expected.to contain_sshd_config(key).without_target }
+        end
+
+        # Subsystem is still written to sshd_config.
+        it { is_expected.to contain_sshd_config_subsystem('sftp').without_target }
+      end
+
+      context "with no sshd_config parameters on EL#{major}" do
+        let(:facts) { facts_for(major).merge(custom_hiera: 'none') }
+
+        it { is_expected.not_to contain_file(dropin) }
+      end
+    end
+
+    context 'with sshd_config settings on EL8' do
+      let(:facts) { facts_for('8').merge(custom_hiera: 'conf_settings') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.not_to contain_file(dropin) }
+      it { is_expected.to contain_sshd_config('PermitRootLogin').without_target }
+    end
   end
 
   # On EL9+ the vendor 50-redhat.conf drop-in overrides the main sshd_config

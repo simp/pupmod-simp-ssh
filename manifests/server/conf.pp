@@ -3,6 +3,32 @@
 # ``sshd`` configuration variables can be set using Augeas outside of this
 # class with no adverse effects.
 #
+# Where settings are written:
+#
+# * EL8: ``/etc/ssh/sshd_config``.
+# * EL9+: ``/etc/ssh/sshd_config.d/00-simp.conf`` (root:root 0600), created
+#   only once a setting is written to it.  The vendor ``sshd_config``
+#   ``Include``s ``sshd_config.d/*.conf`` at the top of the file and sshd uses
+#   the first value it reads, so every drop-in (``50-redhat.conf``,
+#   ``25-permitrootlogin.conf``, Anaconda's ``01-permitrootlogin.conf``)
+#   overrides what is written to ``sshd_config``.  ``00-simp.conf`` sorts
+#   before all of them.
+# * Also on EL9+, two groups stay in ``/etc/ssh/sshd_config``:
+#   * Keywords sshd accumulates across files: ``AcceptEnv``,
+#     ``AllowGroups``, ``AllowUsers``, ``DenyGroups``, ``DenyUsers``,
+#     ``ListenAddress`` and ``Port``.  No vendor drop-in sets them, so they
+#     take effect there.
+#   * ``Ciphers``, ``MACs`` and ``KexAlgorithms``, which stay under the
+#     system crypto policy's vendor drop-in.  To change which algorithms sshd
+#     offers on EL9+, create a crypto sub-policy rather than setting these
+#     parameters.
+#
+# ``/etc/ssh/sshd_config`` itself is not edited to make way for the drop-in:
+# lines earlier releases wrote there stay in place and are overridden by
+# ``00-simp.conf``.  ``$custom_entries`` and ``Subsystem`` are still written
+# to ``sshd_config``; use ``$sshd_config_entries`` with ``target`` to place an
+# entry elsewhere.
+#
 #### SSH Parameters ####
 #
 # @param acceptenv
@@ -43,6 +69,10 @@
 #   Specifies the ciphers allowed for protocol version 2.  When unset, no
 #   `Ciphers` line is managed.  The `simp:defaults` profile supplies a strong,
 #   FIPS-aware set.
+#
+#   * On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+#     system crypto policy's vendor drop-in overrides it.  To choose which
+#     algorithms sshd uses there, create a crypto sub-policy instead.
 #
 # @param clientalivecountmax
 #   @see man page for sshd_config
@@ -87,6 +117,10 @@
 #   `KexAlgorithms` line is managed.  The `simp:defaults` profile supplies a
 #   FIPS-aware set.
 #
+#   * On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+#     system crypto policy's vendor drop-in overrides it.  To choose which
+#     algorithms sshd uses there, create a crypto sub-policy instead.
+#
 # @param listenaddress
 #   Specifies the local addresses sshd should listen on.
 #
@@ -100,6 +134,10 @@
 # @param macs
 #   Specifies the available MAC algorithms. When unset, no `MACs` line is
 #   managed.  The `simp:defaults` profile supplies a strong, FIPS-aware set.
+#
+#   * On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+#     system crypto policy's vendor drop-in overrides it.  To choose which
+#     algorithms sshd uses there, create a crypto sub-policy instead.
 #
 # @param maxauthtries
 #   Specifies the maximum number of authentication attempts permitted per
@@ -210,12 +248,11 @@
 #
 #   Unlike ``$custom_entries`` (bare keyword/value pairs in the default
 #   ``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
-#   notably ``target``, which manages a keyword inside a drop-in file.  That is
-#   the supported way to control a setting the vendor pre-sets in
-#   ``/etc/ssh/sshd_config.d/50-redhat.conf`` on EL9+: sshd ``Include``s that
-#   directory at the *top* of ``sshd_config`` and uses the first obtained
-#   value, so the drop-in silently overrides anything this class writes to the
-#   main file.
+#   notably ``target``, which manages a keyword inside a drop-in file.  The
+#   class's own parameters already go to ``00-simp.conf`` on EL9+ (see the
+#   class description), so this is for keywords the class has no parameter
+#   for, or for editing a vendor drop-in such as
+#   ``/etc/ssh/sshd_config.d/50-redhat.conf`` directly.
 #
 #   * Give each entry a title distinct from any module-managed keyword (module
 #     entries use the bare keyword as the title) and set ``key`` explicitly.
@@ -234,6 +271,9 @@
 #
 # @param remove_entries
 #   List of configuration parameters that will be removed.
+#
+#   * Removed from ``/etc/ssh/sshd_config`` and, on EL9+ for keywords the
+#     class writes there, from ``/etc/ssh/sshd_config.d/00-simp.conf``.
 #
 #   * NOTE: Due to complexity, ``Match`` entries are not supported and will
 #     need to be removed using ``sshd_config_match`` resources as described in
@@ -587,6 +627,18 @@ class ssh::server::conf (
       sshd_config { $key:
         ensure  => absent,
         require => Package['openssh-server'],
+      }
+
+      # A key the module writes to a drop-in on EL9+ is removed from there too.
+      $_target = ssh::sshd_config_target($key)
+
+      if $_target {
+        sshd_config { "${key} in ${_target}":
+          ensure  => absent,
+          key     => $key,
+          target  => $_target,
+          require => Package['openssh-server'],
+        }
       }
     }
   }
