@@ -10,8 +10,9 @@
   `ListenAddress`, `Port`, `Ciphers`, `MACs`, `KexAlgorithms`,
   `$custom_entries` and `Subsystem` are still written to `sshd_config`. Use a
   crypto sub-policy to choose algorithms on EL9+.
-- A `$sshd_config_entries` entry that targets `00-simp.conf` keeps
-  precedence: the class stops managing its keyword and logs a warning.
+- An `ssh::server::sshd_config_entry` (or `$sshd_config_entries` entry) that
+  sets a value in `00-simp.conf` keeps precedence over the class for its
+  keyword. An `ensure: absent` entry there yields to the class's value.
 - `$remove_entries` also removes keywords from `00-simp.conf`, and matches
   keywords case-insensitively.
 - Add `ssh::sshd_config_target`, which returns the file a keyword is written

@@ -146,9 +146,9 @@ describe 'ssh::server::conf' do
     }
   end
 
-  # An entry pointed at the class's own drop-in (as the 9.1.0-9.3.0 README
-  # suggested) keeps precedence: the class leaves that keyword to it rather
-  # than both rewriting the same line on every run.
+  # An entry in the class's own drop-in (as the 9.1.0-9.3.0 README suggested)
+  # must not rewrite the same line as the class on every run: an entry that
+  # sets a value wins, and an ensure => absent entry yields to the class.
   context 'with sshd_config_entries in 00-simp.conf' do
     let(:dropin) { '/etc/ssh/sshd_config.d/00-simp.conf' }
 
@@ -159,17 +159,42 @@ describe 'ssh::server::conf' do
       end
 
       it { is_expected.to compile.with_all_deps }
-      it { is_expected.to contain_sshd_config('site X11Forwarding').with_value('yes').with_target(dropin) }
-      # Matched case-insensitively, and an ensure => absent entry counts too.
-      it { is_expected.to contain_sshd_config('site maxauthtries').with_ensure('absent') }
-      it { is_expected.not_to contain_sshd_config('MaxAuthTries') }
-      # The class's own value is not written; remove_entries still removes the
-      # keyword from sshd_config but leaves the entry's line in the drop-in.
+      # The entry's value wins, matched case-insensitively.
+      it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('prohibit-password').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('site permitrootlogin').with_value('prohibit-password') }
+      # A remove_entries removal from the drop-in takes the entry's value too;
+      # the removal from sshd_config is unchanged.
+      it { is_expected.to contain_sshd_config("X11Forwarding in #{dropin}").with_ensure('present').with_value('yes') }
       it { is_expected.to contain_sshd_config('X11Forwarding').with_ensure('absent').without_target }
-      it { is_expected.not_to contain_sshd_config("X11Forwarding in #{dropin}") }
-      # Other keywords are unaffected, as are entries with a condition.
-      it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no').with_target(dropin) }
-      it { is_expected.to contain_sshd_config('Banner').with_target(dropin) }
+      # An absent entry takes the class's value...
+      it { is_expected.to contain_sshd_config('site MaxAuthTries').with_ensure('present').with_value('4') }
+      it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('4').with_target(dropin) }
+      # ...and still removes the line when the class does not set the keyword.
+      it { is_expected.to contain_sshd_config('site LoginGraceTime').with_ensure('absent') }
+      # Match entries and other files are unaffected.
+      it { is_expected.to contain_sshd_config('Banner').with_value('/etc/issue.net').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('ClientAliveInterval').with_value('600').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('site ClientAliveInterval').with_value('300') }
+    end
+
+    context 'declared directly on EL9' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '9', 'full' => '9.0' })
+        base_facts.merge(os: os, custom_hiera: 'conf_settings')
+      end
+      let(:pre_condition) do
+        <<~PP
+          include ssh::server
+          ssh::server::sshd_config_entry { 'x11':
+            key    => 'x11forwarding',
+            value  => 'yes',
+            target => '#{dropin}',
+          }
+        PP
+      end
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('X11Forwarding').with_value('yes').with_target(dropin) }
     end
 
     context 'on EL8' do
@@ -178,9 +203,11 @@ describe 'ssh::server::conf' do
         base_facts.merge(os: os, custom_hiera: 'conf_dropin_entries')
       end
 
-      # The class writes to sshd_config on EL8, so there is nothing to yield.
+      # The class writes to sshd_config on EL8, so the entries don't apply to it.
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('4').without_target }
+      it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no').without_target }
+      it { is_expected.to contain_sshd_config('site MaxAuthTries').with_ensure('absent') }
     end
   end
 

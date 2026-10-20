@@ -813,10 +813,10 @@ for, or for editing a vendor drop-in such as
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
-* Do not target ``00-simp.conf``, which the class owns.  On EL9+ the
-  class stops managing a keyword that an entry manages there (so the two
-  do not rewrite each other's value on every run) and logs a warning.
-  Use a drop-in of your own instead.
+* Do not target ``00-simp.conf``, which the class owns; use a drop-in of
+  your own.  An entry there that sets a value takes precedence over the
+  class for its keyword, and an ``ensure: absent`` entry there yields to
+  the class's value (see ``ssh::server::sshd_config_entry``).
 * Each entry requires ``Package['openssh-server']`` in addition to any
   ``require`` the entry provides.
 * When service management is enabled, changes notify the sshd service;
@@ -1735,6 +1735,12 @@ since neither resource is guaranteed to be in the catalog.
 Give each entry a title distinct from any module-managed keyword (module
 entries use the bare keyword as the title) and set ``key`` explicitly when
 the title is not the keyword itself.
+
+Use a drop-in of your own rather than ``00-simp.conf``, which
+``ssh::server::conf`` owns on EL9+.  An entry there that sets a value takes
+precedence over the class for its keyword, and an ``ensure => absent`` entry
+there yields to the class's value: the line is removed only while the class
+does not set the keyword.
 
 #### Examples
 

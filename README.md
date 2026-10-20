@@ -62,9 +62,10 @@ now wins. In particular:
   used to win. Set `ssh::server::conf::passwordauthentication: false` to keep
   password authentication off.
 - **Entries in `00-simp.conf`:** releases 9.1.0 to 9.3.0 suggested pointing
-  `ssh::server::conf::sshd_config_entries` at `00-simp.conf`. Such an entry
-  keeps precedence: the class stops managing that keyword and logs a warning.
-  Move the entry to a drop-in of your own to let the class manage it again.
+  `sshd_config_entries` (or `ssh::server::sshd_config_entry`) at
+  `00-simp.conf`. Such an entry that sets a value keeps precedence over the
+  class's value for its keyword, as before. An `ensure: absent` entry there
+  yields to the class's value. Move these entries to a drop-in of your own.
 
 Some keywords are still written to `/etc/ssh/sshd_config`: those `sshd` adds
 up across files (`AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`,
@@ -356,10 +357,11 @@ so the next openssh update does not leave an ``.rpmnew`` behind.  Editing the
 vendor file remains supported — some compliance audits check the vendor file's
 own contents, which only an in-place edit satisfies.
 
-Do not target ``00-simp.conf``: the class owns it.  To avoid two resources
-rewriting the same line, the class stops managing a keyword that an entry
-manages there, and logs a warning.  A keyword set both by the class and in your
-own drop-in takes the class's value, because ``00-simp.conf`` sorts first.
+Do not target ``00-simp.conf``: the class owns it.  So that two resources do
+not rewrite the same line, an entry there that sets a value takes precedence
+over the class for its keyword, and an ``ensure: absent`` entry there yields to
+the class's value.  A keyword set both by the class and in your own drop-in
+takes the class's value, because ``00-simp.conf`` sorts first.
 
 The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
 ``ssh_config`` resources.  Note that the vendor *client* drop-ins

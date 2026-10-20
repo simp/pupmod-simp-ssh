@@ -56,5 +56,14 @@ function ssh::add_sshd_config(
       notify  => $resources_to_notify,
       require => $_require,
     }
+
+    # An `ensure => absent` entry for this keyword in the same drop-in yields
+    # to the class's value instead of removing the line on alternate runs.
+    if $_target {
+      Sshd_config <| key == $key and target == $_target and ensure == absent |> {
+        ensure => present,
+        value  => $value,
+      }
+    }
   }
 }

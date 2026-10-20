@@ -261,10 +261,10 @@
 #
 #   * Give each entry a title distinct from any module-managed keyword (module
 #     entries use the bare keyword as the title) and set ``key`` explicitly.
-#   * Do not target ``00-simp.conf``, which the class owns.  On EL9+ the
-#     class stops managing a keyword that an entry manages there (so the two
-#     do not rewrite each other's value on every run) and logs a warning.
-#     Use a drop-in of your own instead.
+#   * Do not target ``00-simp.conf``, which the class owns; use a drop-in of
+#     your own.  An entry there that sets a value takes precedence over the
+#     class for its keyword, and an ``ensure: absent`` entry there yields to
+#     the class's value (see ``ssh::server::sshd_config_entry``).
 #   * Each entry requires ``Package['openssh-server']`` in addition to any
 #     ``require`` the entry provides.
 #   * When service management is enabled, changes notify the sshd service;
@@ -556,27 +556,12 @@ class ssh::server::conf (
     }
   }
 
-  # Releases 9.1.0 to 9.3.0 suggested pointing $sshd_config_entries at
-  # 00-simp.conf.  An entry there for a keyword the class also writes there
-  # would rewrite the class's value on every run, and the class would rewrite
-  # it back.  Such an entry took precedence over the class before 10.0.0, so
-  # it keeps it: the class leaves those keywords to the entry.
-  $_entry_keys_in_dropin = $sshd_config_entries.filter |$title, $attrs| {
-    $attrs['condition'] =~ Undef and $attrs['target'] =~ NotUndef and $attrs['target'] == ssh::sshd_config_target(pick($attrs['key'], $title))
-  }.map |$title, $attrs| { pick($attrs['key'], $title) }.unique
-
-  $_entry_keys_in_dropin.each |$key| {
-    warning("ssh::server::conf: \$sshd_config_entries manages ${key} in ${ssh::sshd_config_target($key)}, which this class owns, so the class does not manage ${key}. Move the entry to a drop-in of your own.")
-  }
-
-  $_skip_keys = pick($remove_entries, []) + $_entry_keys_in_dropin
-
-  ssh::add_sshd_config('AcceptEnv', $acceptenv, $_skip_keys)
-  ssh::add_sshd_config('AllowGroups', $allowgroups, $_skip_keys)
-  ssh::add_sshd_config('AllowUsers', $allowusers, $_skip_keys)
+  ssh::add_sshd_config('AcceptEnv', $acceptenv, $remove_entries)
+  ssh::add_sshd_config('AllowGroups', $allowgroups, $remove_entries)
+  ssh::add_sshd_config('AllowUsers', $allowusers, $remove_entries)
   if $authorizedkeyscommand {
-    ssh::add_sshd_config('AuthorizedKeysCommand', $authorizedkeyscommand, $_skip_keys)
-    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $_skip_keys)
+    ssh::add_sshd_config('AuthorizedKeysCommand', $authorizedkeyscommand, $remove_entries)
+    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
   elsif $sssd {
     if $ensure_sssd_packages {
@@ -590,48 +575,48 @@ class ssh::server::conf (
       ensure_packages($_sssd_packages)
     }
 
-    ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys', $_skip_keys)
-    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $_skip_keys)
+    ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/bin/sss_ssh_authorizedkeys', $remove_entries)
+    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
   elsif $_use_ldap {
-    ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper', $_skip_keys)
-    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $_skip_keys)
+    ssh::add_sshd_config('AuthorizedKeysCommand', '/usr/libexec/openssh/ssh-ldap-wrapper', $remove_entries)
+    ssh::add_sshd_config('AuthorizedKeysCommandUser', $authorizedkeyscommanduser, $remove_entries)
   }
   if $manage_authorizedkeysfile {
-    ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $_skip_keys)
+    ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
   }
-  ssh::add_sshd_config('Banner', $banner, $_skip_keys)
-  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate($_challengeresponseauthentication), $_skip_keys)
-  ssh::add_sshd_config('Ciphers', $ciphers, $_skip_keys)
-  ssh::add_sshd_config('ClientAliveCountMax', $_clientalivecountmax, $_skip_keys)
-  ssh::add_sshd_config('ClientAliveInterval', $_clientaliveinterval, $_skip_keys)
-  ssh::add_sshd_config('Compression', ssh::config_bool_translate($compression), $_skip_keys)
-  ssh::add_sshd_config('DenyGroups', $denygroups, $_skip_keys)
-  ssh::add_sshd_config('DenyUsers', $denyusers, $_skip_keys)
-  ssh::add_sshd_config('GSSAPIAuthentication', ssh::config_bool_translate($gssapiauthentication), $_skip_keys)
-  ssh::add_sshd_config('HostbasedAuthentication', ssh::config_bool_translate($hostbasedauthentication), $_skip_keys)
-  ssh::add_sshd_config('IgnoreRhosts', ssh::config_bool_translate($ignorerhosts), $_skip_keys)
-  ssh::add_sshd_config('IgnoreUserKnownHosts', ssh::config_bool_translate($ignoreuserknownhosts), $_skip_keys)
-  ssh::add_sshd_config('KerberosAuthentication', ssh::config_bool_translate($kerberosauthentication), $_skip_keys)
-  ssh::add_sshd_config('KexAlgorithms', $kex_algorithms, $_skip_keys)
-  ssh::add_sshd_config('ListenAddress', $listenaddress, $_skip_keys)
-  ssh::add_sshd_config('LoginGraceTime', $_logingracetime, $_skip_keys)
-  ssh::add_sshd_config('LogLevel', $ssh_loglevel, $_skip_keys)
-  ssh::add_sshd_config('MACs', $macs, $_skip_keys)
-  ssh::add_sshd_config('MaxAuthTries', $_maxauthtries, $_skip_keys)
-  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate($_passwordauthentication), $_skip_keys)
-  ssh::add_sshd_config('PermitEmptyPasswords', ssh::config_bool_translate($permitemptypasswords), $_skip_keys)
-  ssh::add_sshd_config('PermitRootLogin', ssh::config_bool_translate($permitrootlogin), $_skip_keys)
-  ssh::add_sshd_config('PermitUserEnvironment', ssh::config_bool_translate($permituserenvironment), $_skip_keys)
-  ssh::add_sshd_config('Port', $_port_value, $_skip_keys)
-  ssh::add_sshd_config('PrintLastLog', ssh::config_bool_translate($printlastlog), $_skip_keys)
-  ssh::add_sshd_config('Protocol', $_protocol, $_skip_keys)
-  ssh::add_sshd_config('RhostsRSAAuthentication', ssh::config_bool_translate($rhostsrsaauthentication), $_skip_keys)
-  ssh::add_sshd_config('StrictModes', ssh::config_bool_translate($strictmodes), $_skip_keys)
-  ssh::add_sshd_config('SyslogFacility', $syslogfacility, $_skip_keys)
-  ssh::add_sshd_config('UsePAM', ssh::config_bool_translate($_usepam), $_skip_keys)
-  ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $_skip_keys)
-  ssh::add_sshd_config('X11Forwarding', ssh::config_bool_translate($x11forwarding), $_skip_keys)
+  ssh::add_sshd_config('Banner', $banner, $remove_entries)
+  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate($_challengeresponseauthentication), $remove_entries)
+  ssh::add_sshd_config('Ciphers', $ciphers, $remove_entries)
+  ssh::add_sshd_config('ClientAliveCountMax', $_clientalivecountmax, $remove_entries)
+  ssh::add_sshd_config('ClientAliveInterval', $_clientaliveinterval, $remove_entries)
+  ssh::add_sshd_config('Compression', ssh::config_bool_translate($compression), $remove_entries)
+  ssh::add_sshd_config('DenyGroups', $denygroups, $remove_entries)
+  ssh::add_sshd_config('DenyUsers', $denyusers, $remove_entries)
+  ssh::add_sshd_config('GSSAPIAuthentication', ssh::config_bool_translate($gssapiauthentication), $remove_entries)
+  ssh::add_sshd_config('HostbasedAuthentication', ssh::config_bool_translate($hostbasedauthentication), $remove_entries)
+  ssh::add_sshd_config('IgnoreRhosts', ssh::config_bool_translate($ignorerhosts), $remove_entries)
+  ssh::add_sshd_config('IgnoreUserKnownHosts', ssh::config_bool_translate($ignoreuserknownhosts), $remove_entries)
+  ssh::add_sshd_config('KerberosAuthentication', ssh::config_bool_translate($kerberosauthentication), $remove_entries)
+  ssh::add_sshd_config('KexAlgorithms', $kex_algorithms, $remove_entries)
+  ssh::add_sshd_config('ListenAddress', $listenaddress, $remove_entries)
+  ssh::add_sshd_config('LoginGraceTime', $_logingracetime, $remove_entries)
+  ssh::add_sshd_config('LogLevel', $ssh_loglevel, $remove_entries)
+  ssh::add_sshd_config('MACs', $macs, $remove_entries)
+  ssh::add_sshd_config('MaxAuthTries', $_maxauthtries, $remove_entries)
+  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate($_passwordauthentication), $remove_entries)
+  ssh::add_sshd_config('PermitEmptyPasswords', ssh::config_bool_translate($permitemptypasswords), $remove_entries)
+  ssh::add_sshd_config('PermitRootLogin', ssh::config_bool_translate($permitrootlogin), $remove_entries)
+  ssh::add_sshd_config('PermitUserEnvironment', ssh::config_bool_translate($permituserenvironment), $remove_entries)
+  ssh::add_sshd_config('Port', $_port_value, $remove_entries)
+  ssh::add_sshd_config('PrintLastLog', ssh::config_bool_translate($printlastlog), $remove_entries)
+  ssh::add_sshd_config('Protocol', $_protocol, $remove_entries)
+  ssh::add_sshd_config('RhostsRSAAuthentication', ssh::config_bool_translate($rhostsrsaauthentication), $remove_entries)
+  ssh::add_sshd_config('StrictModes', ssh::config_bool_translate($strictmodes), $remove_entries)
+  ssh::add_sshd_config('SyslogFacility', $syslogfacility, $remove_entries)
+  ssh::add_sshd_config('UsePAM', ssh::config_bool_translate($_usepam), $remove_entries)
+  ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
+  ssh::add_sshd_config('X11Forwarding', ssh::config_bool_translate($x11forwarding), $remove_entries)
 
   # Custom manipulation
   if $custom_entries {
@@ -660,11 +645,10 @@ class ssh::server::conf (
         require => Package['openssh-server'],
       }
 
-      # A key the module writes to a drop-in on EL9+ is removed from there too,
-      # unless a $sshd_config_entries entry manages it there.
+      # A key the module writes to a drop-in on EL9+ is removed from there too.
       $_target = ssh::sshd_config_target($key)
 
-      if $_target and !(downcase($key) in $_entry_keys_in_dropin.map |$k| { downcase($k) }) {
+      if $_target {
         sshd_config { "${key} in ${_target}":
           ensure  => absent,
           key     => $key,
