@@ -20,6 +20,12 @@
 # entries use the bare keyword as the title) and set ``key`` explicitly when
 # the title is not the keyword itself.
 #
+# Use a drop-in of your own rather than ``00-simp.conf``, which
+# ``ssh::server::conf`` owns on EL9+.  An entry there that sets a value takes
+# precedence over the class for its keyword, and an ``ensure => absent`` entry
+# there yields to the class's value: the line is removed only while the class
+# does not set the keyword.
+#
 # @example Match-block entry from a profile module
 #   ssh::server::sshd_config_entry { 'AuthorizedKeysFile GitLab user':
 #     key       => 'AuthorizedKeysFile',
@@ -68,6 +74,19 @@ define ssh::server::sshd_config_entry (
 
   if ($ensure == 'present') and ($value =~ Undef) {
     fail("Ssh::Server::Sshd_config_entry[${title}]: 'value' is required when 'ensure' is 'present'")
+  }
+
+  # An entry that sets a value in the file ssh::server::conf writes this
+  # keyword to (00-simp.conf on EL9+, as the 9.1.0 to 9.3.0 README suggested)
+  # keeps the precedence it had before 10.0.0: every resource for the keyword
+  # in that file, including the class's own and a remove_entries removal,
+  # takes this value, so they do not rewrite the line on every run.  Collector
+  # matches are case-insensitive.
+  if $ensure == 'present' and $condition =~ Undef and $target =~ NotUndef and $target == ssh::sshd_config_target($key) {
+    Sshd_config <| (title == $key or key == $key) and target == $target |> {
+      ensure => present,
+      value  => $value,
+    }
   }
 
   # Service management is opt-in (see ssh::server); only notify the service

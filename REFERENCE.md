@@ -31,6 +31,7 @@ outside this module
 * [`ssh::format_host_entry_for_sorting`](#ssh--format_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
 * [`ssh::global_known_hosts`](#ssh--global_known_hosts): Update the ssh_known_hosts files for all hosts, purging old files,
 * [`ssh::parse_ssh_pubkey`](#ssh--parse_ssh_pubkey): Take an ssh pubkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
+* [`ssh::sshd_config_target`](#ssh--sshd_config_target): Return the file a module-managed sshd keyword is written to  On EL9+ the vendor `sshd_config` `Include`s `/etc/ssh/sshd_config.d/*.conf` at t
 
 ### Data types
 
@@ -262,6 +263,32 @@ Default value: `undef`
 ``sshd`` configuration variables can be set using Augeas outside of this
 class with no adverse effects.
 
+Where settings are written:
+
+* EL8: ``/etc/ssh/sshd_config``.
+* EL9+: ``/etc/ssh/sshd_config.d/00-simp.conf`` (root:root 0600), created
+  only once a setting is written to it.  The vendor ``sshd_config``
+  ``Include``s ``sshd_config.d/*.conf`` at the top of the file and sshd uses
+  the first value it reads, so every drop-in (``50-redhat.conf``,
+  ``25-permitrootlogin.conf``, Anaconda's ``01-permitrootlogin.conf``)
+  overrides what is written to ``sshd_config``.  ``00-simp.conf`` sorts
+  before all of them.
+* Also on EL9+, two groups stay in ``/etc/ssh/sshd_config``:
+  * Keywords sshd accumulates across files: ``AcceptEnv``,
+    ``AllowGroups``, ``AllowUsers``, ``DenyGroups``, ``DenyUsers``,
+    ``ListenAddress`` and ``Port``.  No vendor drop-in sets them, so they
+    take effect there.
+  * ``Ciphers``, ``MACs`` and ``KexAlgorithms``, which stay under the
+    system crypto policy's vendor drop-in.  To change which algorithms sshd
+    offers on EL9+, create a crypto sub-policy rather than setting these
+    parameters.
+
+``/etc/ssh/sshd_config`` itself is not edited to make way for the drop-in:
+lines earlier releases wrote there stay in place and are overridden by
+``00-simp.conf``.  ``$custom_entries`` and ``Subsystem`` are still written
+to ``sshd_config``; use ``$sshd_config_entries`` with ``target`` to place an
+entry elsewhere.
+
 SSH Parameters ####
 
 Custom Parameters ####
@@ -407,6 +434,11 @@ Data type: `Optional[Boolean]`
 
 Specifies whether challenge-response authentication is allowed.
 
+* Enabling `$oath` forces this on.  On EL9+ that is done by
+  ``00-simp-kbdinteractive.conf``, which sorts before ``00-simp.conf`` and
+  is removed when OATH is disabled, so ``00-simp.conf`` only ever holds
+  the value set here.
+
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ciphers"></a>`ciphers`
@@ -416,6 +448,10 @@ Data type: `Optional[Array[String]]`
 Specifies the ciphers allowed for protocol version 2.  When unset, no
 `Ciphers` line is managed.  The `simp:defaults` profile supplies a strong,
 FIPS-aware set.
+
+* On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+  system crypto policy's vendor drop-in overrides it.  To choose which
+  algorithms sshd uses there, create a crypto sub-policy instead.
 
 Default value: `undef`
 
@@ -515,6 +551,10 @@ Specifies the key exchange algorithms accepted.  When unset, no
 `KexAlgorithms` line is managed.  The `simp:defaults` profile supplies a
 FIPS-aware set.
 
+* On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+  system crypto policy's vendor drop-in overrides it.  To choose which
+  algorithms sshd uses there, create a crypto sub-policy instead.
+
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--listenaddress"></a>`listenaddress`
@@ -548,6 +588,10 @@ Data type: `Optional[Array[String]]`
 
 Specifies the available MAC algorithms. When unset, no `MACs` line is
 managed.  The `simp:defaults` profile supplies a strong, FIPS-aware set.
+
+* On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+  system crypto policy's vendor drop-in overrides it.  To choose which
+  algorithms sshd uses there, create a crypto sub-policy instead.
 
 Default value: `undef`
 
@@ -761,15 +805,18 @@ what ``sshd`` accepts.
 
 Unlike ``$custom_entries`` (bare keyword/value pairs in the default
 ``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
-notably ``target``, which manages a keyword inside a drop-in file.  That is
-the supported way to control a setting the vendor pre-sets in
-``/etc/ssh/sshd_config.d/50-redhat.conf`` on EL9+: sshd ``Include``s that
-directory at the *top* of ``sshd_config`` and uses the first obtained
-value, so the drop-in silently overrides anything this class writes to the
-main file.
+notably ``target``, which manages a keyword inside a drop-in file.  The
+class's own parameters already go to ``00-simp.conf`` on EL9+ (see the
+class description), so this is for keywords the class has no parameter
+for, or for editing a vendor drop-in such as
+``/etc/ssh/sshd_config.d/50-redhat.conf`` directly.
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
+* Do not target ``00-simp.conf``, which the class owns; use a drop-in of
+  your own.  An entry there that sets a value takes precedence over the
+  class for its keyword, and an ``ensure: absent`` entry there yields to
+  the class's value (see ``ssh::server::sshd_config_entry``).
 * Each entry requires ``Package['openssh-server']`` in addition to any
   ``require`` the entry provides.
 * When service management is enabled, changes notify the sshd service;
@@ -790,6 +837,9 @@ Default value: `{}`
 Data type: `Optional[Array[String[1]]]`
 
 List of configuration parameters that will be removed.
+
+* Removed from ``/etc/ssh/sshd_config`` and, on EL9+ for keywords the
+  class writes there, from ``/etc/ssh/sshd_config.d/00-simp.conf``.
 
 * NOTE: Due to complexity, ``Match`` entries are not supported and will
   need to be removed using ``sshd_config_match`` resources as described in
@@ -1686,6 +1736,12 @@ Give each entry a title distinct from any module-managed keyword (module
 entries use the bare keyword as the title) and set ``key`` explicitly when
 the title is not the keyword itself.
 
+Use a drop-in of your own rather than ``00-simp.conf``, which
+``ssh::server::conf`` owns on EL9+.  An entry there that sets a value takes
+precedence over the class for its keyword, and an ``ensure => absent`` entry
+there yields to the class's value: the line is removed only while the class
+does not set the keyword.
+
 #### Examples
 
 ##### Match-block entry from a profile module
@@ -1829,6 +1885,11 @@ A `$value` of `undef` is skipped entirely so that an unset class parameter
 declares no `sshd_config` resource (reduced blast radius: Puppet leaves that
 setting exactly as the package/admin left it).
 
+The entry is written to the file `ssh::sshd_config_target` returns for the
+key: a drop-in that sorts first on EL9+, so vendor and installer drop-ins
+cannot override it, or `/etc/ssh/sshd_config`.  The drop-in is declared only
+once something is written to it.
+
 #### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [])`
 
 Add a sshd_config entry if it has a value and is not in the remove list
@@ -1836,6 +1897,11 @@ Add a sshd_config entry if it has a value and is not in the remove list
 A `$value` of `undef` is skipped entirely so that an unset class parameter
 declares no `sshd_config` resource (reduced blast radius: Puppet leaves that
 setting exactly as the package/admin left it).
+
+The entry is written to the file `ssh::sshd_config_target` returns for the
+key: a drop-in that sorts first on EL9+, so vendor and installer drop-ins
+cannot override it, or `/etc/ssh/sshd_config`.  The drop-in is declared only
+once something is written to it.
 
 Returns: `Nil`
 
@@ -1855,7 +1921,8 @@ The value of the sshd configuration parameter
 
 Data type: `Variant[Array[String[1]],Undef]`
 
-List of sshd configuration parameters to be removed
+List of sshd configuration parameters not to add,
+compared case-insensitively
 
 ##### `resources_to_notify`
 
@@ -2072,6 +2139,72 @@ Returns: `Hash`
 Data type: `String`
 
 The ssh key, can be pasted from ~/.ssh/id_rsa.pub or similar
+
+### <a name="ssh--sshd_config_target"></a>`ssh::sshd_config_target`
+
+Type: Puppet Language
+
+Return the file a module-managed sshd keyword is written to
+
+On EL9+ the vendor `sshd_config` `Include`s `/etc/ssh/sshd_config.d/*.conf`
+at the top of the file, and sshd uses the first value it reads for most
+keywords.  Any drop-in that sets a keyword (the vendor `50-redhat.conf`,
+`25-permitrootlogin.conf` written by the `openssh-server` scriptlet, or
+`01-permitrootlogin.conf` written by Anaconda) therefore overrides what the
+module writes to `sshd_config`.  Those keywords go to a drop-in that sorts
+before all of them instead.
+
+Two groups of keywords stay in `sshd_config`:
+
+* Keywords sshd accumulates across files rather than taking the first
+  value.  No vendor drop-in sets them, so they already take effect in
+  `sshd_config`, and moving them would leave the lines earlier releases
+  wrote there in effect alongside the drop-in: a changed `Port` would keep
+  listening on the old one, and `AllowUsers` would allow both lists.
+* `Ciphers`, `MACs` and `KexAlgorithms`.  On EL9+ the system crypto policy
+  sets them through a vendor drop-in, and it stays in charge of them.
+  Choosing which algorithms override the policy is the job of a crypto
+  sub-policy, not of sshd keywords that would bypass it.
+
+`sshd_config` itself is never edited to make room for the drop-in.  The
+lines earlier releases wrote there stay in place and have no effect once the
+drop-in sets the same keyword.
+
+#### `ssh::sshd_config_target(String[1] $key)`
+
+Return the file a module-managed sshd keyword is written to
+
+On EL9+ the vendor `sshd_config` `Include`s `/etc/ssh/sshd_config.d/*.conf`
+at the top of the file, and sshd uses the first value it reads for most
+keywords.  Any drop-in that sets a keyword (the vendor `50-redhat.conf`,
+`25-permitrootlogin.conf` written by the `openssh-server` scriptlet, or
+`01-permitrootlogin.conf` written by Anaconda) therefore overrides what the
+module writes to `sshd_config`.  Those keywords go to a drop-in that sorts
+before all of them instead.
+
+Two groups of keywords stay in `sshd_config`:
+
+* Keywords sshd accumulates across files rather than taking the first
+  value.  No vendor drop-in sets them, so they already take effect in
+  `sshd_config`, and moving them would leave the lines earlier releases
+  wrote there in effect alongside the drop-in: a changed `Port` would keep
+  listening on the old one, and `AllowUsers` would allow both lists.
+* `Ciphers`, `MACs` and `KexAlgorithms`.  On EL9+ the system crypto policy
+  sets them through a vendor drop-in, and it stays in charge of them.
+  Choosing which algorithms override the policy is the job of a crypto
+  sub-policy, not of sshd keywords that would bypass it.
+
+`sshd_config` itself is never edited to make room for the drop-in.  The
+lines earlier releases wrote there stay in place and have no effect once the
+drop-in sets the same keyword.
+
+Returns: `Optional[Stdlib::Absolutepath]` The drop-in path, or `undef` for the default `/etc/ssh/sshd_config`
+
+##### `key`
+
+Data type: `String[1]`
+
+The sshd configuration keyword
 
 ## Data types
 

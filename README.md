@@ -11,6 +11,7 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Module Description](#module-description)
+* [Breaking changes in 10.0.0](#breaking-changes-in-1000)
 * [Breaking changes in 9.0.0](#breaking-changes-in-900)
 * [Setup](#setup)
   * [What ssh affects](#what-ssh-affects)
@@ -42,6 +43,36 @@
 ## Module Description
 
 Manages the SSH Client and Server
+
+## Breaking changes in 10.0.0
+
+On EL9+, `ssh::server::conf` writes its settings to
+`/etc/ssh/sshd_config.d/00-simp.conf` instead of `/etc/ssh/sshd_config`. The
+vendor `sshd_config` reads `sshd_config.d/*.conf` before its own lines, and
+`sshd` keeps the first value it reads, so drop-ins such as `50-redhat.conf`
+used to override what this module wrote. `00-simp.conf` sorts before them, so
+the values you set now take effect. EL8 is unchanged.
+
+Before upgrading an EL9+ host, compare the parameters you set with its
+drop-ins in `/etc/ssh/sshd_config.d`; wherever they differ, the module's value
+now wins. In particular:
+
+- **Cloud images:** `simp:defaults` sets `passwordauthentication: true`.
+  cloud-init writes `PasswordAuthentication no` to `50-cloud-init.conf`, which
+  used to win. Set `ssh::server::conf::passwordauthentication: false` to keep
+  password authentication off.
+- **Entries in `00-simp.conf`:** releases 9.1.0 to 9.3.0 suggested pointing
+  `sshd_config_entries` (or `ssh::server::sshd_config_entry`) at
+  `00-simp.conf`. Such an entry that sets a value keeps precedence over the
+  class's value for its keyword, as before. An `ensure: absent` entry there
+  yields to the class's value. Move these entries to a drop-in of your own.
+
+Some keywords are still written to `/etc/ssh/sshd_config`: those `sshd` adds
+up across files (`AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`,
+`DenyUsers`, `ListenAddress`, `Port`) and those the system crypto policy sets
+(`Ciphers`, `MACs`, `KexAlgorithms`; use a crypto sub-policy to change them).
+`/etc/ssh/sshd_config` itself is not edited to make way for the drop-in: lines
+earlier releases wrote there stay, and `00-simp.conf` overrides them.
 
 ## Breaking changes in 9.0.0
 
@@ -293,9 +324,12 @@ duplicate Puppet resources (i.e., manifest compilation failures).
 On EL9+ the vendor ``sshd_config`` ``Include``s ``/etc/ssh/sshd_config.d/*.conf``
 at the *top* of the file, and ``sshd`` uses the first obtained value — so a
 keyword the vendor pre-sets in ``50-redhat.conf`` (``X11Forwarding``,
-``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything this
-module writes to the main file.  To control such a keyword, manage it in the
-drop-in itself with ``ssh::server::conf::sshd_config_entries``, which declares
+``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything written to
+the main file.  ``ssh::server::conf``'s own parameters are therefore written to
+``/etc/ssh/sshd_config.d/00-simp.conf``, which sorts before the vendor drop-ins
+(see the class documentation for the keywords that stay in ``sshd_config``).
+For a keyword the class has no parameter for, manage it in the drop-in itself
+with ``ssh::server::conf::sshd_config_entries``, which declares
 ``ssh::server::sshd_config_entry`` resources (see below) — including the
 [`sshd_config`][aug_ssh__sshd_config] type's ``target`` attribute — through
 Hiera:
@@ -317,11 +351,17 @@ addition to any ``require`` it declares itself.
 
 Instead of editing the vendor file you may also point entries at a drop-in of
 your own that sorts before it (e.g.
-``target: '/etc/ssh/sshd_config.d/00-simp.conf'`` — augeas creates the file):
+``target: '/etc/ssh/sshd_config.d/10-site.conf'`` — augeas creates the file):
 that wins the same first-obtained-value race without modifying vendor content,
 so the next openssh update does not leave an ``.rpmnew`` behind.  Editing the
 vendor file remains supported — some compliance audits check the vendor file's
 own contents, which only an in-place edit satisfies.
+
+Do not target ``00-simp.conf``: the class owns it.  So that two resources do
+not rewrite the same line, an entry there that sets a value takes precedence
+over the class for its keyword, and an ``ensure: absent`` entry there yields to
+the class's value.  A keyword set both by the class and in your own drop-in
+takes the class's value, because ``00-simp.conf`` sorts first.
 
 The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
 ``ssh_config`` resources.  Note that the vendor *client* drop-ins

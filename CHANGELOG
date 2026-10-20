@@ -1,3 +1,23 @@
+* Mon Oct 19 2026 Mike Riddle <mike@sicura.us> - 10.0.0
+- BREAKING CHANGE: on EL9+, `ssh::server::conf` writes its settings to
+  `/etc/ssh/sshd_config.d/00-simp.conf` instead of `/etc/ssh/sshd_config`, so
+  drop-ins such as `50-redhat.conf` no longer override them. EL8 is unchanged.
+- BREAKING CHANGE: on EL9+ cloud images, `simp:defaults`
+  (`passwordauthentication: true`) now overrides the `PasswordAuthentication
+  no` that cloud-init writes. Set `ssh::server::conf::passwordauthentication:
+  false` to keep password authentication off.
+- `AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`, `DenyUsers`,
+  `ListenAddress`, `Port`, `Ciphers`, `MACs`, `KexAlgorithms`,
+  `$custom_entries` and `Subsystem` are still written to `sshd_config`. Use a
+  crypto sub-policy to choose algorithms on EL9+.
+- An `ssh::server::sshd_config_entry` (or `$sshd_config_entries` entry) that
+  sets a value in `00-simp.conf` keeps precedence over the class for its
+  keyword. An `ensure: absent` entry there yields to the class's value.
+- `$remove_entries` also removes keywords from `00-simp.conf`, and matches
+  keywords case-insensitively.
+- Add `ssh::sshd_config_target`, which returns the file a keyword is written
+  to.
+
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 9.3.0
 - Add support for OpenVox 9
 - Update metadata.json dependency ranges from the Forge

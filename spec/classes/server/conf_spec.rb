@@ -72,7 +72,6 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to contain_sshd_config('PasswordAuthentication').with_value('no') }
-      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('yes') }
       it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
       it { is_expected.to contain_file('/etc/pam.d/sshd') }
     end
@@ -147,6 +146,71 @@ describe 'ssh::server::conf' do
     }
   end
 
+  # An entry in the class's own drop-in (as the 9.1.0-9.3.0 README suggested)
+  # must not rewrite the same line as the class on every run: an entry that
+  # sets a value wins, and an ensure => absent entry yields to the class.
+  context 'with sshd_config_entries in 00-simp.conf' do
+    let(:dropin) { '/etc/ssh/sshd_config.d/00-simp.conf' }
+
+    context 'on EL9' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '9', 'full' => '9.0' })
+        base_facts.merge(os: os, custom_hiera: 'conf_dropin_entries')
+      end
+
+      it { is_expected.to compile.with_all_deps }
+      # The entry's value wins, matched case-insensitively.
+      it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('prohibit-password').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('site permitrootlogin').with_value('prohibit-password') }
+      # A remove_entries removal from the drop-in takes the entry's value too;
+      # the removal from sshd_config is unchanged.
+      it { is_expected.to contain_sshd_config("X11Forwarding in #{dropin}").with_ensure('present').with_value('yes') }
+      it { is_expected.to contain_sshd_config('X11Forwarding').with_ensure('absent').without_target }
+      # An absent entry takes the class's value...
+      it { is_expected.to contain_sshd_config('site MaxAuthTries').with_ensure('present').with_value('4') }
+      it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('4').with_target(dropin) }
+      # ...and still removes the line when the class does not set the keyword.
+      it { is_expected.to contain_sshd_config('site LoginGraceTime').with_ensure('absent') }
+      # Match entries and other files are unaffected.
+      it { is_expected.to contain_sshd_config('Banner').with_value('/etc/issue.net').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('ClientAliveInterval').with_value('600').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('site ClientAliveInterval').with_value('300') }
+    end
+
+    context 'declared directly on EL9' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '9', 'full' => '9.0' })
+        base_facts.merge(os: os, custom_hiera: 'conf_settings')
+      end
+      let(:pre_condition) do
+        <<~PP
+          include ssh::server
+          ssh::server::sshd_config_entry { 'x11':
+            key    => 'x11forwarding',
+            value  => 'yes',
+            target => '#{dropin}',
+          }
+        PP
+      end
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('X11Forwarding').with_value('yes').with_target(dropin) }
+    end
+
+    context 'on EL8' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '8', 'full' => '8.10' })
+        base_facts.merge(os: os, custom_hiera: 'conf_dropin_entries')
+      end
+
+      # The class writes to sshd_config on EL8, so the entries don't apply to it.
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('4').without_target }
+      it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no').without_target }
+      it { is_expected.to contain_sshd_config('site MaxAuthTries').with_ensure('absent') }
+    end
+  end
+
   context 'with remove_entries' do
     let(:facts) { base_facts.merge(custom_hiera: 'conf_remove') }
 
@@ -155,6 +219,66 @@ describe 'ssh::server::conf' do
     it { is_expected.to contain_sshd_config('PermitRootLogin').with_ensure('absent') }
     # ...and an explicit removal is declared.
     it { is_expected.to contain_sshd_config('GSSAPIAuthentication').with_ensure('absent') }
+    # On EL9+ a key the class writes to the drop-in is removed from there too.
+    it {
+      is_expected.to contain_sshd_config('GSSAPIAuthentication in /etc/ssh/sshd_config.d/00-simp.conf')
+        .with_ensure('absent')
+        .with_key('GSSAPIAuthentication')
+        .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
+    }
+  end
+
+  # On EL9+ drop-ins override sshd_config (first value wins), so the class
+  # writes first-wins keywords to a drop-in that sorts before them.
+  context 'sshd_config drop-in' do
+    let(:dropin) { '/etc/ssh/sshd_config.d/00-simp.conf' }
+
+    def facts_for(major)
+      os = base_facts[:os].merge(release: { 'major' => major, 'full' => "#{major}.0" })
+      base_facts.merge(os: os)
+    end
+
+    ['9', '10'].each do |major|
+      context "with sshd_config settings on EL#{major}" do
+        let(:facts) { facts_for(major).merge(custom_hiera: 'conf_settings') }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_file(dropin)
+            .with_ensure('file')
+            .with_owner('root')
+            .with_group('root')
+            .with_mode('0600')
+            .with_selinux_ignore_defaults(true)
+        }
+
+        ['Banner', 'PermitRootLogin', 'PasswordAuthentication', 'MaxAuthTries', 'X11Forwarding'].each do |key|
+          it { is_expected.to contain_sshd_config(key).with_target(dropin).that_requires("File[#{dropin}]") }
+        end
+
+        # Accumulated across files, or left to the crypto policy.
+        ['Port', 'Ciphers'].each do |key|
+          it { is_expected.to contain_sshd_config(key).without_target }
+        end
+
+        # Subsystem is still written to sshd_config.
+        it { is_expected.to contain_sshd_config_subsystem('sftp').without_target }
+      end
+
+      context "with no sshd_config parameters on EL#{major}" do
+        let(:facts) { facts_for(major).merge(custom_hiera: 'none') }
+
+        it { is_expected.not_to contain_file(dropin) }
+      end
+    end
+
+    context 'with sshd_config settings on EL8' do
+      let(:facts) { facts_for('8').merge(custom_hiera: 'conf_settings') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.not_to contain_file(dropin) }
+      it { is_expected.to contain_sshd_config('PermitRootLogin').without_target }
+    end
   end
 
   # On EL9+ the vendor 50-redhat.conf drop-in overrides the main sshd_config
@@ -176,6 +300,21 @@ describe 'ssh::server::conf' do
           .with_ensure('file')
           .with_content(%r{^KbdInteractiveAuthentication yes$})
       }
+      # The drop-in above carries OATH's value, so nothing is written to
+      # 00-simp.conf that would outlive OATH.
+      it { is_expected.not_to contain_sshd_config('ChallengeResponseAuthentication') }
+    end
+
+    # A site value is written to 00-simp.conf as usual.
+    context 'with challengeresponseauthentication set on EL9' do
+      let(:facts) { el9_facts.merge(custom_hiera: 'conf_cra') }
+
+      it { is_expected.to compile.with_all_deps }
+      it {
+        is_expected.to contain_sshd_config('ChallengeResponseAuthentication')
+          .with_value('no')
+          .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
+      }
     end
 
     context 'with oath=false on EL9' do
@@ -196,6 +335,8 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.not_to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf') }
+      # EL8 has no drop-in, so OATH still forces the sshd_config value.
+      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('yes').without_target }
     end
   end
 end
