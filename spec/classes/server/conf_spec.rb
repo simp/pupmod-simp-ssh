@@ -27,10 +27,8 @@ describe 'ssh::server::conf' do
       it { is_expected.not_to contain_sshd_config(key) }
     end
 
-    # The only sshd_config resource is the removal of a line OATH would have
-    # written to the EL9+ drop-in, which is a no-op when nothing wrote it.
-    it 'declares no sshd_config resources that write a value' do
-      expect(catalogue.resources.select { |r| r.type == 'Sshd_config' && r[:ensure] != 'absent' }).to be_empty
+    it 'declares no sshd_config resources at all' do
+      expect(catalogue.resources.select { |r| r.type == 'Sshd_config' }).to be_empty
     end
 
     it { is_expected.not_to contain_sshd_config_subsystem('sftp') }
@@ -74,7 +72,6 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.to contain_sshd_config('PasswordAuthentication').with_value('no') }
-      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('yes') }
       it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
       it { is_expected.to contain_file('/etc/pam.d/sshd') }
     end
@@ -147,6 +144,44 @@ describe 'ssh::server::conf' do
         .that_requires('Package[openssh-server]')
         .that_requires('File[/etc/ssh]')
     }
+  end
+
+  # An entry pointed at the class's own drop-in (as the 9.1.0-9.3.0 README
+  # suggested) keeps precedence: the class leaves that keyword to it rather
+  # than both rewriting the same line on every run.
+  context 'with sshd_config_entries in 00-simp.conf' do
+    let(:dropin) { '/etc/ssh/sshd_config.d/00-simp.conf' }
+
+    context 'on EL9' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '9', 'full' => '9.0' })
+        base_facts.merge(os: os, custom_hiera: 'conf_dropin_entries')
+      end
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('site X11Forwarding').with_value('yes').with_target(dropin) }
+      # Matched case-insensitively, and an ensure => absent entry counts too.
+      it { is_expected.to contain_sshd_config('site maxauthtries').with_ensure('absent') }
+      it { is_expected.not_to contain_sshd_config('MaxAuthTries') }
+      # The class's own value is not written; remove_entries still removes the
+      # keyword from sshd_config but leaves the entry's line in the drop-in.
+      it { is_expected.to contain_sshd_config('X11Forwarding').with_ensure('absent').without_target }
+      it { is_expected.not_to contain_sshd_config("X11Forwarding in #{dropin}") }
+      # Other keywords are unaffected, as are entries with a condition.
+      it { is_expected.to contain_sshd_config('PermitRootLogin').with_value('no').with_target(dropin) }
+      it { is_expected.to contain_sshd_config('Banner').with_target(dropin) }
+    end
+
+    context 'on EL8' do
+      let(:facts) do
+        os = base_facts[:os].merge(release: { 'major' => '8', 'full' => '8.10' })
+        base_facts.merge(os: os, custom_hiera: 'conf_dropin_entries')
+      end
+
+      # The class writes to sshd_config on EL8, so there is nothing to yield.
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('4').without_target }
+    end
   end
 
   context 'with remove_entries' do
@@ -229,8 +264,6 @@ describe 'ssh::server::conf' do
       base_facts.merge(os: os)
     end
 
-    let(:cra_removal) { 'ChallengeResponseAuthentication in /etc/ssh/sshd_config.d/00-simp.conf' }
-
     context 'with oath=true on EL9' do
       let(:facts) { el9_facts.merge(custom_hiera: 'conf_oath') }
 
@@ -240,50 +273,31 @@ describe 'ssh::server::conf' do
           .with_ensure('file')
           .with_content(%r{^KbdInteractiveAuthentication yes$})
       }
-      it {
-        is_expected.to contain_sshd_config('ChallengeResponseAuthentication')
-          .with_value('yes')
-          .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
-      }
-      it { is_expected.not_to contain_sshd_config(cra_removal) }
+      # The drop-in above carries OATH's value, so nothing is written to
+      # 00-simp.conf that would outlive OATH.
+      it { is_expected.not_to contain_sshd_config('ChallengeResponseAuthentication') }
     end
 
-    # Disabling OATH must not leave its `ChallengeResponseAuthentication yes`
-    # in the drop-in, where it would override the vendor `no`.
-    ['none', 'conf_oath_false'].each do |hiera|
-      context "with #{hiera} on EL9" do
-        let(:facts) { el9_facts.merge(custom_hiera: hiera) }
-
-        it { is_expected.to compile.with_all_deps }
-        it {
-          is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
-            .with_ensure('absent')
-        }
-        it {
-          is_expected.to contain_sshd_config(cra_removal)
-            .with_ensure('absent')
-            .with_key('ChallengeResponseAuthentication')
-            .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
-        }
-        it { is_expected.not_to contain_sshd_config('ChallengeResponseAuthentication') }
-      end
-    end
-
-    # A site value is managed as usual and not removed.
+    # A site value is written to 00-simp.conf as usual.
     context 'with challengeresponseauthentication set on EL9' do
       let(:facts) { el9_facts.merge(custom_hiera: 'conf_cra') }
 
       it { is_expected.to compile.with_all_deps }
-      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('no') }
-      it { is_expected.not_to contain_sshd_config(cra_removal) }
+      it {
+        is_expected.to contain_sshd_config('ChallengeResponseAuthentication')
+          .with_value('no')
+          .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
+      }
     end
 
-    # A key in $remove_entries is removed by that list's own resource.
-    context 'with ChallengeResponseAuthentication in remove_entries on EL9' do
-      let(:facts) { el9_facts.merge(custom_hiera: 'conf_remove_cra') }
+    context 'with oath=false on EL9' do
+      let(:facts) { el9_facts.merge(custom_hiera: 'none') }
 
       it { is_expected.to compile.with_all_deps }
-      it { is_expected.to contain_sshd_config(cra_removal).with_ensure('absent') }
+      it {
+        is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+          .with_ensure('absent')
+      }
     end
 
     context 'with oath=true on EL8' do
@@ -294,7 +308,8 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.not_to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf') }
-      it { is_expected.not_to contain_sshd_config(cra_removal) }
+      # EL8 has no drop-in, so OATH still forces the sshd_config value.
+      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('yes').without_target }
     end
   end
 end

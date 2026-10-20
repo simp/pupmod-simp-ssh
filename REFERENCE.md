@@ -434,10 +434,10 @@ Data type: `Optional[Boolean]`
 
 Specifies whether challenge-response authentication is allowed.
 
-* Enabling `$oath` forces this on.  On EL9+, while this is unset and
-  `$oath` is not enabled, any `ChallengeResponseAuthentication` line in
-  ``00-simp.conf`` is removed, so the `yes` written while OATH was enabled
-  does not outlive it there.
+* Enabling `$oath` forces this on.  On EL9+ that is done by
+  ``00-simp-kbdinteractive.conf``, which sorts before ``00-simp.conf`` and
+  is removed when OATH is disabled, so ``00-simp.conf`` only ever holds
+  the value set here.
 
 Default value: `undef`
 
@@ -813,9 +813,10 @@ for, or for editing a vendor drop-in such as
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
-* Do not target ``00-simp.conf``, which the class owns: an entry for a
-  keyword the class also sets there rewrites the class's value on every
-  run, and the class rewrites it back.  Use a drop-in of your own instead.
+* Do not target ``00-simp.conf``, which the class owns.  On EL9+ the
+  class stops managing a keyword that an entry manages there (so the two
+  do not rewrite each other's value on every run) and logs a warning.
+  Use a drop-in of your own instead.
 * Each entry requires ``Package['openssh-server']`` in addition to any
   ``require`` the entry provides.
 * When service management is enabled, changes notify the sshd service;
@@ -1914,7 +1915,8 @@ The value of the sshd configuration parameter
 
 Data type: `Variant[Array[String[1]],Undef]`
 
-List of sshd configuration parameters to be removed
+List of sshd configuration parameters not to add,
+compared case-insensitively
 
 ##### `resources_to_notify`
 

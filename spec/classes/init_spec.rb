@@ -30,10 +30,8 @@ describe 'ssh' do
           it { is_expected.not_to contain_file('/etc/ssh/ssh_known_hosts') }
           it { is_expected.not_to create_ssh__client__host_config_entry('*') }
 
-          # On EL9+ the only one removes a line OATH would have written to
-          # the drop-in, which is a no-op when nothing wrote it.
-          it 'declares no sshd_config resources that write a value' do
-            expect(catalogue.resources.select { |r| r.type == 'Sshd_config' && r[:ensure] != 'absent' }).to be_empty
+          it 'declares no sshd_config resources' do
+            expect(catalogue.resources.select { |r| r.type == 'Sshd_config' }).to be_empty
           end
 
           it 'declares no ssh_config resources' do

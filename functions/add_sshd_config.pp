@@ -11,7 +11,8 @@
 #
 # @param key The name of the sshd configuration parameter
 # @param value The value of the sshd configuration parameter
-# @param remove_keys List of sshd configuration parameters to be removed
+# @param remove_keys List of sshd configuration parameters not to add,
+#   compared case-insensitively
 # @param resources_to_notify Catalog resources to notify when the sshd
 #   configuration has changed.  Defaults to none, since the `sshd` service is
 #   not managed unless service management is explicitly requested.
@@ -24,7 +25,8 @@ function ssh::add_sshd_config(
   Variant[Array[String[1]],Undef] $remove_keys,
   Array[Type[Catalogentry]]       $resources_to_notify = []
 ) {
-  $_add = ($value =~ NotUndef) and (( $remove_keys == undef ) or ( !member($remove_keys, $key) ))
+  # sshd keywords are case-insensitive, as is the sshd_config type's matching.
+  $_add = ($value =~ NotUndef) and (( $remove_keys == undef ) or ( !(downcase($key) in $remove_keys.map |$k| { downcase($k) }) ))
 
   if $_add {
     $_target = ssh::sshd_config_target($key)

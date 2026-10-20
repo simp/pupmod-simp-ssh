@@ -49,6 +49,14 @@ describe 'ssh::add_sshd_config' do
     end
   end
 
+  # sshd keywords are case-insensitive.
+  context 'with remove_keys matching in a different case' do
+    it 'does not create sshd_config resource' do
+      is_expected.to run.with_params('ClientAliveCountMax', 1, ['clientalivecountmax'])
+      expect(catalogue.resource('Sshd_config', 'ClientAliveCountMax')).to be_nil
+    end
+  end
+
   context 'with an undef value' do
     it 'does not create a sshd_config resource' do
       is_expected.to run.with_params('ClientAliveCountMax', nil, nil)

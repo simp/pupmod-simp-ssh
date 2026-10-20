@@ -77,6 +77,43 @@ describe 'sshd_config drop-in' do
         on(host, 'cd /etc/ssh && sha256sum -c /root/sshd_config.sha256')
       end
 
+      # Set, then unset (the value must stay: unset means unmanaged), then
+      # removed with remove_entries.  sshd -T reports the keyword as
+      # kbdinteractiveauthentication on openssh 8.7+ (EL9+).
+      context 'ChallengeResponseAuthentication' do
+        let(:cra_hieradata) { hieradata.merge('ssh::server::conf::challengeresponseauthentication' => true) }
+
+        def kbd_t(host)
+          on(host, %(sshd -T 2>/dev/null | grep -iE '^(kbdinteractive|challengeresponse)authentication ')).stdout.strip.downcase
+        end
+
+        it 'takes effect when set' do
+          set_hieradata_on(host, cra_hieradata)
+          apply_manifest_on(host, manifest, catch_failures: true)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          expect(kbd_t(host)).to match(%r{ yes$})
+        end
+
+        it 'stays in effect when unset' do
+          set_hieradata_on(host, hieradata)
+          apply_manifest_on(host, manifest, catch_changes: true)
+          expect(kbd_t(host)).to match(%r{ yes$})
+        end
+
+        it 'is removed with remove_entries' do
+          set_hieradata_on(host, hieradata.merge('ssh::server::conf::remove_entries' => ['ChallengeResponseAuthentication']))
+          apply_manifest_on(host, manifest, catch_failures: true)
+          apply_manifest_on(host, manifest, catch_changes: true)
+
+          files = ['/etc/ssh/sshd_config']
+          files << dropin if os_major(host) >= 9
+          on(host, %(grep -iE '^ChallengeResponseAuthentication' #{files.join(' ')}), acceptable_exit_codes: [1])
+          # The vendor 50-redhat.conf value applies again.  EL8 has no drop-in,
+          # so sshd falls back to its compiled-in default there.
+          expect(kbd_t(host)).to match(%r{ no$}) if os_major(host) >= 9
+        end
+      end
+
       it 'cleans up the planted drop-in' do
         on(host, 'rm -f /etc/ssh/sshd_config.d/01-permitrootlogin.conf /root/sshd_config.sha256')
       end

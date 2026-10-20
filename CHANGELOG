@@ -1,52 +1,21 @@
 * Mon Oct 19 2026 Mike Riddle <mike@sicura.us> - 10.0.0
 - BREAKING CHANGE: on EL9+, `ssh::server::conf` writes its settings to
-  `/etc/ssh/sshd_config.d/00-simp.conf` instead of `/etc/ssh/sshd_config`
-  (#219). The vendor `sshd_config` `Include`s `sshd_config.d/*.conf` at the
-  top and sshd uses the first value it reads, so every drop-in
-  (`50-redhat.conf`, `25-permitrootlogin.conf` from the `openssh-server`
-  scriptlet, Anaconda's `01-permitrootlogin.conf`) silently overrode the
-  class: `simp:defaults` set `PermitRootLogin no` and `X11Forwarding no`, but
-  sshd used `yes` for both. `00-simp.conf` sorts before them all, so the
-  class's values now take effect. No parameters change, but the effective
-  sshd configuration does for EL9+ nodes that set them.
-- This applies to every first-wins keyword the class sets, not only
-  `PermitRootLogin` and `X11Forwarding`, so check any parameter whose value
-  differs from a drop-in on your hosts before upgrading. In particular,
-  `simp:defaults` sets `passwordauthentication: true`. EL9+ cloud images run
-  cloud-init with `ssh_pwauth: false`, which writes `PasswordAuthentication no`
-  to `sshd_config.d/50-cloud-init.conf`. That drop-in used to win; after
-  upgrading, password SSH authentication is enabled on those hosts unless
-  `ssh::server::conf::passwordauthentication` is set to `false`.
-- `00-simp.conf` is created root:root 0600 with `selinux_ignore_defaults`,
-  like `00-simp-kbdinteractive.conf`, and only once a setting is written to
-  it: a bare `include ssh` still writes nothing.
-- Some keywords stay in `/etc/ssh/sshd_config` on EL9+:
-  - `AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`, `DenyUsers`,
-    `ListenAddress` and `Port`. sshd accumulates these across files
-    instead of taking the first value, and no vendor drop-in sets them, so
-    they already took effect there. Moving them would have left the lines
-    earlier releases wrote in effect too, e.g. still listening on an old
-    `Port`.
-  - `Ciphers`, `MACs` and `KexAlgorithms`, which stay under the system
-    crypto policy's vendor drop-in. Choosing which algorithms override the
-    policy needs a crypto sub-policy rather than these keywords.
-  - `$custom_entries` and `Subsystem`.
-- `/etc/ssh/sshd_config` is not edited to make way for the drop-in. Lines
-  earlier releases wrote there are left in place and are overridden by
-  `00-simp.conf`.
-- `$remove_entries` also removes a keyword from `00-simp.conf` on EL9+.
-- On EL9+, when `$oath` is not enabled and
-  `$challengeresponseauthentication` is unset, the
-  `ChallengeResponseAuthentication yes` written while OATH was enabled is
-  removed from `00-simp.conf`, along with `00-simp-kbdinteractive.conf`, so
-  the vendor `no` applies again.
-- Don't point `$sshd_config_entries` at `00-simp.conf`, which the README
-  suggested before: an entry for a keyword the class also sets rewrites the
-  class's value on every run. Use a drop-in of your own instead.
-- Add `ssh::sshd_config_target`, which returns the file a keyword is
-  written to.
-- Add an acceptance test that checks `sshd -T` against an installer
-  drop-in, the vendor drop-in and a stale `sshd_config` line.
+  `/etc/ssh/sshd_config.d/00-simp.conf` instead of `/etc/ssh/sshd_config`, so
+  drop-ins such as `50-redhat.conf` no longer override them. EL8 is unchanged.
+- BREAKING CHANGE: on EL9+ cloud images, `simp:defaults`
+  (`passwordauthentication: true`) now overrides the `PasswordAuthentication
+  no` that cloud-init writes. Set `ssh::server::conf::passwordauthentication:
+  false` to keep password authentication off.
+- `AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`, `DenyUsers`,
+  `ListenAddress`, `Port`, `Ciphers`, `MACs`, `KexAlgorithms`,
+  `$custom_entries` and `Subsystem` are still written to `sshd_config`. Use a
+  crypto sub-policy to choose algorithms on EL9+.
+- A `$sshd_config_entries` entry that targets `00-simp.conf` keeps
+  precedence: the class stops managing its keyword and logs a warning.
+- `$remove_entries` also removes keywords from `00-simp.conf`, and matches
+  keywords case-insensitively.
+- Add `ssh::sshd_config_target`, which returns the file a keyword is written
+  to.
 
 * Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 9.3.0
 - Add support for OpenVox 9

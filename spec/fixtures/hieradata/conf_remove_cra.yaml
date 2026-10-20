@@ -1,3 +1,0 @@
----
-ssh::server::conf::remove_entries:
-  - ChallengeResponseAuthentication

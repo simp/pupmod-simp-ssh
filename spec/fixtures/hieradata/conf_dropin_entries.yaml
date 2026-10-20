@@ -1,0 +1,21 @@
+---
+ssh::server::conf::permitrootlogin: false
+ssh::server::conf::x11forwarding: false
+ssh::server::conf::maxauthtries: 4
+ssh::server::conf::banner: '/etc/issue.net'
+ssh::server::conf::remove_entries:
+  - X11Forwarding
+ssh::server::conf::sshd_config_entries:
+  'site X11Forwarding':
+    key: 'X11Forwarding'
+    value: 'yes'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site maxauthtries':
+    ensure: 'absent'
+    key: 'maxauthtries'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site Match Banner':
+    key: 'Banner'
+    value: 'none'
+    condition: 'User backup'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
