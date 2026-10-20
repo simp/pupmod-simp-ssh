@@ -9,6 +9,14 @@
   sshd used `yes` for both. `00-simp.conf` sorts before them all, so the
   class's values now take effect. No parameters change, but the effective
   sshd configuration does for EL9+ nodes that set them.
+- This applies to every first-wins keyword the class sets, not only
+  `PermitRootLogin` and `X11Forwarding`, so check any parameter whose value
+  differs from a drop-in on your hosts before upgrading. In particular,
+  `simp:defaults` sets `passwordauthentication: true`. EL9+ cloud images run
+  cloud-init with `ssh_pwauth: false`, which writes `PasswordAuthentication no`
+  to `sshd_config.d/50-cloud-init.conf`. That drop-in used to win; after
+  upgrading, password SSH authentication is enabled on those hosts unless
+  `ssh::server::conf::passwordauthentication` is set to `false`.
 - `00-simp.conf` is created root:root 0600 with `selinux_ignore_defaults`,
   like `00-simp-kbdinteractive.conf`, and only once a setting is written to
   it: a bare `include ssh` still writes nothing.
@@ -27,6 +35,14 @@
   earlier releases wrote there are left in place and are overridden by
   `00-simp.conf`.
 - `$remove_entries` also removes a keyword from `00-simp.conf` on EL9+.
+- On EL9+, when `$oath` is not enabled and
+  `$challengeresponseauthentication` is unset, the
+  `ChallengeResponseAuthentication yes` written while OATH was enabled is
+  removed from `00-simp.conf`, along with `00-simp-kbdinteractive.conf`, so
+  the vendor `no` applies again.
+- Don't point `$sshd_config_entries` at `00-simp.conf`, which the README
+  suggested before: an entry for a keyword the class also sets rewrites the
+  class's value on every run. Use a drop-in of your own instead.
 - Add `ssh::sshd_config_target`, which returns the file a keyword is
   written to.
 - Add an acceptance test that checks `sshd -T` against an installer

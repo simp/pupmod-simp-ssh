@@ -65,6 +65,11 @@
 # @param challengeresponseauthentication
 #   Specifies whether challenge-response authentication is allowed.
 #
+#   * Enabling `$oath` forces this on.  On EL9+, while this is unset and
+#     `$oath` is not enabled, any `ChallengeResponseAuthentication` line in
+#     ``00-simp.conf`` is removed, so the `yes` written while OATH was enabled
+#     does not outlive it there.
+#
 # @param ciphers
 #   Specifies the ciphers allowed for protocol version 2.  When unset, no
 #   `Ciphers` line is managed.  The `simp:defaults` profile supplies a strong,
@@ -256,6 +261,9 @@
 #
 #   * Give each entry a title distinct from any module-managed keyword (module
 #     entries use the bare keyword as the title) and set ``key`` explicitly.
+#   * Do not target ``00-simp.conf``, which the class owns: an entry for a
+#     keyword the class also sets there rewrites the class's value on every
+#     run, and the class rewrites it back.  Use a drop-in of your own instead.
 #   * Each entry requires ``Package['openssh-server']`` in addition to any
 #     ``require`` the entry provides.
 #   * When service management is enabled, changes notify the sshd service;
@@ -510,6 +518,22 @@ class ssh::server::conf (
       mode                    => '0600',
       selinux_ignore_defaults => true,
       content                 => "# This file is managed by Puppet; changes will be overwritten\nKbdInteractiveAuthentication yes\n",
+    }
+  }
+
+  # OATH writes `ChallengeResponseAuthentication yes` to the 00-simp.conf
+  # drop-in on EL9+, where, unlike in sshd_config, it overrides the vendor
+  # `no`.  Remove it under the same condition as the kbdinteractive drop-in
+  # above, unless the site sets a value or already lists it in
+  # $remove_entries, so that disabling OATH restores vendor behavior.  Like
+  # that drop-in, this is a no-op on systems this module never configured.
+  $_cra_target = ssh::sshd_config_target('ChallengeResponseAuthentication')
+  if $_cra_target and $_challengeresponseauthentication =~ Undef and !('ChallengeResponseAuthentication' in pick($remove_entries, [])) {
+    sshd_config { "ChallengeResponseAuthentication in ${_cra_target}":
+      ensure  => absent,
+      key     => 'ChallengeResponseAuthentication',
+      target  => $_cra_target,
+      require => Package['openssh-server'],
     }
   }
 

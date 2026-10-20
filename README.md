@@ -293,9 +293,12 @@ duplicate Puppet resources (i.e., manifest compilation failures).
 On EL9+ the vendor ``sshd_config`` ``Include``s ``/etc/ssh/sshd_config.d/*.conf``
 at the *top* of the file, and ``sshd`` uses the first obtained value — so a
 keyword the vendor pre-sets in ``50-redhat.conf`` (``X11Forwarding``,
-``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything this
-module writes to the main file.  To control such a keyword, manage it in the
-drop-in itself with ``ssh::server::conf::sshd_config_entries``, which declares
+``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything written to
+the main file.  ``ssh::server::conf``'s own parameters are therefore written to
+``/etc/ssh/sshd_config.d/00-simp.conf``, which sorts before the vendor drop-ins
+(see the class documentation for the keywords that stay in ``sshd_config``).
+For a keyword the class has no parameter for, manage it in the drop-in itself
+with ``ssh::server::conf::sshd_config_entries``, which declares
 ``ssh::server::sshd_config_entry`` resources (see below) — including the
 [`sshd_config`][aug_ssh__sshd_config] type's ``target`` attribute — through
 Hiera:
@@ -317,11 +320,17 @@ addition to any ``require`` it declares itself.
 
 Instead of editing the vendor file you may also point entries at a drop-in of
 your own that sorts before it (e.g.
-``target: '/etc/ssh/sshd_config.d/00-simp.conf'`` — augeas creates the file):
+``target: '/etc/ssh/sshd_config.d/10-site.conf'`` — augeas creates the file):
 that wins the same first-obtained-value race without modifying vendor content,
 so the next openssh update does not leave an ``.rpmnew`` behind.  Editing the
 vendor file remains supported — some compliance audits check the vendor file's
 own contents, which only an in-place edit satisfies.
+
+Do not target ``00-simp.conf``: the class owns it.  An entry there for a
+keyword the class also sets is a second resource managing the same line, and
+the two rewrite each other's value on every run (restarting ``sshd`` each time
+when the service is managed).  A keyword set both by the class and in your own
+drop-in takes the class's value, because ``00-simp.conf`` sorts first.
 
 The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
 ``ssh_config`` resources.  Note that the vendor *client* drop-ins

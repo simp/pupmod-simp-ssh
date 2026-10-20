@@ -27,8 +27,10 @@ describe 'ssh::server::conf' do
       it { is_expected.not_to contain_sshd_config(key) }
     end
 
-    it 'declares no sshd_config resources at all' do
-      expect(catalogue.resources.select { |r| r.type == 'Sshd_config' }).to be_empty
+    # The only sshd_config resource is the removal of a line OATH would have
+    # written to the EL9+ drop-in, which is a no-op when nothing wrote it.
+    it 'declares no sshd_config resources that write a value' do
+      expect(catalogue.resources.select { |r| r.type == 'Sshd_config' && r[:ensure] != 'absent' }).to be_empty
     end
 
     it { is_expected.not_to contain_sshd_config_subsystem('sftp') }
@@ -227,6 +229,8 @@ describe 'ssh::server::conf' do
       base_facts.merge(os: os)
     end
 
+    let(:cra_removal) { 'ChallengeResponseAuthentication in /etc/ssh/sshd_config.d/00-simp.conf' }
+
     context 'with oath=true on EL9' do
       let(:facts) { el9_facts.merge(custom_hiera: 'conf_oath') }
 
@@ -236,16 +240,50 @@ describe 'ssh::server::conf' do
           .with_ensure('file')
           .with_content(%r{^KbdInteractiveAuthentication yes$})
       }
+      it {
+        is_expected.to contain_sshd_config('ChallengeResponseAuthentication')
+          .with_value('yes')
+          .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
+      }
+      it { is_expected.not_to contain_sshd_config(cra_removal) }
     end
 
-    context 'with oath=false on EL9' do
-      let(:facts) { el9_facts.merge(custom_hiera: 'none') }
+    # Disabling OATH must not leave its `ChallengeResponseAuthentication yes`
+    # in the drop-in, where it would override the vendor `no`.
+    ['none', 'conf_oath_false'].each do |hiera|
+      context "with #{hiera} on EL9" do
+        let(:facts) { el9_facts.merge(custom_hiera: hiera) }
+
+        it { is_expected.to compile.with_all_deps }
+        it {
+          is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
+            .with_ensure('absent')
+        }
+        it {
+          is_expected.to contain_sshd_config(cra_removal)
+            .with_ensure('absent')
+            .with_key('ChallengeResponseAuthentication')
+            .with_target('/etc/ssh/sshd_config.d/00-simp.conf')
+        }
+        it { is_expected.not_to contain_sshd_config('ChallengeResponseAuthentication') }
+      end
+    end
+
+    # A site value is managed as usual and not removed.
+    context 'with challengeresponseauthentication set on EL9' do
+      let(:facts) { el9_facts.merge(custom_hiera: 'conf_cra') }
 
       it { is_expected.to compile.with_all_deps }
-      it {
-        is_expected.to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf')
-          .with_ensure('absent')
-      }
+      it { is_expected.to contain_sshd_config('ChallengeResponseAuthentication').with_value('no') }
+      it { is_expected.not_to contain_sshd_config(cra_removal) }
+    end
+
+    # A key in $remove_entries is removed by that list's own resource.
+    context 'with ChallengeResponseAuthentication in remove_entries on EL9' do
+      let(:facts) { el9_facts.merge(custom_hiera: 'conf_remove_cra') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_sshd_config(cra_removal).with_ensure('absent') }
     end
 
     context 'with oath=true on EL8' do
@@ -256,6 +294,7 @@ describe 'ssh::server::conf' do
 
       it { is_expected.to compile.with_all_deps }
       it { is_expected.not_to contain_file('/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf') }
+      it { is_expected.not_to contain_sshd_config(cra_removal) }
     end
   end
 end

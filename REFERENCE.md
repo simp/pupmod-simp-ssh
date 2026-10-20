@@ -434,6 +434,11 @@ Data type: `Optional[Boolean]`
 
 Specifies whether challenge-response authentication is allowed.
 
+* Enabling `$oath` forces this on.  On EL9+, while this is unset and
+  `$oath` is not enabled, any `ChallengeResponseAuthentication` line in
+  ``00-simp.conf`` is removed, so the `yes` written while OATH was enabled
+  does not outlive it there.
+
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ciphers"></a>`ciphers`
@@ -808,6 +813,9 @@ for, or for editing a vendor drop-in such as
 
 * Give each entry a title distinct from any module-managed keyword (module
   entries use the bare keyword as the title) and set ``key`` explicitly.
+* Do not target ``00-simp.conf``, which the class owns: an entry for a
+  keyword the class also sets there rewrites the class's value on every
+  run, and the class rewrites it back.  Use a drop-in of your own instead.
 * Each entry requires ``Package['openssh-server']`` in addition to any
   ``require`` the entry provides.
 * When service management is enabled, changes notify the sshd service;
