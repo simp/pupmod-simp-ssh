@@ -202,12 +202,10 @@ at the cited line:
   and the in-module PAM template (see Gotchas).
 
 Runtime requirement (from `metadata.json` `requirements`):
-`puppet >= 7.0.0 < 9.0.0`. This is an **old baseline** and still names
-**puppet**. SIMP is migrating Puppet → OpenVox; when `metadata.json` switches
-this requirement to `openvox`, update this line to match.
+`openvox >= 8.0.0 < 10.0.0`.
 
-Supported OS matrix (from `metadata.json`): CentOS 7/8/9; RedHat 7/8/9;
-OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
+Supported OS matrix (from `metadata.json`): CentOS 9/10; RedHat 8/9/10;
+OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
 
 ## Repository layout
 
