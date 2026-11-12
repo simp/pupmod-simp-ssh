@@ -3,12 +3,12 @@
 # behavior *as deployed on a typical SIMP site*.  Enabling it
 # (`compliance_engine::enforcement: [simp:defaults]`) re-applies the hardening
 # defaults, manages the `sshd` service, and enables the SIMP integrations
-# (firewall/pki/haveged/tcpwrappers).
+# (firewall/pki/rngd/tcpwrappers).
 #
 # Note that the four integration checks pin the typical SIMP-site value, not
 # the old module default: those parameters used to follow `simp_options::*`
 # (default *false*), so on a site that never set `simp_options::*` this
-# profile *adds* iptables rules, tcpwrappers entries, haveged, and SIMP PKI
+# profile *adds* iptables rules, tcpwrappers entries, the rngd service, and SIMP PKI
 # cert management (including replacing the RSA host key with the SIMP PKI
 # key) rather than restoring anything.  `GSSAPIAuthentication` is deliberately
 # left unmanaged (the old default was IPA-aware; see checks.yaml).
@@ -23,7 +23,7 @@ profiles:
       simp:defaults.ssh.service_ensure: true
       simp:defaults.ssh.service_enable: true
       simp:defaults.ssh.add_default_entry: true
-      simp:defaults.ssh.client_haveged: true
+      simp:defaults.ssh.client_rngd: true
       simp:defaults.ssh.acceptenv: true
       simp:defaults.ssh.authorizedkeysfile: true
       simp:defaults.ssh.banner: true
@@ -50,7 +50,9 @@ profiles:
       simp:defaults.ssh.syslogfacility: true
       simp:defaults.ssh.x11forwarding: true
       simp:defaults.ssh.firewall: true
-      simp:defaults.ssh.haveged: true
+      simp:defaults.ssh.rngd: true
+      simp:defaults.ssh.rngd_service_ensure: true
+      simp:defaults.ssh.rngd_service_enable: true
       simp:defaults.ssh.tcpwrappers: true
       simp:defaults.ssh.pki: true
       simp:defaults.ssh.ciphers.non_fips: true

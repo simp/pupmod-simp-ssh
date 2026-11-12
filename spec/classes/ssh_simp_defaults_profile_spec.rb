@@ -59,7 +59,9 @@ describe 'ssh' do
         # SIMP integrations restored to their typical site value
         it { is_expected.to contain_class('iptables') }
         it { is_expected.to contain_class('tcpwrappers') }
-        it { is_expected.to contain_class('haveged') }
+        it { is_expected.to contain_class('rngd') }
+        it { is_expected.to contain_service('rngd').with_ensure('running').with_enable(true) }
+        it { is_expected.not_to contain_class('haveged') }
         it { is_expected.to create_pki__copy('sshd') }
 
         # Deliberately unmanaged by the profile: the old default was IPA-aware,

@@ -133,6 +133,7 @@ The following parameters are available in the `ssh::client` class:
 * [`add_default_entry`](#-ssh--client--add_default_entry)
 * [`fips`](#-ssh--client--fips)
 * [`haveged`](#-ssh--client--haveged)
+* [`rngd`](#-ssh--client--rngd)
 * [`package_ensure`](#-ssh--client--package_ensure)
 * [`ssh_config_entries`](#-ssh--client--ssh_config_entries)
 
@@ -157,7 +158,21 @@ Default value: `false`
 
 Data type: `Boolean`
 
-If true, include the haveged module to assist with entropy generation.
+Deprecated; use `rngd` instead. If true, include the haveged module to
+assist with entropy generation. `simp/haveged` is an optional dependency
+and must be installed separately. This parameter will be removed in the
+next major release.
+
+Default value: `false`
+
+##### <a name="-ssh--client--rngd"></a>`rngd`
+
+Data type: `Boolean`
+
+If true, include the `rngd` class to assist with entropy generation.
+`simp/rngd` is an optional dependency and must be installed separately.
+By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+and `rngd::service_enable` to manage the service.
 
 Default value: `false`
 
@@ -351,6 +366,7 @@ The following parameters are available in the `ssh::server::conf` class:
 * [`app_pki_key`](#-ssh--server--conf--app_pki_key)
 * [`firewall`](#-ssh--server--conf--firewall)
 * [`haveged`](#-ssh--server--conf--haveged)
+* [`rngd`](#-ssh--server--conf--rngd)
 * [`ldap`](#-ssh--server--conf--ldap)
 * [`pki`](#-ssh--server--conf--pki)
 * [`sssd`](#-ssh--server--conf--sssd)
@@ -887,7 +903,21 @@ Default value: `false`
 
 Data type: `Boolean`
 
-If true, include the haveged module to assist with entropy generation.
+Deprecated; use `rngd` instead. If true, include the haveged module to
+assist with entropy generation. `simp/haveged` is an optional dependency
+and must be installed separately. This parameter will be removed in the
+next major release.
+
+Default value: `false`
+
+##### <a name="-ssh--server--conf--rngd"></a>`rngd`
+
+Data type: `Boolean`
+
+If true, include the `rngd` class to assist with entropy generation.
+`simp/rngd` is an optional dependency and must be installed separately.
+By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+and `rngd::service_enable` to manage the service.
 
 Default value: `false`
 
@@ -2231,3 +2261,4 @@ Alias of `Variant[Boolean, Enum['prohibit-password', 'without-password', 'forced
 Valid SSH Syslog Facility Settings
 
 Alias of `Enum['DAEMON', 'USER', 'AUTH', 'AUTHPRIV', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']`
+

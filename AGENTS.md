@@ -33,8 +33,9 @@ crypto lists.
   `/etc/ssh/ssh_known_hosts`, and the `openssh-clients` package. When
   `$add_default_entry` (default `true`) it declares
   `ssh::client::host_config_entry { '*': }` for a sane default `Host *` block
-  (`client.pp`). `$haveged` (default from `simp_options::haveged`) pulls
-  in the optional `haveged` module after an `assert_optional_dependency`
+  (`client.pp`). `$rngd` (default `false`) pulls in the
+  optional `rngd` module after an `assert_optional_dependency`; the deprecated
+  `$haveged` does the same for the optional `haveged` module and warns
   (`client.pp`). `$fips` (default from `simp_options::fips`) is the
   FIPS toggle consulted by the host-entry define.
 
@@ -147,7 +148,7 @@ crypto lists.
   runtime-asserted one.
 - **Two entropy/interop defaults are surprising:** `enable_fallback_ciphers`
   defaults `true` (weakens the auto-selected set for non-SIMP interop), and the
-  server manages a `haveged` include only when `simp_options::haveged` is set.
+  server includes `rngd` (or the deprecated `haveged`) only when its parameter is set.
 
 ## The `simp_options` / `simplib::lookup` seam
 
@@ -187,7 +188,8 @@ Optional dependencies (from `metadata.json` `simp.optional_dependencies`). All
 but `simp/pam` are guarded at runtime by `simplib::assert_optional_dependency`
 at the cited line:
 
-- `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp`, `server/conf.pp`
+- `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp`, `server/conf.pp` (deprecated `$haveged`)
+- `simp/rngd` `>= 0.2.0 < 1.0.0` — `client.pp`, `server/conf.pp`
 - `simp/pki` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
 - `simp/oath` `>= 0.1.0 < 1.0.0` — `server/conf.pp`
 - `simp/selinux` `>= 2.6.1 < 4.0.0` — `server/conf.pp`
@@ -290,7 +292,7 @@ Relevant gem pins (from `Gemfile`): the tested Puppet range defaults to
   in sync when changing crypto policy.
 - Guard every optional integration with `simplib::assert_optional_dependency`
   before `include`-ing it, as the existing PKI / SELinux / firewall /
-  tcpwrappers / haveged / oath branches do — never hard-`include` an optional
+  tcpwrappers / rngd / oath branches do — never hard-`include` an optional
   module.
 - Continue routing SIMP feature toggles through
   `simplib::lookup('simp_options::*', { 'default_value' => ... })` rather than
