@@ -102,6 +102,33 @@ describe 'ssh::server::conf' do
     end
   end
 
+  context 'entropy daemon toggles' do
+    context 'with rngd=true' do
+      let(:facts) { base_facts.merge(custom_hiera: 'conf_rngd') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_class('rngd') }
+      it { is_expected.to contain_package('rng-tools') }
+      it { is_expected.not_to contain_service('rngd') }
+      it { is_expected.not_to contain_class('haveged') }
+    end
+
+    context 'with haveged=true (deprecated)' do
+      let(:facts) { base_facts.merge(custom_hiera: 'conf_haveged') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_class('haveged') }
+      it { is_expected.not_to contain_class('rngd') }
+    end
+
+    context 'with neither set' do
+      let(:facts) { base_facts.merge(custom_hiera: 'none') }
+
+      it { is_expected.not_to contain_class('rngd') }
+      it { is_expected.not_to contain_class('haveged') }
+    end
+  end
+
   # manage_pam_sshd works on its own; usepam only controls the sshd_config
   # UsePAM entry.
   context 'with manage_pam_sshd alone' do

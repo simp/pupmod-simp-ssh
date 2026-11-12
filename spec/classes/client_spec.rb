@@ -15,6 +15,7 @@ describe 'ssh::client' do
         it { is_expected.not_to contain_file('/etc/ssh/ssh_config') }
         it { is_expected.not_to contain_file('/etc/ssh/ssh_known_hosts') }
         it { is_expected.not_to contain_class('haveged') }
+        it { is_expected.not_to contain_class('rngd') }
       end
 
       context 'with add_default_entry = true' do
@@ -69,10 +70,21 @@ describe 'ssh::client' do
         it { is_expected.not_to contain_file('/etc/ssh/ssh_config') }
       end
 
-      context 'with haveged enabled' do
+      context 'with haveged enabled (deprecated)' do
         let(:params) { { haveged: true } }
 
         it { is_expected.to contain_class('haveged') }
+        it { is_expected.not_to contain_class('rngd') }
+      end
+
+      context 'with rngd enabled' do
+        let(:params) { { rngd: true } }
+
+        it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('rngd') }
+        it { is_expected.to contain_package('rng-tools') }
+        it { is_expected.not_to contain_service('rngd') }
+        it { is_expected.not_to contain_class('haveged') }
       end
     end
   end

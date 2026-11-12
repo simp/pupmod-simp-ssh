@@ -307,7 +307,16 @@
 #   If true, use the SIMP iptables class.
 #
 # @param haveged
-#   If true, include the haveged module to assist with entropy generation.
+#   Deprecated; use `rngd` instead. If true, include the haveged module to
+#   assist with entropy generation. `simp/haveged` is an optional dependency
+#   and must be installed separately. This parameter will be removed in the
+#   next major release.
+#
+# @param rngd
+#   If true, include the `rngd` class to assist with entropy generation.
+#   `simp/rngd` is an optional dependency and must be installed separately.
+#   By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+#   and `rngd::service_enable` to manage the service.
 #
 # @param ldap  If true, enable LDAP support on the system. If
 #   authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
@@ -391,6 +400,7 @@ class ssh::server::conf (
   Stdlib::Absolutepath                                   $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['networking']['fqdn']}.pem",
   Boolean                                                $firewall                        = false,
   Boolean                                                $haveged                         = false,
+  Boolean                                                $rngd                            = false,
   Boolean                                                $ldap                            = false,
   Optional[Boolean]                                      $oath                            = undef,
   Boolean                                                $manage_pam_sshd                 = pick($oath, false),
@@ -415,9 +425,16 @@ class ssh::server::conf (
   $_ports = flatten([pick($port, 22)])
 
   if $haveged {
+    deprecation('ssh::server::conf::haveged', "${module_name}: 'ssh::server::conf::haveged' is deprecated and will be removed in the next major release. Use 'ssh::server::conf::rngd' instead.", false)
     simplib::assert_optional_dependency($module_name, 'simp/haveged')
 
     include 'haveged'
+  }
+
+  if $rngd {
+    simplib::assert_optional_dependency($module_name, 'simp/rngd')
+
+    include 'rngd'
   }
 
   if $authorizedkeyscommand {

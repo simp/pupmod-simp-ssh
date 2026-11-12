@@ -1,6 +1,6 @@
 {
   "name": "simp-ssh",
-  "version": "10.0.0",
+  "version": "10.1.0",
   "author": "SIMP Team",
   "summary": "Manage ssh",
   "license": "Apache-2.0",
@@ -20,7 +20,7 @@
     },
     {
       "name": "puppetlabs/stdlib",
-      "version_requirement": ">= 8.0.0 < 11.0.0"
+      "version_requirement": ">= 9.2.0 < 11.0.0"
     },
     {
       "name": "simp/simplib",
@@ -32,6 +32,10 @@
       {
         "name": "simp/haveged",
         "version_requirement": ">= 0.4.5 < 1.0.0"
+      },
+      {
+        "name": "simp/rngd",
+        "version_requirement": ">= 0.2.0 < 1.0.0"
       },
       {
         "name": "simp/iptables",

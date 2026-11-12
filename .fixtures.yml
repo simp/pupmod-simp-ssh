@@ -18,6 +18,7 @@ fixtures:
     oddjob: https://github.com/simp/pupmod-simp-oddjob.git
     pam: https://github.com/simp/pupmod-simp-pam.git
     pki: https://github.com/simp/pupmod-simp-pki.git
+    rngd: https://github.com/simp/pupmod-simp-rngd.git
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog.git
     simp_options: https://github.com/simp/pupmod-simp-simp_options.git
     simplib: https://github.com/simp/pupmod-simp-simplib.git

@@ -122,7 +122,7 @@ There are **two ways to restore the previous behavior**:
 
    This is opinionated for SIMP sites: it manages the service, re-applies the
    hardening defaults and FIPS-aware crypto, and **re-enables** the SIMP
-   integrations (firewall, PKI, haveged, tcpwrappers). Site Hiera outranks the
+   integrations (firewall, PKI, rngd, tcpwrappers). Site Hiera outranks the
    profile, so to get "old behavior, but safer" enable the profile and then
    override the individual keys you care about (e.g.
    `ssh::server::conf::firewall: false`) in your own Hiera.

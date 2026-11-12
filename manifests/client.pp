@@ -12,7 +12,17 @@
 #
 # @param fips If set or FIPS is already enabled, adjust for FIPS mode.
 #
-# @param haveged If true, include the haveged module to assist with entropy generation.
+# @param haveged
+#   Deprecated; use `rngd` instead. If true, include the haveged module to
+#   assist with entropy generation. `simp/haveged` is an optional dependency
+#   and must be installed separately. This parameter will be removed in the
+#   next major release.
+#
+# @param rngd
+#   If true, include the `rngd` class to assist with entropy generation.
+#   `simp/rngd` is an optional dependency and must be installed separately.
+#   By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+#   and `rngd::service_enable` to manage the service.
 #
 # @param package_ensure The ensure status the openssh-clients package
 #
@@ -47,6 +57,7 @@
 class ssh::client (
   Boolean                                  $add_default_entry  = false,
   Boolean                                  $haveged            = false,
+  Boolean                                  $rngd               = false,
   Boolean                                  $fips               = false,
   String                                   $package_ensure     = 'installed',
   Hash[String[1],Hash[String[1],NotUndef]] $ssh_config_entries = {},
@@ -76,9 +87,16 @@ class ssh::client (
   }
 
   if $haveged {
+    deprecation('ssh::client::haveged', "${module_name}: 'ssh::client::haveged' is deprecated and will be removed in the next major release. Use 'ssh::client::rngd' instead.", false)
     simplib::assert_optional_dependency($module_name, 'simp/haveged')
 
     include 'haveged'
+  }
+
+  if $rngd {
+    simplib::assert_optional_dependency($module_name, 'simp/rngd')
+
+    include 'rngd'
   }
 
   # Raw ssh_config resources from Hiera (see the parameter docs).  Merge

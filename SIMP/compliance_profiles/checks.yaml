@@ -25,10 +25,10 @@ checks:
     settings:
       parameter: ssh::client::add_default_entry
       value: true
-  simp:defaults.ssh.client_haveged:
+  simp:defaults.ssh.client_rngd:
     type: puppet-class-parameter
     settings:
-      parameter: ssh::client::haveged
+      parameter: ssh::client::rngd
       value: true
 
   # --- sshd_config hardening defaults (ssh::server::conf) ---
@@ -184,10 +184,20 @@ checks:
     settings:
       parameter: ssh::server::conf::firewall
       value: true
-  simp:defaults.ssh.haveged:
+  simp:defaults.ssh.rngd:
     type: puppet-class-parameter
     settings:
-      parameter: ssh::server::conf::haveged
+      parameter: ssh::server::conf::rngd
+      value: true
+  simp:defaults.ssh.rngd_service_ensure:
+    type: puppet-class-parameter
+    settings:
+      parameter: rngd::service_ensure
+      value: running
+  simp:defaults.ssh.rngd_service_enable:
+    type: puppet-class-parameter
+    settings:
+      parameter: rngd::service_enable
       value: true
   simp:defaults.ssh.tcpwrappers:
     type: puppet-class-parameter

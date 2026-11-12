@@ -33,8 +33,9 @@ crypto lists.
   `/etc/ssh/ssh_known_hosts`, and the `openssh-clients` package. When
   `$add_default_entry` (default `true`) it declares
   `ssh::client::host_config_entry { '*': }` for a sane default `Host *` block
-  (`client.pp`). `$haveged` (default from `simp_options::haveged`) pulls
-  in the optional `haveged` module after an `assert_optional_dependency`
+  (`client.pp`). `$rngd` (default `false`) pulls in the
+  optional `rngd` module after an `assert_optional_dependency`; the deprecated
+  `$haveged` does the same for the optional `haveged` module and warns
   (`client.pp`). `$fips` (default from `simp_options::fips`) is the
   FIPS toggle consulted by the host-entry define.
 
@@ -147,7 +148,7 @@ crypto lists.
   runtime-asserted one.
 - **Two entropy/interop defaults are surprising:** `enable_fallback_ciphers`
   defaults `true` (weakens the auto-selected set for non-SIMP interop), and the
-  server manages a `haveged` include only when `simp_options::haveged` is set.
+  server includes `rngd` (or the deprecated `haveged`) only when its parameter is set.
 
 ## The `simp_options` / `simplib::lookup` seam
 
@@ -178,8 +179,8 @@ Hard dependencies (from `metadata.json` `dependencies`):
 
 - `puppet/augeasproviders_ssh` `>= 2.5.0 < 8.0.0` — provides the `sshd_config`,
   `sshd_config_subsystem`, and `ssh_config` types/providers this module drives.
-- `puppetlabs/stdlib` `>= 8.0.0 < 10.0.0`.
-- `simp/simplib` `>= 4.9.0 < 5.0.0` — provides `simplib::lookup`,
+- `puppetlabs/stdlib` `>= 9.2.0 < 11.0.0`.
+- `simp/simplib` `>= 4.9.0 < 8.0.0` — provides `simplib::lookup`,
   `simplib::assert_optional_dependency`, `simplib::assert_metadata`, the
   `Simplib::*` type aliases, and `nets2ddq`.
 
@@ -187,25 +188,24 @@ Optional dependencies (from `metadata.json` `simp.optional_dependencies`). All
 but `simp/pam` are guarded at runtime by `simplib::assert_optional_dependency`
 at the cited line:
 
-- `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp`, `server/conf.pp`
-- `simp/pki` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
-- `simp/oath` `>= 0.1.0 < 1.0.0` — `server/conf.pp`
-- `simp/selinux` `>= 2.6.1 < 4.0.0` — `server/conf.pp`
-- `simp/vox_selinux` `>= 3.1.0 < 4.0.0` — `server/conf.pp`
-- `puppet/selinux` `>= 1.6.1 < 6.0.0` — `server/conf.pp`
-- `simp/iptables` `>= 6.5.3 < 8.0.0` — `server/conf.pp`
+- `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp`, `server/conf.pp` (deprecated `$haveged`)
+- `simp/rngd` `>= 0.2.0 < 1.0.0` — `client.pp`, `server/conf.pp`
+- `simp/pki` `>= 6.2.0 < 8.0.0` — `server/conf.pp`
+- `simp/oath` `>= 0.1.0 < 2.0.0` — `server/conf.pp`
+- `simp/selinux` `>= 2.6.1 < 5.0.0` — `server/conf.pp`
+- `simp/vox_selinux` `>= 3.1.0 < 7.0.0` — `server/conf.pp`
+- `puppet/selinux` `>= 1.6.1 < 7.0.0` — `server/conf.pp`
+- `simp/iptables` `>= 6.5.3 < 10.0.0` — `server/conf.pp`
 - `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
-- `simp/pam` `>= 6.8.3 < 8.0.0` — declared optional but has **no**
+- `simp/pam` `>= 6.8.3 < 10.0.0` — declared optional but has **no**
   `assert_optional_dependency` call; consumed via the `simp_options::pam` seam
   and the in-module PAM template (see Gotchas).
 
 Runtime requirement (from `metadata.json` `requirements`):
-`puppet >= 7.0.0 < 9.0.0`. This is an **old baseline** and still names
-**puppet**. SIMP is migrating Puppet → OpenVox; when `metadata.json` switches
-this requirement to `openvox`, update this line to match.
+`openvox >= 8.0.0 < 10.0.0`.
 
-Supported OS matrix (from `metadata.json`): CentOS 7/8/9; RedHat 7/8/9;
-OracleLinux 7/8/9; Rocky 8/9; AlmaLinux 8/9.
+Supported OS matrix (from `metadata.json`): CentOS 9/10; RedHat 8/9/10;
+OracleLinux 8/9/10; Rocky 8/9/10; AlmaLinux 8/9/10.
 
 ## Repository layout
 
@@ -290,7 +290,7 @@ Relevant gem pins (from `Gemfile`): the tested Puppet range defaults to
   in sync when changing crypto policy.
 - Guard every optional integration with `simplib::assert_optional_dependency`
   before `include`-ing it, as the existing PKI / SELinux / firewall /
-  tcpwrappers / haveged / oath branches do — never hard-`include` an optional
+  tcpwrappers / rngd / oath branches do — never hard-`include` an optional
   module.
 - Continue routing SIMP feature toggles through
   `simplib::lookup('simp_options::*', { 'default_value' => ... })` rather than
