@@ -179,8 +179,8 @@ Hard dependencies (from `metadata.json` `dependencies`):
 
 - `puppet/augeasproviders_ssh` `>= 2.5.0 < 8.0.0` — provides the `sshd_config`,
   `sshd_config_subsystem`, and `ssh_config` types/providers this module drives.
-- `puppetlabs/stdlib` `>= 8.0.0 < 10.0.0`.
-- `simp/simplib` `>= 4.9.0 < 5.0.0` — provides `simplib::lookup`,
+- `puppetlabs/stdlib` `>= 9.2.0 < 11.0.0`.
+- `simp/simplib` `>= 4.9.0 < 8.0.0` — provides `simplib::lookup`,
   `simplib::assert_optional_dependency`, `simplib::assert_metadata`, the
   `Simplib::*` type aliases, and `nets2ddq`.
 
@@ -190,14 +190,14 @@ at the cited line:
 
 - `simp/haveged` `>= 0.4.5 < 1.0.0` — `client.pp`, `server/conf.pp` (deprecated `$haveged`)
 - `simp/rngd` `>= 0.2.0 < 1.0.0` — `client.pp`, `server/conf.pp`
-- `simp/pki` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
-- `simp/oath` `>= 0.1.0 < 1.0.0` — `server/conf.pp`
-- `simp/selinux` `>= 2.6.1 < 4.0.0` — `server/conf.pp`
-- `simp/vox_selinux` `>= 3.1.0 < 4.0.0` — `server/conf.pp`
-- `puppet/selinux` `>= 1.6.1 < 6.0.0` — `server/conf.pp`
-- `simp/iptables` `>= 6.5.3 < 8.0.0` — `server/conf.pp`
+- `simp/pki` `>= 6.2.0 < 8.0.0` — `server/conf.pp`
+- `simp/oath` `>= 0.1.0 < 2.0.0` — `server/conf.pp`
+- `simp/selinux` `>= 2.6.1 < 5.0.0` — `server/conf.pp`
+- `simp/vox_selinux` `>= 3.1.0 < 7.0.0` — `server/conf.pp`
+- `puppet/selinux` `>= 1.6.1 < 7.0.0` — `server/conf.pp`
+- `simp/iptables` `>= 6.5.3 < 10.0.0` — `server/conf.pp`
 - `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
-- `simp/pam` `>= 6.8.3 < 8.0.0` — declared optional but has **no**
+- `simp/pam` `>= 6.8.3 < 10.0.0` — declared optional but has **no**
   `assert_optional_dependency` call; consumed via the `simp_options::pam` seam
   and the in-module PAM template (see Gotchas).
 
