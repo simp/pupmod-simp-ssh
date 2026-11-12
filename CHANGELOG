@@ -7,6 +7,8 @@
 - The `simp:defaults` profile now enables the `rngd` integration and runs the
   `rngd` service instead of including haveged. haveged is not removed from
   nodes where it was installed
+- Raise the `puppetlabs/stdlib` floor to 9.2.0, for the 3-argument
+  `deprecation()`. Requiring OpenVox 8 already ruled out stdlib 8.x
 
 * Mon Oct 19 2026 Mike Riddle <mike@sicura.us> - 10.0.0
 - BREAKING CHANGE: on EL9+, `ssh::server::conf` writes its settings to
