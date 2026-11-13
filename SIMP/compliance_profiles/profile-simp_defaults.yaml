@@ -3,12 +3,12 @@
 # behavior *as deployed on a typical SIMP site*.  Enabling it
 # (`compliance_engine::enforcement: [simp:defaults]`) re-applies the hardening
 # defaults, manages the `sshd` service, and enables the SIMP integrations
-# (firewall/pki/rngd/tcpwrappers).
+# (firewall/pki/rngd).
 #
-# Note that the four integration checks pin the typical SIMP-site value, not
+# Note that the integration checks pin the typical SIMP-site value, not
 # the old module default: those parameters used to follow `simp_options::*`
 # (default *false*), so on a site that never set `simp_options::*` this
-# profile *adds* iptables rules, tcpwrappers entries, the rngd service, and SIMP PKI
+# profile *adds* iptables rules, the rngd service, and SIMP PKI
 # cert management (including replacing the RSA host key with the SIMP PKI
 # key) rather than restoring anything.  `GSSAPIAuthentication` is deliberately
 # left unmanaged (the old default was IPA-aware; see checks.yaml).
@@ -53,7 +53,6 @@ profiles:
       simp:defaults.ssh.rngd: true
       simp:defaults.ssh.rngd_service_ensure: true
       simp:defaults.ssh.rngd_service_enable: true
-      simp:defaults.ssh.tcpwrappers: true
       simp:defaults.ssh.pki: true
       simp:defaults.ssh.ciphers.non_fips: true
       simp:defaults.ssh.ciphers.fips: true
