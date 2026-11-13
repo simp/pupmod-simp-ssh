@@ -199,11 +199,6 @@ checks:
     settings:
       parameter: rngd::service_enable
       value: true
-  simp:defaults.ssh.tcpwrappers:
-    type: puppet-class-parameter
-    settings:
-      parameter: ssh::server::conf::tcpwrappers
-      value: true
   simp:defaults.ssh.pki:
     type: puppet-class-parameter
     settings:
