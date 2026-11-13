@@ -1,3 +1,148 @@
+* Thu Nov 12 2026 Steven Pritchard <steve@sicura.us> - 10.1.0
+- Add `ssh::client::rngd` and `ssh::server::conf::rngd` to include the `rngd`
+  class for entropy generation. `simp/rngd` is an optional dependency and must
+  be installed separately
+- Deprecate `ssh::client::haveged` and `ssh::server::conf::haveged`; they will
+  be removed in the next major release
+- The `simp:defaults` profile now enables the `rngd` integration and runs the
+  `rngd` service instead of including haveged. haveged is not removed from
+  nodes where it was installed
+- Require `puppetlabs/stdlib` >= 9.2.0, for the 3-argument `deprecation()`.
+  Environments on stdlib 9.0.x or 9.1.x must upgrade stdlib.
+
+* Mon Oct 19 2026 Mike Riddle <mike@sicura.us> - 10.0.0
+- BREAKING CHANGE: on EL9+, `ssh::server::conf` writes its settings to
+  `/etc/ssh/sshd_config.d/00-simp.conf` instead of `/etc/ssh/sshd_config`, so
+  drop-ins such as `50-redhat.conf` no longer override them. EL8 is unchanged.
+- BREAKING CHANGE: on EL9+ cloud images, `simp:defaults`
+  (`passwordauthentication: true`) now overrides the `PasswordAuthentication
+  no` that cloud-init writes. Set `ssh::server::conf::passwordauthentication:
+  false` to keep password authentication off.
+- `AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`, `DenyUsers`,
+  `ListenAddress`, `Port`, `Ciphers`, `MACs`, `KexAlgorithms`,
+  `$custom_entries` and `Subsystem` are still written to `sshd_config`. Use a
+  crypto sub-policy to choose algorithms on EL9+.
+- An `ssh::server::sshd_config_entry` (or `$sshd_config_entries` entry) that
+  sets a value in `00-simp.conf` keeps precedence over the class for its
+  keyword. An `ensure: absent` entry there yields to the class's value.
+- `$remove_entries` also removes keywords from `00-simp.conf`, and matches
+  keywords case-insensitively.
+- Add `ssh::sshd_config_target`, which returns the file a keyword is written
+  to.
+
+* Thu Oct 08 2026 Steven Pritchard <steve@sicura.us> - 9.3.0
+- Add support for OpenVox 9
+- Update metadata.json dependency ranges from the Forge
+
+* Fri Sep 04 2026 Steven Pritchard <steve@sicura.us> - 9.2.0
+- Add the `ssh::server::sshd_config_entry` defined type: a wrapper around the
+  `sshd_config` type for use by other modules. It includes `ssh::server`,
+  requires the `openssh-server` package, and notifies `Service['sshd']` only
+  when service management has been requested, so a consumer no longer has to
+  reference `Package['openssh-server']` or `Service['sshd']` directly (neither
+  is guaranteed to be in the catalog since 9.0.0).
+- `ssh::server::conf::sshd_config_entries` (Hiera) now declares
+  `ssh::server::sshd_config_entry` resources instead of raw `sshd_config`
+  resources, so both paths share one implementation. Entry hashes are now
+  checked against that defined type's parameters (`ensure`, `key`, `value`,
+  `condition`, `target`, `array_append`, `comment`, plus metaparameters).
+
+* Tue Sep 01 2026 Steven Pritchard <steve@sicura.us> - 9.1.0
+- Add `ssh::server::conf::sshd_config_entries` and
+  `ssh::client::ssh_config_entries`: Hiera-exposed hashes of raw
+  `sshd_config`/`ssh_config` resources (augeasproviders_ssh), giving data
+  access to the full types — most notably `target`, to manage keywords inside
+  drop-in files. On the server this reaches the vendor
+  `/etc/ssh/sshd_config.d/50-redhat.conf`, which overrides the main
+  sshd_config via first-obtained-value on EL9+ (or a drop-in of your own that
+  sorts before it). On the client, the vendor drop-ins wrap their settings in
+  `Match final all` (applied last, only for still-unset options) and the
+  `ssh_config` type only manages `Host` blocks — so manage a drop-in of your
+  own that ssh reads first instead of pointing entries at the vendor file.
+  Each entry's `require` is merged with (never replaces) the openssh package
+  dependency. Server entries are declared inside `ssh::server::conf` so a
+  managed sshd restarts on change through its existing class subscription;
+  nothing changes on a bare include.
+
+* Wed Aug 26 2026 Steven Pritchard <steve@sicura.us> - 9.0.0
+- BREAKING: Drastically reduce the blast radius of `include ssh`. A bare
+  include now installs the `openssh-server`/`openssh-clients` packages and
+  manages only the `/etc/ssh` directory. Everything that used to happen
+  automatically is now opt-in:
+  - The `sshd` service is no longer managed unless `ssh::server::service_ensure`
+    or `ssh::server::service_enable` is set. The `sshd` user/group, the
+    `/var/empty/sshd` chroot scaffolding, `/etc/ssh/moduli`, and host-key file
+    management are only declared when the service is managed.
+  - `/etc/ssh/sshd_config` is no longer rewritten. Each `ssh::server::conf`
+    setting now defaults to `undef` and only emits a `sshd_config` entry when
+    explicitly set, so a bare include leaves the file exactly as the package
+    and administrator left it.
+  - The client no longer writes `/etc/ssh/ssh_config` by default;
+    `ssh::client::add_default_entry` now defaults to `false`.
+  - The `simp_options::*` lookups (`firewall`, `tcpwrappers`, `pki`, `fips`,
+    `haveged`, `ldap`, `oath`, `sssd`, `pam`, `package_ensure`, `pki::source`)
+    are removed. Sites that relied on automatic opt-in must now set the module
+    parameters explicitly or enable the `simp:defaults` profile.
+- BREAKING: Remove the server-side FIPS/version auto-detection of
+  `ciphers`/`macs`/`kex_algorithms`. Those values are now supplied by the
+  `simp:defaults` profile (FIPS-split via `confine`). Removed the now-unused
+  `ssh::server::conf::fips`, `ssh::server::conf::enable_fallback_ciphers`, and
+  `ssh::server::conf::fallback_ciphers` parameters and the
+  `ssh::server::params` class. The IPA-based `gssapiauthentication`
+  auto-enable and the EL8+ `UsePrivilegeSeparation` auto-removal are dropped.
+- Ship a `simp:defaults` compliance_engine profile that restores the full
+  pre-9.0.0 behavior. Activate it stack-wide with
+  `compliance_engine::enforcement: [simp:defaults]`.
+- Fix noop-safety: guard the `ssh_host_keys`/`openssh_version` fact reads so the
+  catalog compiles on a node without openssh installed, and gate the
+  `sshd_config`/`ssh_config` augeas resources on their package. Add `--noop`
+  guards to the `ssh::autokey` and `ssh::global_known_hosts` functions and the
+  `sshkey_prune` provider (a fuller rewrite of those into noop-honoring
+  resources remains a future follow-up).
+- Review fixes:
+  - Toggling OATH off (`ssh::server::conf::oath: false`, explicitly) now
+    forces `PasswordAuthentication` back on so the toggle cannot cause a
+    lockout; `oath` now defaults to unset, which forces nothing.
+  - `/etc/ssh/local_keys` is now created whenever `authorizedkeysfile` is set
+    (instead of only under service management), so pointing sshd at the
+    central location cannot break key-based logins.
+  - `manage_pam_sshd` now works independently of `usepam`.
+  - The `simp:defaults` profile no longer pins `GSSAPIAuthentication no`
+    (the old default was IPA-aware; pinning would break Kerberos SSO on
+    IPA-joined hosts) and no longer ships the dead EL7-only
+    `UsePrivilegeSeparation` check.
+  - `ssh::client::host_config_entry` now assumes a modern openssh when the
+    `openssh_version` fact is absent, keeping the first converge idempotent.
+  - Added a profile/manifest parity spec driven by the profile's own check
+    list; updated the README cipher documentation for the removed
+    auto-detection.
+
+* Mon Aug 24 2026 Steven Pritchard <steve@sicura.us> - 8.1.1
+- [puppetsync] Update metadata.json dependency ranges from the Forge
+
+* Wed Aug 19 2026 Steven Pritchard <steve@sicura.us> - 8.1.0
+- Raise the metadata.json optional dependency upper bounds for
+  simp/vox_selinux and puppet/selinux to < 7.0.0
+- Mark the live OATH-over-SSH login acceptance test pending on EL10: pam_oath
+  cannot create /var/lock/pam_oath.lock from the sshd_session_t domain that
+  OpenSSH 9.9's sshd-session runs in, because the EL10 selinux-policy gave that
+  new domain none of the var_lock_t rules sshd_t still carries
+  (simp/pupmod-simp-ssh#235)
+
+* Mon Jun 08 2026 Steven Pritchard <steven.pritchard@gmail.com> - 8.0.0
+- Switch `requirements` from `puppet` to `openvox` (>= 8 < 9)
+- Point `issues_url` at GitHub Issues
+- Drop end-of-life OS support (CentOS 8, EL7); list EL10 across all supported distros
+- Allow newer SIMP module dependencies (see metadata.json diff)
+- Sync Gemfile with current puppetsync baseline (adds OpenVox to test gems)
+- Drop Puppet 7 / Ruby 2.7 from GitHub Actions; use Ruby 3.2.11 with OpenVox 8 and 3.4.9 elsewhere
+- Fix OATH on EL9+: manage /etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf
+  so the vendor 50-redhat.conf drop-in (first-match-wins) no longer overrides
+  the keyboard-interactive setting OATH requires
+
+* Mon May 11 2026 Steven Pritchard <steve@sicura.us> - 7.0.0
+- Remove unmaintained Compliance Engine data
+
 * Wed Jun 11 2025 Chris Tessmer <chris.tessmer@onyxpoint.com> - 6.20.1
 - Fix rubocop issues
 

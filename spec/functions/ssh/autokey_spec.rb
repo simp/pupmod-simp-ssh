@@ -9,9 +9,8 @@ describe 'ssh::autokey' do
       # framework, when the subject is first created. So create the
       # subject now to retrieve that setting for use in our expectations
       # within this example block.
-      # rubocop:disable RSpec/NamedSubject
+      # rubocop:disable-next RSpec/NamedSubject
       subject
-      # rubocop:enable RSpec/NamedSubject
       vardir = Puppet[:vardir]
       ssh_autokeys_dir = File.join(vardir, 'simp', 'environments', environment,
         'simp_autofiles', 'ssh_autokeys')
@@ -41,9 +40,8 @@ describe 'ssh::autokey' do
       # framework, when the subject is first created. So create the
       # subject now to retrieve that setting for use in our expectations
       # within this example block.
-      # rubocop:disable RSpec/NamedSubject
+      # rubocop:disable-next RSpec/NamedSubject
       subject
-      # rubocop:enable RSpec/NamedSubject
       vardir = Puppet[:vardir]
       ssh_autokeys_dir = File.join(vardir, 'simp', 'environments', environment,
         'simp_autofiles', 'ssh_autokeys')
@@ -75,9 +73,8 @@ describe 'ssh::autokey' do
       # framework, when the subject is first created. So create the
       # subject now to retrieve that setting for use in our expectations
       # within this example block.
-      # rubocop:disable RSpec/NamedSubject
+      # rubocop:disable-next RSpec/NamedSubject
       subject
-      # rubocop:enable RSpec/NamedSubject
       vardir = Puppet[:vardir]
       ssh_autokeys_dir = File.join(vardir, 'simp', 'environments', environment,
         'simp_autofiles', 'ssh_autokeys')

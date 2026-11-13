@@ -3,6 +3,32 @@
 # ``sshd`` configuration variables can be set using Augeas outside of this
 # class with no adverse effects.
 #
+# Where settings are written:
+#
+# * EL8: ``/etc/ssh/sshd_config``.
+# * EL9+: ``/etc/ssh/sshd_config.d/00-simp.conf`` (root:root 0600), created
+#   only once a setting is written to it.  The vendor ``sshd_config``
+#   ``Include``s ``sshd_config.d/*.conf`` at the top of the file and sshd uses
+#   the first value it reads, so every drop-in (``50-redhat.conf``,
+#   ``25-permitrootlogin.conf``, Anaconda's ``01-permitrootlogin.conf``)
+#   overrides what is written to ``sshd_config``.  ``00-simp.conf`` sorts
+#   before all of them.
+# * Also on EL9+, two groups stay in ``/etc/ssh/sshd_config``:
+#   * Keywords sshd accumulates across files: ``AcceptEnv``,
+#     ``AllowGroups``, ``AllowUsers``, ``DenyGroups``, ``DenyUsers``,
+#     ``ListenAddress`` and ``Port``.  No vendor drop-in sets them, so they
+#     take effect there.
+#   * ``Ciphers``, ``MACs`` and ``KexAlgorithms``, which stay under the
+#     system crypto policy's vendor drop-in.  To change which algorithms sshd
+#     offers on EL9+, create a crypto sub-policy rather than setting these
+#     parameters.
+#
+# ``/etc/ssh/sshd_config`` itself is not edited to make way for the drop-in:
+# lines earlier releases wrote there stay in place and are overridden by
+# ``00-simp.conf``.  ``$custom_entries`` and ``Subsystem`` are still written
+# to ``sshd_config``; use ``$sshd_config_entries`` with ``target`` to place an
+# entry elsewhere.
+#
 #### SSH Parameters ####
 #
 # @param acceptenv
@@ -39,10 +65,19 @@
 # @param challengeresponseauthentication
 #   Specifies whether challenge-response authentication is allowed.
 #
+#   * Enabling `$oath` forces this on.  On EL9+ that is done by
+#     ``00-simp-kbdinteractive.conf``, which sorts before ``00-simp.conf`` and
+#     is removed when OATH is disabled, so ``00-simp.conf`` only ever holds
+#     the value set here.
+#
 # @param ciphers
-#   Specifies the ciphers allowed for protocol version 2.  When unset, a strong
-#   set of ciphers is automatically selected by this class, taking into account
-#   whether the server is in FIPS mode.
+#   Specifies the ciphers allowed for protocol version 2.  When unset, no
+#   `Ciphers` line is managed.  The `simp:defaults` profile supplies a strong,
+#   FIPS-aware set.
+#
+#   * On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+#     system crypto policy's vendor drop-in overrides it.  To choose which
+#     algorithms sshd uses there, create a crypto sub-policy instead.
 #
 # @param clientalivecountmax
 #   @see man page for sshd_config
@@ -63,9 +98,12 @@
 #   whose name matches one of the patterns.
 #
 # @param gssapiauthentication
-#   Specifies whether user authentication based on GSSAPI is allowed. If the
-#   system is connected to an IPA domain, this will be default to true, based
-#   on the existance of the `ipa` fact.
+#   Specifies whether user authentication based on GSSAPI is allowed.
+#
+#   * When unset, no `GSSAPIAuthentication` entry is managed.  This module no
+#     longer auto-enables GSSAPI on IPA-joined hosts, and the `simp:defaults`
+#     profile deliberately leaves this unmanaged so enabling it cannot break
+#     Kerberos SSO — IPA sites should set this to `true` explicitly.
 #
 # @param hostbasedauthentication
 #   @see man page for sshd_config
@@ -80,10 +118,13 @@
 #   @see man page for sshd_config
 #
 # @param kex_algorithms
-#   Specifies the key exchange algorithms accepted.  When unset, an appropriate
-#   set of algorithms is automatically selected by this class, taking into
-#   account whether the server is in FIPS mode and whether the version of
-#   openssh installed supports this feature.
+#   Specifies the key exchange algorithms accepted.  When unset, no
+#   `KexAlgorithms` line is managed.  The `simp:defaults` profile supplies a
+#   FIPS-aware set.
+#
+#   * On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+#     system crypto policy's vendor drop-in overrides it.  To choose which
+#     algorithms sshd uses there, create a crypto sub-policy instead.
 #
 # @param listenaddress
 #   Specifies the local addresses sshd should listen on.
@@ -96,9 +137,12 @@
 #   Specifies the verbosity level that is used when logging messages from sshd.
 #
 # @param macs
-#   Specifies the available MAC algorithms. When unset, a strong set of ciphers
-#   is automatically selected by this class, taking into account whether the
-#   server is in FIPS mode.
+#   Specifies the available MAC algorithms. When unset, no `MACs` line is
+#   managed.  The `simp:defaults` profile supplies a strong, FIPS-aware set.
+#
+#   * On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+#     system crypto policy's vendor drop-in overrides it.  To choose which
+#     algorithms sshd uses there, create a crypto sub-policy instead.
 #
 # @param maxauthtries
 #   Specifies the maximum number of authentication attempts permitted per
@@ -107,8 +151,10 @@
 # @param passwordauthentication
 #   Specifies whether password authentication is allowed on the sshd server.
 #
-#   * This setting must be managed by default so that switching to and from
-#     OATH does not lock you out of your system.
+#   * When unset, no `PasswordAuthentication` entry is managed — unless
+#     `$oath` is set: enabling OATH forces this to `no`, and *explicitly*
+#     setting `oath: false` forces it back on (defaulting to `yes`) so that
+#     switching to and from OATH cannot lock you out of your system.
 #
 # @param permitemptypasswords
 #   When password authentication is allowed, it specifies whether the server
@@ -153,11 +199,19 @@
 #   Flag indicating whether or not to manage the pam stack for sshd. This is
 #   required for the oath option to work properly.
 #
+#   * Managed independently of `$usepam`, which only controls the `UsePAM`
+#     entry in `sshd_config`.
+#
 # @param oath
 #   **EXPERIMENTAL FEATURE**
 #   Configures ssh to use pam_oath TOTP in the sshd pam stack.
-#   Also configures sshd_config to use required settings. Inherits from
-#   simp_options::oath, defaults to false if not found.
+#   Also configures sshd_config to use required settings.
+#
+#   * When unset, OATH is not configured and nothing is forced.  Set `true`
+#     to enable (forces `UsePAM` and `ChallengeResponseAuthentication` on and
+#     `PasswordAuthentication` off); set `false` explicitly when disabling a
+#     previously enabled OATH setup so password authentication is restored
+#     (see `$passwordauthentication`).
 #
 # @param oath_window
 #   Sets the TOTP window (Defined in RFC 6238 section 5.2)
@@ -186,8 +240,46 @@
 #     ssh::server::conf::custom_entries:
 #       AuthorizedPrincipalsCommand: '/usr/local/bin/my_auth_command'
 #
+# @param sshd_config_entries
+#   A Hash of additional ``sshd_config`` entries, each declared as an
+#   ``ssh::server::sshd_config_entry``.  Each key is a resource title and each
+#   value is a hash of parameters for that defined type (``ensure``, ``key``,
+#   ``value``, ``condition``, ``target``, ``array_append``, ``comment``, plus
+#   any metaparameters such as ``require``).  Values are not validated against
+#   what ``sshd`` accepts.
+#
+#   Unlike ``$custom_entries`` (bare keyword/value pairs in the default
+#   ``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
+#   notably ``target``, which manages a keyword inside a drop-in file.  The
+#   class's own parameters already go to ``00-simp.conf`` on EL9+ (see the
+#   class description), so this is for keywords the class has no parameter
+#   for, or for editing a vendor drop-in such as
+#   ``/etc/ssh/sshd_config.d/50-redhat.conf`` directly.
+#
+#   * Give each entry a title distinct from any module-managed keyword (module
+#     entries use the bare keyword as the title) and set ``key`` explicitly.
+#   * Do not target ``00-simp.conf``, which the class owns; use a drop-in of
+#     your own.  An entry there that sets a value takes precedence over the
+#     class for its keyword, and an ``ensure: absent`` entry there yields to
+#     the class's value (see ``ssh::server::sshd_config_entry``).
+#   * Each entry requires ``Package['openssh-server']`` in addition to any
+#     ``require`` the entry provides.
+#   * When service management is enabled, changes notify the sshd service;
+#     with an unmanaged service nothing is restarted.
+#
+#   @example Override the vendor drop-in on EL9+
+#     ---
+#     ssh::server::conf::sshd_config_entries:
+#       '50-redhat X11Forwarding':
+#         key: 'X11Forwarding'
+#         value: 'no'
+#         target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+#
 # @param remove_entries
 #   List of configuration parameters that will be removed.
+#
+#   * Removed from ``/etc/ssh/sshd_config`` and, on EL9+ for keywords the
+#     class writes there, from ``/etc/ssh/sshd_config.d/00-simp.conf``.
 #
 #   * NOTE: Due to complexity, ``Match`` entries are not supported and will
 #     need to be removed using ``sshd_config_match`` resources as described in
@@ -208,23 +300,20 @@
 #   Path and name of the private SSL key file. This key file is used to generate
 #   the system SSH certificates for consistency.
 #
-# @param enable_fallback_ciphers
-#   If true, add the fallback ciphers from ssh::server::params to the cipher
-#   list. This is intended to provide compatibility with non-SIMP systems in a
-#   way that properly supports FIPS 140-2.
-#
-# @param fallback_ciphers
-#   The set of ciphers that should be used should no other cipher be declared.
-#   This is used when $ssh::server::conf::enable_fallback_ciphers is enabled.
-#
-# @param fips
-#   If set or FIPS is already enabled, adjust for FIPS mode.
-#
 # @param firewall
 #   If true, use the SIMP iptables class.
 #
 # @param haveged
-#   If true, include the haveged module to assist with entropy generation.
+#   Deprecated; use `rngd` instead. If true, include the haveged module to
+#   assist with entropy generation. `simp/haveged` is an optional dependency
+#   and must be installed separately. This parameter will be removed in the
+#   next major release.
+#
+# @param rngd
+#   If true, include the `rngd` class to assist with entropy generation.
+#   `simp/rngd` is an optional dependency and must be installed separately.
+#   By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+#   and `rngd::service_enable` to manage the service.
 #
 # @param ldap  If true, enable LDAP support on the system. If
 #   authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
@@ -257,75 +346,91 @@
 #
 class ssh::server::conf (
 #### SSH Parameters ####
-  Array[String]                                          $acceptenv                       = $ssh::server::params::acceptenv,
+  Optional[Array[String]]                                $acceptenv                       = undef,
   Optional[Array[String]]                                $allowgroups                     = undef,
   Optional[Array[String]]                                $allowusers                      = undef,
   Boolean                                                $manage_authorizedkeysfile       = true,
-  String                                                 $authorizedkeysfile              = '/etc/ssh/local_keys/%u',
+  Optional[String]                                       $authorizedkeysfile              = undef,
   Optional[Stdlib::Absolutepath]                         $authorizedkeyscommand           = undef,
   String                                                 $authorizedkeyscommanduser       = 'nobody',
-  Stdlib::Absolutepath                                   $banner                          = '/etc/issue.net',
-  Boolean                                                $challengeresponseauthentication = false,
+  Optional[Stdlib::Absolutepath]                         $banner                          = undef,
+  Optional[Boolean]                                      $challengeresponseauthentication = undef,
   Optional[Array[String]]                                $ciphers                         = undef,
-  Integer                                                $clientalivecountmax             = 0,
-  Integer                                                $clientaliveinterval             = 600,
-  Variant[Boolean,Enum['delayed']]                       $compression                     = 'delayed',
+  Optional[Integer]                                      $clientalivecountmax             = undef,
+  Optional[Integer]                                      $clientaliveinterval             = undef,
+  Optional[Variant[Boolean,Enum['delayed']]]             $compression                     = undef,
   Optional[Array[String]]                                $denygroups                      = undef,
   Optional[Array[String]]                                $denyusers                       = undef,
-  Boolean                                                $gssapiauthentication            = $ssh::server::params::gssapiauthentication,
-  Boolean                                                $hostbasedauthentication         = false,
-  Boolean                                                $ignorerhosts                    = true,
-  Boolean                                                $ignoreuserknownhosts            = true,
-  Boolean                                                $kerberosauthentication          = false,
+  Optional[Boolean]                                      $gssapiauthentication            = undef,
+  Optional[Boolean]                                      $hostbasedauthentication         = undef,
+  Optional[Boolean]                                      $ignorerhosts                    = undef,
+  Optional[Boolean]                                      $ignoreuserknownhosts            = undef,
+  Optional[Boolean]                                      $kerberosauthentication          = undef,
   Optional[Array[String]]                                $kex_algorithms                  = undef,
   Optional[Variant[Simplib::Host, Array[Simplib::Host]]] $listenaddress                   = undef,
-  Integer[0]                                             $logingracetime                  = 120,
+  Optional[Integer[0]]                                   $logingracetime                  = undef,
   Optional[Ssh::Loglevel]                                $ssh_loglevel                    = undef,
   Optional[Array[String]]                                $macs                            = undef,
-  Integer[1]                                             $maxauthtries                    = 6,
-  Boolean                                                $usepam                          = simplib::lookup('simp_options::pam', { 'default_value' => true }),
-  Boolean                                                $passwordauthentication          = true,
-  Boolean                                                $permitemptypasswords            = false,
-  Ssh::PermitRootLogin                                   $permitrootlogin                 = false,
-  Boolean                                                $permituserenvironment           = false,
-  Variant[Array[Simplib::Port],Simplib::Port]            $port                            = 22,
-  Boolean                                                $printlastlog                    = false,
-  Array[Integer[1,2]]                                    $protocol                        = [2],
-  Optional[Boolean]                                      $rhostsrsaauthentication         = $ssh::server::params::rhostsrsaauthentication,
-  Boolean                                                $strictmodes                     = true,
-  String                                                 $subsystem                       = 'sftp /usr/libexec/openssh/sftp-server',
-  Ssh::Syslogfacility                                    $syslogfacility                  = 'AUTHPRIV',
-  Variant[Boolean,Enum['sandbox']]                       $useprivilegeseparation          = 'sandbox',
-  Boolean                                                $x11forwarding                   = false,
+  Optional[Integer[1]]                                   $maxauthtries                    = undef,
+  Optional[Boolean]                                      $usepam                          = undef,
+  Optional[Boolean]                                      $passwordauthentication          = undef,
+  Optional[Boolean]                                      $permitemptypasswords            = undef,
+  Optional[Ssh::PermitRootLogin]                         $permitrootlogin                 = undef,
+  Optional[Boolean]                                      $permituserenvironment           = undef,
+  Optional[Variant[Array[Simplib::Port],Simplib::Port]]  $port                            = undef,
+  Optional[Boolean]                                      $printlastlog                    = undef,
+  Optional[Array[Integer[1,2]]]                          $protocol                        = undef,
+  Optional[Boolean]                                      $rhostsrsaauthentication         = undef,
+  Optional[Boolean]                                      $strictmodes                     = undef,
+  Optional[String]                                       $subsystem                       = undef,
+  Optional[Ssh::Syslogfacility]                          $syslogfacility                  = undef,
+  Optional[Variant[Boolean,Enum['sandbox']]]             $useprivilegeseparation          = undef,
+  Optional[Boolean]                                      $x11forwarding                   = undef,
   Optional[Hash[String[1],NotUndef]]                     $custom_entries                  = undef,
+  Hash[String[1],Hash[String[1],NotUndef]]               $sshd_config_entries             = {},
   Optional[Array[String[1]]]                             $remove_entries                  = undef,
   Optional[Array[String[1]]]                             $remove_subsystems               = undef,
 
 #### SIMP parameters ####
-  String                                                 $app_pki_external_source         = simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' }),
+  String                                                 $app_pki_external_source         = '/etc/pki/simp/x509',
   Stdlib::Absolutepath                                   $app_pki_key                     = "/etc/pki/simp_apps/sshd/x509/private/${facts['networking']['fqdn']}.pem",
-  Boolean                                                $enable_fallback_ciphers         = true,
-  Array[String]                                          $fallback_ciphers                = $ssh::server::params::fallback_ciphers,
-  Boolean                                                $fips                            = simplib::lookup('simp_options::fips', { 'default_value' => false }),
-  Boolean                                                $firewall                        = simplib::lookup('simp_options::firewall', { 'default_value' => false }),
-  Boolean                                                $haveged                         = simplib::lookup('simp_options::haveged', { 'default_value' => false }),
-  Boolean                                                $ldap                            = simplib::lookup('simp_options::ldap', { 'default_value' => false }),
-  Boolean                                                $oath                            = simplib::lookup('simp_options::oath', { 'default_value' => false }),
-  Boolean                                                $manage_pam_sshd                 = $oath,
+  Boolean                                                $firewall                        = false,
+  Boolean                                                $haveged                         = false,
+  Boolean                                                $rngd                            = false,
+  Boolean                                                $ldap                            = false,
+  Optional[Boolean]                                      $oath                            = undef,
+  Boolean                                                $manage_pam_sshd                 = pick($oath, false),
   Integer[0]                                             $oath_window                     = 1,
-  Variant[Enum['simp'],Boolean]                          $pki                             = simplib::lookup('simp_options::pki', { 'default_value' => false }),
-  Boolean                                                $sssd                            = simplib::lookup('simp_options::sssd', { 'default_value' => false }),
+  Variant[Enum['simp'],Boolean]                          $pki                             = false,
+  Boolean                                                $sssd                            = false,
   Variant[Boolean,Array[String[1]]]                      $ensure_sssd_packages            = ['sssd-common'],
   Simplib::Netlist                                       $trusted_nets                    = ['ALL']
-) inherits ssh::server::params {
+) {
   assert_private()
 
-  $_ports = flatten([$port])
+  # `sshd` service management is opt-in (see ssh::server).  The chroot/perms
+  # scaffolding is only declared when the service is managed; `getvar` reads the
+  # parent class's setting without erroring when it is absent.  sshd_config
+  # changes do not need an explicit `notify` here: when the service is managed,
+  # `ssh::server`'s `Service['sshd']` already subscribes to the whole
+  # `ssh::server::conf` class.
+  $_manage_service = (getvar('ssh::server::service_ensure') =~ NotUndef) or (getvar('ssh::server::service_enable') =~ NotUndef)
+
+  # `Port` is only emitted when explicitly set, but the firewall/SELinux paths
+  # still need a concrete port list to work with.
+  $_ports = flatten([pick($port, 22)])
 
   if $haveged {
+    deprecation('ssh::server::conf::haveged', "${module_name}: 'ssh::server::conf::haveged' is deprecated and will be removed in the next major release. Use 'ssh::server::conf::rngd' instead.", false)
     simplib::assert_optional_dependency($module_name, 'simp/haveged')
 
     include 'haveged'
+  }
+
+  if $rngd {
+    simplib::assert_optional_dependency($module_name, 'simp/rngd')
+
+    include 'rngd'
   }
 
   if $authorizedkeyscommand {
@@ -355,84 +460,113 @@ class ssh::server::conf (
     $_use_ldap = $ldap
   }
 
-  if $macs and !empty($macs) {
-    $_macs = $macs
+  # OATH (when enabled) forces challenge/response on and password auth off.
+  # An *explicit* `oath => false` forces password authentication back on
+  # (unless the site set it) so that toggling OATH off cannot strand the
+  # `PasswordAuthentication no` written while OATH was enabled — the OATH PAM
+  # stack disappears at the same time, which would close both auth paths at
+  # once.  When `$oath` is unset, nothing is forced (reduced blast radius).
+  #
+  # On EL9+ OATH's keyboard-interactive setting is carried by
+  # 00-simp-kbdinteractive.conf (below), which is removed when OATH is off, so
+  # only the site's value is written to 00-simp.conf.  Writing OATH's `yes`
+  # there would leave it in effect after OATH is disabled.
+  if ssh::sshd_config_target('ChallengeResponseAuthentication') =~ Undef and $oath {
+    $_challengeresponseauthentication = true
   }
   else {
-    if $fips or $facts['fips_enabled'] {
-      $_macs = $ssh::server::params::fips_macs
-    }
-    else {
-      $_macs = $ssh::server::params::macs
-    }
+    $_challengeresponseauthentication = $challengeresponseauthentication
   }
+  $_passwordauthentication = $oath ? {
+    true    => false,
+    false   => pick($passwordauthentication, true),
+    default => $passwordauthentication,
+  }
+  $_usepam = $oath ? {
+    true    => true,
+    default => $usepam,
+  }
+
+  # sshd_config expects strings; only convert when the value is actually set so
+  # that an unset (undef) parameter declares no resource (reduced blast radius).
+  $_clientalivecountmax = $clientalivecountmax =~ NotUndef ? { true => String($clientalivecountmax), default => undef }
+  $_clientaliveinterval = $clientaliveinterval =~ NotUndef ? { true => String($clientaliveinterval), default => undef }
+  $_logingracetime      = $logingracetime      =~ NotUndef ? { true => String($logingracetime),      default => undef }
+  $_maxauthtries        = $maxauthtries        =~ NotUndef ? { true => String($maxauthtries),        default => undef }
+
+  # `Port` is emitted only when explicitly set; the firewall/SELinux paths use
+  # the concrete `$_ports` list regardless.
+  $_port_value = $port =~ NotUndef ? { true => $_ports, default => undef }
 
   # sshd_config resource does not treat Protocol as an array
-  # NOTE: This appears to be only for openssh 6.x (early CentOS 7), but has not
-  # yet been rejected by openssh > 6.
-  $_protocol = $protocol.unique.join(',')
-
-  if $ciphers and !empty($ciphers) {
-    $_main_ciphers = $ciphers
-  }
-  else {
-    if $fips or $facts['fips_enabled'] {
-      $_main_ciphers = $ssh::server::params::fips_ciphers
-    }
-    else {
-      $_main_ciphers = $ssh::server::params::ciphers
-    }
-  }
-
-  if $enable_fallback_ciphers {
-    $_ciphers = unique(flatten([$_main_ciphers,$fallback_ciphers]))
-  }
-  else {
-    $_ciphers = $_main_ciphers
-  }
-
-  if $kex_algorithms and !empty($kex_algorithms) {
-    $_kex_algorithms = $kex_algorithms
-  }
-  else {
-    if $fips or $facts['fips_enabled'] {
-      $_kex_algorithms = $ssh::server::params::fips_kex_algorithms
-    }
-    else {
-      $_kex_algorithms = $ssh::server::params::kex_algorithms
-    }
+  if $protocol =~ NotUndef {
+    $_protocol = $protocol.unique.join(',')
+  } else {
+    $_protocol = undef
   }
 
   if $oath {
-    $_usepam = true
+    simplib::assert_optional_dependency($module_name, 'simp/oath')
+
+    include 'oath'
   }
-  else {
-    $_usepam = $usepam
-  }
 
-  if $_usepam {
-    if $oath {
-      simplib::assert_optional_dependency($module_name, 'simp/oath')
-
-      include 'oath'
-
-      $_challengeresponseauthentication = true
-      $_passwordauthentication = false
-    }
-
-    if $manage_pam_sshd {
-      file { '/etc/pam.d/sshd':
-        ensure  => file,
-        content => epp('ssh/etc/pam.d/sshd.epp'),
-      }
+  # Managed independently of `$_usepam` so that `manage_pam_sshd: true` on its
+  # own does what its name says; `$usepam` only controls the sshd_config
+  # `UsePAM` entry.  (OATH forces `$_usepam` on, so the OATH path is unchanged.)
+  if $manage_pam_sshd {
+    file { '/etc/pam.d/sshd':
+      ensure  => file,
+      content => epp('ssh/etc/pam.d/sshd.epp'),
     }
   }
 
-  file { '/etc/ssh/sshd_config':
-    owner  => 'root',
-    group  => 'root',
-    mode   => '0600',
-    notify => Service['sshd']
+  # On EL9+, the vendor sshd_config Includes /etc/ssh/sshd_config.d/*.conf at
+  # the TOP of the file and sshd uses first-match-wins, so the vendor
+  # 50-redhat.conf (ChallengeResponseAuthentication no) silently overrides
+  # any keyboard-interactive setting in the main sshd_config. When OATH is
+  # enabled, manage a drop-in that sorts before the vendor file so the
+  # required setting actually takes effect; remove it otherwise so vendor
+  # behavior is restored when OATH is disabled.  Ensuring absence is a no-op
+  # on systems this module never configured, so a bare include still changes
+  # nothing.  No notify: the sshd service is not always in the catalog, and
+  # when it is managed it already subscribes to this class.
+  if versioncmp($facts['os']['release']['major'], '9') >= 0 {
+    file { '/etc/ssh/sshd_config.d/00-simp-kbdinteractive.conf':
+      ensure                  => bool2str(pick($oath, false), 'file', 'absent'),
+      owner                   => 'root',
+      group                   => 'root',
+      mode                    => '0600',
+      selinux_ignore_defaults => true,
+      content                 => "# This file is managed by Puppet; changes will be overwritten\nKbdInteractiveAuthentication yes\n",
+    }
+  }
+
+  # The sshd_config file perms are only owned when we manage the service; a bare
+  # include leaves /etc/ssh/sshd_config exactly as the package left it.
+  if $_manage_service {
+    file { '/etc/ssh/sshd_config':
+      owner                   => 'root',
+      group                   => 'root',
+      mode                    => '0600',
+      selinux_ignore_defaults => true,
+      require                 => Package['openssh-server'],
+    }
+  }
+
+  # The central key directory is tied to the parameter that points sshd at it,
+  # not to service management: `AuthorizedKeysFile` takes no fallback to
+  # `~/.ssh/authorized_keys`, so emitting the entry without creating the
+  # directory would break every key-based login.
+  if $manage_authorizedkeysfile and ($authorizedkeysfile =~ NotUndef) {
+    file { '/etc/ssh/local_keys':
+      ensure  => 'directory',
+      owner   => 'root',
+      group   => 'root',
+      mode    => '0644',
+      recurse => true,
+      require => Package['openssh-server'],
+    }
   }
 
   ssh::add_sshd_config('AcceptEnv', $acceptenv, $remove_entries)
@@ -465,10 +599,10 @@ class ssh::server::conf (
     ssh::add_sshd_config('AuthorizedKeysFile', $authorizedkeysfile, $remove_entries)
   }
   ssh::add_sshd_config('Banner', $banner, $remove_entries)
-  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate(defined('$_challengeresponseauthentication') ? { true => $_challengeresponseauthentication, default => $challengeresponseauthentication } ), $remove_entries)
-  ssh::add_sshd_config('Ciphers', $_ciphers, $remove_entries)
-  ssh::add_sshd_config('ClientAliveCountMax', String($clientalivecountmax), $remove_entries)
-  ssh::add_sshd_config('ClientAliveInterval', String($clientaliveinterval), $remove_entries)
+  ssh::add_sshd_config('ChallengeResponseAuthentication', ssh::config_bool_translate($_challengeresponseauthentication), $remove_entries)
+  ssh::add_sshd_config('Ciphers', $ciphers, $remove_entries)
+  ssh::add_sshd_config('ClientAliveCountMax', $_clientalivecountmax, $remove_entries)
+  ssh::add_sshd_config('ClientAliveInterval', $_clientaliveinterval, $remove_entries)
   ssh::add_sshd_config('Compression', ssh::config_bool_translate($compression), $remove_entries)
   ssh::add_sshd_config('DenyGroups', $denygroups, $remove_entries)
   ssh::add_sshd_config('DenyUsers', $denyusers, $remove_entries)
@@ -477,63 +611,82 @@ class ssh::server::conf (
   ssh::add_sshd_config('IgnoreRhosts', ssh::config_bool_translate($ignorerhosts), $remove_entries)
   ssh::add_sshd_config('IgnoreUserKnownHosts', ssh::config_bool_translate($ignoreuserknownhosts), $remove_entries)
   ssh::add_sshd_config('KerberosAuthentication', ssh::config_bool_translate($kerberosauthentication), $remove_entries)
-  ssh::add_sshd_config('KexAlgorithms', $_kex_algorithms, $remove_entries)
-  if $listenaddress {
-    ssh::add_sshd_config('ListenAddress', $listenaddress, $remove_entries)
-  }
-  ssh::add_sshd_config('LoginGraceTime', $logingracetime, $remove_entries)
+  ssh::add_sshd_config('KexAlgorithms', $kex_algorithms, $remove_entries)
+  ssh::add_sshd_config('ListenAddress', $listenaddress, $remove_entries)
+  ssh::add_sshd_config('LoginGraceTime', $_logingracetime, $remove_entries)
   ssh::add_sshd_config('LogLevel', $ssh_loglevel, $remove_entries)
-  ssh::add_sshd_config('MACs', $_macs, $remove_entries)
-  ssh::add_sshd_config('MaxAuthTries', $maxauthtries, $remove_entries)
-  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate(defined('$_passwordauthentication') ? { true => $_passwordauthentication, default => $passwordauthentication} ), $remove_entries)
+  ssh::add_sshd_config('MACs', $macs, $remove_entries)
+  ssh::add_sshd_config('MaxAuthTries', $_maxauthtries, $remove_entries)
+  ssh::add_sshd_config('PasswordAuthentication', ssh::config_bool_translate($_passwordauthentication), $remove_entries)
   ssh::add_sshd_config('PermitEmptyPasswords', ssh::config_bool_translate($permitemptypasswords), $remove_entries)
   ssh::add_sshd_config('PermitRootLogin', ssh::config_bool_translate($permitrootlogin), $remove_entries)
   ssh::add_sshd_config('PermitUserEnvironment', ssh::config_bool_translate($permituserenvironment), $remove_entries)
-  ssh::add_sshd_config('Port', $_ports, $remove_entries)
+  ssh::add_sshd_config('Port', $_port_value, $remove_entries)
   ssh::add_sshd_config('PrintLastLog', ssh::config_bool_translate($printlastlog), $remove_entries)
   ssh::add_sshd_config('Protocol', $_protocol, $remove_entries)
-  if $rhostsrsaauthentication != undef {
-    ssh::add_sshd_config('RhostsRSAAuthentication', ssh::config_bool_translate($rhostsrsaauthentication), $remove_entries)
-  }
+  ssh::add_sshd_config('RhostsRSAAuthentication', ssh::config_bool_translate($rhostsrsaauthentication), $remove_entries)
   ssh::add_sshd_config('StrictModes', ssh::config_bool_translate($strictmodes), $remove_entries)
   ssh::add_sshd_config('SyslogFacility', $syslogfacility, $remove_entries)
   ssh::add_sshd_config('UsePAM', ssh::config_bool_translate($_usepam), $remove_entries)
+  ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
   ssh::add_sshd_config('X11Forwarding', ssh::config_bool_translate($x11forwarding), $remove_entries)
-
-  # Version dependent items
-  if versioncmp($facts['openssh_version'], '7.5') < 0 {
-    ssh::add_sshd_config('UsePrivilegeSeparation', ssh::config_bool_translate($useprivilegeseparation), $remove_entries)
-  }
-  elsif !$remove_entries or ($remove_entries and !('UsePrivilegeSeparation' in $remove_entries)) {
-    sshd_config { 'UsePrivilegeSeparation': ensure =>  absent }
-  }
 
   # Custom manipulation
   if $custom_entries {
     $custom_entries.each |$key, $value| {
-      sshd_config { $key: value => $value }
+      sshd_config { $key:
+        value   => $value,
+        require => Package['openssh-server'],
+      }
+    }
+  }
+
+  # sshd_config entries from Hiera (see the parameter docs).  Each becomes an
+  # `ssh::server::sshd_config_entry`, which orders the entry after the
+  # openssh-server package (in addition to any `require` the entry supplies)
+  # and notifies the sshd service only when it is managed.
+  $sshd_config_entries.each |$entry_title, $entry_attrs| {
+    ssh::server::sshd_config_entry { $entry_title:
+      * => $entry_attrs,
     }
   }
 
   if $remove_entries {
-    $remove_entries.unique.each |$key| { sshd_config { $key: ensure => absent } }
-  }
+    $remove_entries.unique.each |$key| {
+      sshd_config { $key:
+        ensure  => absent,
+        require => Package['openssh-server'],
+      }
 
-  $subsystem_array = split($subsystem, ' +')
-  sshd_config_subsystem { $subsystem_array[0]: command => join($subsystem_array[1,-1], ' ') }
+      # A key the module writes to a drop-in on EL9+ is removed from there too.
+      $_target = ssh::sshd_config_target($key)
 
-  if $remove_subsystems {
-    $remove_subsystems.unique.each |$subsystem| {
-      sshd_config_subsystem { $subsystem: ensure => absent }
+      if $_target {
+        sshd_config { "${key} in ${_target}":
+          ensure  => absent,
+          key     => $key,
+          target  => $_target,
+          require => Package['openssh-server'],
+        }
+      }
     }
   }
 
-  file { '/etc/ssh/local_keys':
-    ensure  => 'directory',
-    owner   => 'root',
-    group   => 'root',
-    mode    => '0644',
-    recurse => true,
+  if $subsystem {
+    $subsystem_array = split($subsystem, ' +')
+    sshd_config_subsystem { $subsystem_array[0]:
+      command => join($subsystem_array[1,-1], ' '),
+      require => Package['openssh-server'],
+    }
+  }
+
+  if $remove_subsystems {
+    $remove_subsystems.unique.each |$remove_subsystem| {
+      sshd_config_subsystem { $remove_subsystem:
+        ensure  => absent,
+        require => Package['openssh-server'],
+      }
+    }
   }
 
   $_ports.each |Simplib::Port $sel_port| {
@@ -543,7 +696,6 @@ class ssh::server::conf (
         simplib::assert_optional_dependency($module_name, 'simp/vox_selinux')
 
         include vox_selinux
-
       }
       else {
         simplib::assert_optional_dependency($module_name, 'puppet/selinux')
@@ -570,5 +722,4 @@ class ssh::server::conf (
       dports       => $_ports,
     }
   }
-
 }

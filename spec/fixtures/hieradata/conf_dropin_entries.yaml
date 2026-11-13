@@ -1,0 +1,34 @@
+---
+ssh::server::conf::permitrootlogin: false
+ssh::server::conf::x11forwarding: false
+ssh::server::conf::maxauthtries: 4
+ssh::server::conf::banner: '/etc/issue.net'
+ssh::server::conf::clientaliveinterval: 600
+ssh::server::conf::remove_entries:
+  - X11Forwarding
+ssh::server::conf::sshd_config_entries:
+  'site permitrootlogin':
+    key: 'permitrootlogin'
+    value: 'prohibit-password'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site X11Forwarding':
+    key: 'X11Forwarding'
+    value: 'yes'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site MaxAuthTries':
+    ensure: 'absent'
+    key: 'MaxAuthTries'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site LoginGraceTime':
+    ensure: 'absent'
+    key: 'LoginGraceTime'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site Match Banner':
+    key: 'Banner'
+    value: 'none'
+    condition: 'User backup'
+    target: '/etc/ssh/sshd_config.d/00-simp.conf'
+  'site ClientAliveInterval':
+    key: 'ClientAliveInterval'
+    value: '300'
+    target: '/etc/ssh/sshd_config.d/10-site.conf'

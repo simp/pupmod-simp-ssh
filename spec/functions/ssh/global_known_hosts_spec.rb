@@ -25,9 +25,8 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
-          # rubocop:disable RSpec/NamedSubject
+          # rubocop:disable-next RSpec/NamedSubject
           subject
-          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',
@@ -63,9 +62,8 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
-          # rubocop:disable RSpec/NamedSubject
+          # rubocop:disable-next RSpec/NamedSubject
           subject
-          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',
@@ -111,9 +109,8 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
-          # rubocop:disable RSpec/NamedSubject
+          # rubocop:disable-next RSpec/NamedSubject
           subject
-          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',
@@ -148,9 +145,8 @@ describe 'ssh::global_known_hosts' do
           # framework, when the subject is first created. So create the
           # subject now to retrieve that setting for use in our expectations
           # within this example block.
-          # rubocop:disable RSpec/NamedSubject
+          # rubocop:disable-next RSpec/NamedSubject
           subject
-          # rubocop:enable RSpec/NamedSubject
           vardir = Puppet[:vardir]
           ssh_global_known_hosts_dir = File.join(vardir, 'simp',
             'environments', environment, 'simp_autofiles',

@@ -1,0 +1,5 @@
+---
+# OATH explicitly disabled AND password auth explicitly disabled by the site:
+# the site's value must win over the toggle-safety default of `yes`.
+ssh::server::conf::oath: false
+ssh::server::conf::passwordauthentication: false

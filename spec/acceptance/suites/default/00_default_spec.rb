@@ -10,9 +10,16 @@ describe 'ssh class' do
   let(:server_hieradata) do
     {
       'simp_options::trusted_nets'                => ['ALL'],
+      # Opt in to service management so sshd reloads when settings change;
+      # otherwise the settings below never take effect on the running daemon.
+      'ssh::server::service_ensure'               => 'running',
+      'ssh::server::service_enable'               => true,
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
+      # The key-login tests plant keys in the (formerly default, now opt-in)
+      # central authorized-keys location.
+      'ssh::server::conf::authorizedkeysfile'     => '/etc/ssh/local_keys/%u',
     }
   end
 
@@ -20,10 +27,41 @@ describe 'ssh class' do
 
   let(:files_dir) { File.join(File.dirname(__FILE__), 'files') }
 
+  # Exercise noop from a clean state: on a fresh node the Sicura console previews
+  # the module with `puppet apply --noop`, which must not error even though
+  # nothing this module has configured exists yet. This runs first, before any
+  # of the applies below manage sshd_config or install packages, so it is the
+  # genuine fresh-node preview. Real idempotence is covered by those applies. A
+  # post-convergence noop check is deliberately omitted: `puppet apply --noop
+  # --detailed-exitcodes` always exits 0, so it could never fail.
+  #
+  # Unlike other modules in this rollout, there is no `before` package removal:
+  # neither ssh package can be removed on the SUT without breaking the test run.
+  # `openssh-server` is the sshd Beaker connects through, and `openssh-clients`
+  # provides the remote-side `scp` binary Beaker's file-transport execs to copy
+  # manifests over -- removing it breaks every subsequent `apply_manifest_on`.
+  # A fresh node has openssh installed by the OS anyway, so the honest clean
+  # state is "installed but not yet SIMP-managed", which is exactly what a bare
+  # noop `include 'ssh'` previews (both ssh::client and ssh::server, firewall/
+  # pki default-off).
+  context 'in noop mode from a clean state' do
+    let(:noop_manifest) { "include 'ssh'" }
+
+    it 'applies without errors in noop mode' do
+      apply_manifest_on(hosts, noop_manifest, catch_failures: true, noop: true)
+    end
+  end
+
   hosts_as('server').each do |sut_server|
     os = sut_server.hostname.split('-').first
     context "on #{os}:" do
       let(:server) { sut_server }
+
+      # On EL9+ the class writes first-wins keywords such as LogLevel to the
+      # 00-simp.conf drop-in, so read it along with sshd_config.
+      let(:sshd_conf_cmd) do
+        'cat /etc/ssh/sshd_config; cat /etc/ssh/sshd_config.d/00-simp.conf 2>/dev/null || :'
+      end
 
       let(:client) do
         os = server.hostname.split('-').first
@@ -36,6 +74,11 @@ describe 'ssh class' do
           enable_epel_on(client)
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest, expect_changes: true)
+
+          # Back up the freshly-configured /etc/ssh so later examples that
+          # need to restore the default test setup (e.g. the sshd_config type
+          # coexistence test) have a known-good copy at /root/ssh.
+          on(server, '/bin/cp -ra /etc/ssh /root')
         end
 
         it "configures #{os}-server idempotently" do
@@ -44,7 +87,10 @@ describe 'ssh class' do
         end
 
         it "configures #{os}-client with no errors" do
-          apply_manifest_on(client, client_manifest, expect_changes: true)
+          # A bare `include ssh::client` only manages the openssh-clients
+          # package, so whether the first apply reports changes depends on
+          # whether the image ships the package preinstalled.
+          apply_manifest_on(client, client_manifest, catch_failures: true)
         end
         it "configures #{os}-client idempotently" do
           apply_manifest_on(client, client_manifest, catch_changes: true)
@@ -175,6 +221,14 @@ describe 'ssh class' do
           PP
         end
 
+        let(:client_manifest_w_default_entry) do
+          # The default `Host *` entry is opt-in under the reduced blast
+          # radius; a bare `include ssh::client` writes no ssh_config content.
+          # These comparison tests need it in the baseline so the diff only
+          # contains the customization.
+          "class { 'ssh::client': add_default_entry => true }"
+        end
+
         let(:client_manifest_w_custom_host_entries) do
           <<~PP
             # SIMP-4440 client example
@@ -214,12 +268,12 @@ describe 'ssh class' do
           set_hieradata_on(server, server_hieradata)
           apply_manifest_on(server, server_manifest)
 
-          normal_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
+          normal_sshd_conf = on(server, sshd_conf_cmd).stdout.to_s.split("\n")
 
           # Create the new test setup
           set_hieradata_on(server, server_hieradata_w_additions)
           apply_manifest_on(server, server_manifest_w_additions)
-          custom_sshd_conf = on(server, 'cat /etc/ssh/sshd_config').stdout.to_s.split("\n")
+          custom_sshd_conf = on(server, sshd_conf_cmd).stdout.to_s.split("\n")
 
           # Compare the results
           expect((custom_sshd_conf - normal_sshd_conf).sort).to eq [
@@ -232,7 +286,7 @@ describe 'ssh class' do
         it 'customizes the default ssh_config Host' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
+          apply_manifest_on(client, client_manifest_w_default_entry)
           normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
@@ -248,7 +302,7 @@ describe 'ssh class' do
         it 'customizes an ssh_config Host entry for a specific host' do
           # Ensure the client is using the default test setup
           on(client, 'echo > /etc/ssh/ssh_config')
-          apply_manifest_on(client, client_manifest)
+          apply_manifest_on(client, client_manifest_w_default_entry)
           normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
           # Create the new test setup
@@ -268,7 +322,10 @@ describe 'ssh class' do
           os_major_release.delete!('^0-9')
           if os_major_release
             on(client, 'echo > /etc/ssh/ssh_config')
-            apply_manifest_on(client, client_manifest)
+            # The baseline needs the default `Host *` block: the ssh_config
+            # type nests global settings under `Host *`, creating the block
+            # when absent, so an empty baseline would diff the whole block.
+            apply_manifest_on(client, client_manifest_w_default_entry)
             normal_ssh_conf = on(client, 'cat /etc/ssh/ssh_config').stdout.to_s.split("\n")
 
             # Create the new test setup
@@ -291,7 +348,7 @@ describe 'ssh class' do
           set_hieradata_on(server, disable_manage_authorizedkeysfile)
           apply_manifest_on(server, server_manifest, catch_changes: true)
 
-          expect(file_content_on(server, '/etc/ssh/sshd_config').strip).not_to match('AuthorizedKeysFile\s*/foo/bar')
+          expect(on(server, sshd_conf_cmd).stdout).not_to match(%r{AuthorizedKeysFile\s*/foo/bar})
         end
       end
 

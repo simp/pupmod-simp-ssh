@@ -15,6 +15,9 @@ Puppet::Type.type(:sshkey_prune).provide(:prune) do
   end
 
   def sync
+    # Honor `--noop`: never rewrite the known_hosts file during a noop run.
+    return if resource.noop? || Puppet[:noop]
+
     require 'tempfile'
 
     tmp_fh = Tempfile.new('sshkey_prune')
@@ -44,10 +47,11 @@ Puppet::Type.type(:sshkey_prune).provide(:prune) do
 
     @system_hosts = {}
     if File.readable?(@resource[:name])
-      fh = File.open(@resource[:name], 'r')
-      fh.each_line do |line|
-        hostname = line.split(%r{\s}).first.split(',').first
-        hostname !~ %r{^#} and @system_hosts[hostname] = line
+      File.open(@resource[:name], 'r') do |fh|
+        fh.each_line do |line|
+          hostname = line.split(%r{\s}).first.split(',').first
+          hostname !~ %r{^#} and @system_hosts[hostname] = line
+        end
       end
     end
 

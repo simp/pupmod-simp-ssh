@@ -1,0 +1,15 @@
+---
+ssh::server::conf::sshd_config_entries:
+  '50-redhat X11Forwarding':
+    key: 'X11Forwarding'
+    value: 'no'
+    target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+  '50-redhat GSSAPIAuthentication':
+    ensure: 'absent'
+    key: 'GSSAPIAuthentication'
+    target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+  '50-redhat PrintMotd':
+    key: 'PrintMotd'
+    value: 'no'
+    target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+    require: 'File[/etc/ssh]'

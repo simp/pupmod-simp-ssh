@@ -26,7 +26,7 @@ def dump_sshd_ciphers(server, label = '', text = '')
     return false
   end
 
-  initial_server_facts = on(server, facter(['-y', '-p'] + facts_to_query))
+  initial_server_facts = on(server, "facter -y -p #{facts_to_query.join(' ')}")
   unless initial_server_facts.exit_code == 0
     warn('WARNING: facter failed during dump_sshd_ciphers')
     return false

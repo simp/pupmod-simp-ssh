@@ -12,11 +12,12 @@
 * [`ssh::client::params`](#ssh--client--params): Default parameters for the SSH client
 * [`ssh::server`](#ssh--server): Sets up a ssh server and starts sshd.
 * [`ssh::server::conf`](#ssh--server--conf): Sets up sshd_config and adds an iptables rule if iptables is being used.
-* [`ssh::server::params`](#ssh--server--params): Default parameters for the SSH Server
 
 ### Defined types
 
 * [`ssh::client::host_config_entry`](#ssh--client--host_config_entry): Creates a host entry to ssh_config
+* [`ssh::server::sshd_config_entry`](#ssh--server--sshd_config_entry): Manage a single ``sshd_config`` entry that is safe to declare from
+outside this module
 
 ### Resource types
 
@@ -24,12 +25,13 @@
 
 ### Functions
 
-* [`ssh::add_sshd_config`](#ssh--add_sshd_config): Add a sshd_config entry if it is not in the remove list
+* [`ssh::add_sshd_config`](#ssh--add_sshd_config): Add a sshd_config entry if it has a value and is not in the remove list  A `$value` of `undef` is skipped entirely so that an unset class par
 * [`ssh::autokey`](#ssh--autokey): Generates a random RSA SSH private and public key pair for a passed
 * [`ssh::config_bool_translate`](#ssh--config_bool_translate): Translates true|false or 'true'|'false' to 'yes'|'no', respectively
 * [`ssh::format_host_entry_for_sorting`](#ssh--format_host_entry_for_sorting): A method to sensibly format sort SSH 'host' entries which contain
 * [`ssh::global_known_hosts`](#ssh--global_known_hosts): Update the ssh_known_hosts files for all hosts, purging old files,
 * [`ssh::parse_ssh_pubkey`](#ssh--parse_ssh_pubkey): Take an ssh pubkey that looks like:   ssh-rsa jdlkfgjsdfo;i... user@domain.com and turn it into a hash, usable in the ssh_authorized_key type
+* [`ssh::sshd_config_target`](#ssh--sshd_config_target): Return the file a module-managed sshd keyword is written to  On EL9+ the vendor `sshd_config` `Include`s `/etc/ssh/sshd_config.d/*.conf` at t
 
 ### Data types
 
@@ -117,7 +119,12 @@ Default value: `{}`
 
 ### <a name="ssh--client"></a>`ssh::client`
 
-Sets up a ssh client and creates /etc/ssh/ssh_config.
+A bare `include ssh` (or `include ssh::client`) installs the
+`openssh-clients` package and does *nothing else*.  The default `Host *`
+entry in `/etc/ssh/ssh_config` (and management of `ssh_config`/
+`ssh_known_hosts`) is opt-in via `$add_default_entry`.  Activate the bundled
+`simp:defaults` compliance_engine profile (or set `$add_default_entry`) to
+restore the pre-9.0.0 behavior.
 
 #### Parameters
 
@@ -126,7 +133,9 @@ The following parameters are available in the `ssh::client` class:
 * [`add_default_entry`](#-ssh--client--add_default_entry)
 * [`fips`](#-ssh--client--fips)
 * [`haveged`](#-ssh--client--haveged)
+* [`rngd`](#-ssh--client--rngd)
 * [`package_ensure`](#-ssh--client--package_ensure)
+* [`ssh_config_entries`](#-ssh--client--ssh_config_entries)
 
 ##### <a name="-ssh--client--add_default_entry"></a>`add_default_entry`
 
@@ -135,7 +144,7 @@ Data type: `Boolean`
 Set this if you wish to automatically
 have the '*' Host entry set up with some sane defaults.
 
-Default value: `true`
+Default value: `false`
 
 ##### <a name="-ssh--client--fips"></a>`fips`
 
@@ -143,15 +152,29 @@ Data type: `Boolean`
 
 If set or FIPS is already enabled, adjust for FIPS mode.
 
-Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--client--haveged"></a>`haveged`
 
 Data type: `Boolean`
 
-If true, include the haveged module to assist with entropy generation.
+Deprecated; use `rngd` instead. If true, include the haveged module to
+assist with entropy generation. `simp/haveged` is an optional dependency
+and must be installed separately. This parameter will be removed in the
+next major release.
 
-Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
+Default value: `false`
+
+##### <a name="-ssh--client--rngd"></a>`rngd`
+
+Data type: `Boolean`
+
+If true, include the `rngd` class to assist with entropy generation.
+`simp/rngd` is an optional dependency and must be installed separately.
+By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+and `rngd::service_enable` to manage the service.
+
+Default value: `false`
 
 ##### <a name="-ssh--client--package_ensure"></a>`package_ensure`
 
@@ -159,7 +182,38 @@ Data type: `String`
 
 The ensure status the openssh-clients package
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
+
+##### <a name="-ssh--client--ssh_config_entries"></a>`ssh_config_entries`
+
+Data type: `Hash[String[1],Hash[String[1],NotUndef]]`
+
+A Hash of raw ``ssh_config`` resources.  Each key is a resource title and
+each value is a hash of attributes for the ``ssh_config`` type from
+``augeasproviders_ssh``, applied without validation.
+
+This exposes the full type through Hiera — most notably ``target``, which
+manages a keyword inside a drop-in file.  The ``ssh_config`` type only
+manages ``Host`` blocks (``host`` defaults to ``*``); it cannot edit the
+``Match final all`` block that wraps the vendor client drop-ins
+(``05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+).  ssh applies a
+``Match final`` block in a final pass, and only for options nothing else
+has set — so the reliable way to pin a client option is a drop-in of your
+own that ssh reads *before* the vendor's: the first obtained value wins.
+Do not point entries at the vendor files themselves.
+
+* Each resource requires ``Package['openssh-clients']`` in addition to
+  any ``require`` the entry provides.
+
+@example Disable GSSAPIAuthentication ahead of the vendor drop-in
+  ---
+  ssh::client::ssh_config_entries:
+    'simp GSSAPIAuthentication':
+      key: 'GSSAPIAuthentication'
+      value: 'no'
+      target: '/etc/ssh/ssh_config.d/00-simp.conf'
+
+Default value: `{}`
 
 ### <a name="ssh--client--params"></a>`ssh::client::params`
 
@@ -167,7 +221,13 @@ Default parameters for the SSH client
 
 ### <a name="ssh--server"></a>`ssh::server`
 
-Sets up a ssh server and starts sshd.
+A bare `include ssh` (or `include ssh::server`) installs the
+`openssh-server` package and does *nothing else*.  The `sshd` service,
+the `sshd` user/group, the `/var/empty/sshd` chroot scaffolding and the
+host-key file management are only declared when service management is
+requested via `$service_ensure`/`$service_enable`.  Activate the bundled
+`simp:defaults` compliance_engine profile (or set these parameters) to
+restore the pre-9.0.0 behavior.
 
 #### Parameters
 
@@ -175,6 +235,8 @@ The following parameters are available in the `ssh::server` class:
 
 * [`server_ensure`](#-ssh--server--server_ensure)
 * [`ldap_ensure`](#-ssh--server--ldap_ensure)
+* [`service_ensure`](#-ssh--server--service_ensure)
+* [`service_enable`](#-ssh--server--service_enable)
 
 ##### <a name="-ssh--server--server_ensure"></a>`server_ensure`
 
@@ -182,7 +244,7 @@ Data type: `String`
 
 The ensure status of the openssh-server package
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
 
 ##### <a name="-ssh--server--ldap_ensure"></a>`ldap_ensure`
 
@@ -190,12 +252,57 @@ Data type: `String`
 
 The ensure status of the openssh-ldap package
 
-Default value: `simplib::lookup('simp_options::package_ensure', { 'default_value' => 'installed' })`
+Default value: `'installed'`
+
+##### <a name="-ssh--server--service_ensure"></a>`service_ensure`
+
+Data type: `Optional[Stdlib::Ensure::Service]`
+
+The `ensure` status of the `sshd` service.  Leave `undef` (the default)
+to leave the service unmanaged.  Setting either this or `$service_enable`
+causes the service (and its supporting resources) to be managed.
+
+Default value: `undef`
+
+##### <a name="-ssh--server--service_enable"></a>`service_enable`
+
+Data type: `Optional[Boolean]`
+
+The `enable` status of the `sshd` service.  Leave `undef` (the default)
+to leave the service unmanaged.
+
+Default value: `undef`
 
 ### <a name="ssh--server--conf"></a>`ssh::server::conf`
 
 ``sshd`` configuration variables can be set using Augeas outside of this
 class with no adverse effects.
+
+Where settings are written:
+
+* EL8: ``/etc/ssh/sshd_config``.
+* EL9+: ``/etc/ssh/sshd_config.d/00-simp.conf`` (root:root 0600), created
+  only once a setting is written to it.  The vendor ``sshd_config``
+  ``Include``s ``sshd_config.d/*.conf`` at the top of the file and sshd uses
+  the first value it reads, so every drop-in (``50-redhat.conf``,
+  ``25-permitrootlogin.conf``, Anaconda's ``01-permitrootlogin.conf``)
+  overrides what is written to ``sshd_config``.  ``00-simp.conf`` sorts
+  before all of them.
+* Also on EL9+, two groups stay in ``/etc/ssh/sshd_config``:
+  * Keywords sshd accumulates across files: ``AcceptEnv``,
+    ``AllowGroups``, ``AllowUsers``, ``DenyGroups``, ``DenyUsers``,
+    ``ListenAddress`` and ``Port``.  No vendor drop-in sets them, so they
+    take effect there.
+  * ``Ciphers``, ``MACs`` and ``KexAlgorithms``, which stay under the
+    system crypto policy's vendor drop-in.  To change which algorithms sshd
+    offers on EL9+, create a crypto sub-policy rather than setting these
+    parameters.
+
+``/etc/ssh/sshd_config`` itself is not edited to make way for the drop-in:
+lines earlier releases wrote there stay in place and are overridden by
+``00-simp.conf``.  ``$custom_entries`` and ``Subsystem`` are still written
+to ``sshd_config``; use ``$sshd_config_entries`` with ``target`` to place an
+entry elsewhere.
 
 SSH Parameters ####
 
@@ -251,15 +358,14 @@ The following parameters are available in the `ssh::server::conf` class:
 * [`useprivilegeseparation`](#-ssh--server--conf--useprivilegeseparation)
 * [`x11forwarding`](#-ssh--server--conf--x11forwarding)
 * [`custom_entries`](#-ssh--server--conf--custom_entries)
+* [`sshd_config_entries`](#-ssh--server--conf--sshd_config_entries)
 * [`remove_entries`](#-ssh--server--conf--remove_entries)
 * [`remove_subsystems`](#-ssh--server--conf--remove_subsystems)
 * [`app_pki_external_source`](#-ssh--server--conf--app_pki_external_source)
 * [`app_pki_key`](#-ssh--server--conf--app_pki_key)
-* [`enable_fallback_ciphers`](#-ssh--server--conf--enable_fallback_ciphers)
-* [`fallback_ciphers`](#-ssh--server--conf--fallback_ciphers)
-* [`fips`](#-ssh--server--conf--fips)
 * [`firewall`](#-ssh--server--conf--firewall)
 * [`haveged`](#-ssh--server--conf--haveged)
+* [`rngd`](#-ssh--server--conf--rngd)
 * [`ldap`](#-ssh--server--conf--ldap)
 * [`pki`](#-ssh--server--conf--pki)
 * [`sssd`](#-ssh--server--conf--sssd)
@@ -268,12 +374,12 @@ The following parameters are available in the `ssh::server::conf` class:
 
 ##### <a name="-ssh--server--conf--acceptenv"></a>`acceptenv`
 
-Data type: `Array[String]`
+Data type: `Optional[Array[String]]`
 
 Specifies what environment variables sent by the client will be copied into
 the sessions environment.
 
-Default value: `$ssh::server::params::acceptenv`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--allowgroups"></a>`allowgroups`
 
@@ -305,12 +411,12 @@ Default value: `true`
 
 ##### <a name="-ssh--server--conf--authorizedkeysfile"></a>`authorizedkeysfile`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 This is set to a non-standard location to provide for increased control
 over who can log in as a given user.
 
-Default value: `'/etc/ssh/local_keys/%u'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--authorizedkeyscommand"></a>`authorizedkeyscommand`
 
@@ -330,55 +436,64 @@ Default value: `'nobody'`
 
 ##### <a name="-ssh--server--conf--banner"></a>`banner`
 
-Data type: `Stdlib::Absolutepath`
+Data type: `Optional[Stdlib::Absolutepath]`
 
 The contents of the specified file are sent to the remote user before
 authentication is allowed.
 
-Default value: `'/etc/issue.net'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--challengeresponseauthentication"></a>`challengeresponseauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether challenge-response authentication is allowed.
 
-Default value: `false`
+* Enabling `$oath` forces this on.  On EL9+ that is done by
+  ``00-simp-kbdinteractive.conf``, which sorts before ``00-simp.conf`` and
+  is removed when OATH is disabled, so ``00-simp.conf`` only ever holds
+  the value set here.
+
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ciphers"></a>`ciphers`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the ciphers allowed for protocol version 2.  When unset, a strong
-set of ciphers is automatically selected by this class, taking into account
-whether the server is in FIPS mode.
+Specifies the ciphers allowed for protocol version 2.  When unset, no
+`Ciphers` line is managed.  The `simp:defaults` profile supplies a strong,
+FIPS-aware set.
+
+* On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+  system crypto policy's vendor drop-in overrides it.  To choose which
+  algorithms sshd uses there, create a crypto sub-policy instead.
 
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--clientalivecountmax"></a>`clientalivecountmax`
 
-Data type: `Integer`
+Data type: `Optional[Integer]`
 
 @see man page for sshd_config
 
-Default value: `0`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--clientaliveinterval"></a>`clientaliveinterval`
 
-Data type: `Integer`
+Data type: `Optional[Integer]`
 
 @see man page for sshd_config
 
-Default value: `600`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--compression"></a>`compression`
 
-Data type: `Variant[Boolean,Enum['delayed']]`
+Data type: `Optional[Variant[Boolean,Enum['delayed']]]`
 
 Specifies whether compression is allowed, or delayed until the user has
 authenticated successfully.
 
-Default value: `'delayed'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--denygroups"></a>`denygroups`
 
@@ -400,54 +515,60 @@ Default value: `undef`
 
 ##### <a name="-ssh--server--conf--gssapiauthentication"></a>`gssapiauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
-Specifies whether user authentication based on GSSAPI is allowed. If the
-system is connected to an IPA domain, this will be default to true, based
-on the existance of the `ipa` fact.
+Specifies whether user authentication based on GSSAPI is allowed.
 
-Default value: `$ssh::server::params::gssapiauthentication`
+* When unset, no `GSSAPIAuthentication` entry is managed.  This module no
+  longer auto-enables GSSAPI on IPA-joined hosts, and the `simp:defaults`
+  profile deliberately leaves this unmanaged so enabling it cannot break
+  Kerberos SSO — IPA sites should set this to `true` explicitly.
+
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--hostbasedauthentication"></a>`hostbasedauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ignorerhosts"></a>`ignorerhosts`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ignoreuserknownhosts"></a>`ignoreuserknownhosts`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--kerberosauthentication"></a>`kerberosauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--kex_algorithms"></a>`kex_algorithms`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the key exchange algorithms accepted.  When unset, an appropriate
-set of algorithms is automatically selected by this class, taking into
-account whether the server is in FIPS mode and whether the version of
-openssh installed supports this feature.
+Specifies the key exchange algorithms accepted.  When unset, no
+`KexAlgorithms` line is managed.  The `simp:defaults` profile supplies a
+FIPS-aware set.
+
+* On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+  system crypto policy's vendor drop-in overrides it.  To choose which
+  algorithms sshd uses there, create a crypto sub-policy instead.
 
 Default value: `undef`
 
@@ -461,12 +582,12 @@ Default value: `undef`
 
 ##### <a name="-ssh--server--conf--logingracetime"></a>`logingracetime`
 
-Data type: `Integer[0]`
+Data type: `Optional[Integer[0]]`
 
 The max number of seconds the server will wait for a successful login
 before disconnecting. If the value is 0, there is no limit.
 
-Default value: `120`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--ssh_loglevel"></a>`ssh_loglevel`
 
@@ -480,81 +601,86 @@ Default value: `undef`
 
 Data type: `Optional[Array[String]]`
 
-Specifies the available MAC algorithms. When unset, a strong set of ciphers
-is automatically selected by this class, taking into account whether the
-server is in FIPS mode.
+Specifies the available MAC algorithms. When unset, no `MACs` line is
+managed.  The `simp:defaults` profile supplies a strong, FIPS-aware set.
+
+* On EL9+ the line is written to ``/etc/ssh/sshd_config``, where the
+  system crypto policy's vendor drop-in overrides it.  To choose which
+  algorithms sshd uses there, create a crypto sub-policy instead.
 
 Default value: `undef`
 
 ##### <a name="-ssh--server--conf--maxauthtries"></a>`maxauthtries`
 
-Data type: `Integer[1]`
+Data type: `Optional[Integer[1]]`
 
 Specifies the maximum number of authentication attempts permitted per
 connection.
 
-Default value: `6`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--passwordauthentication"></a>`passwordauthentication`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether password authentication is allowed on the sshd server.
 
-* This setting must be managed by default so that switching to and from
-  OATH does not lock you out of your system.
+* When unset, no `PasswordAuthentication` entry is managed — unless
+  `$oath` is set: enabling OATH forces this to `no`, and *explicitly*
+  setting `oath: false` forces it back on (defaulting to `yes`) so that
+  switching to and from OATH cannot lock you out of your system.
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--permitemptypasswords"></a>`permitemptypasswords`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 When password authentication is allowed, it specifies whether the server
 allows login to accounts with empty password strings.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--permitrootlogin"></a>`permitrootlogin`
 
-Data type: `Ssh::PermitRootLogin`
+Data type: `Optional[Ssh::PermitRootLogin]`
 
 Specifies whether root can log in using SSH.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--permituserenvironment"></a>`permituserenvironment`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--port"></a>`port`
 
-Data type: `Variant[Array[Simplib::Port],Simplib::Port]`
+Data type: `Optional[Variant[Array[Simplib::Port],Simplib::Port]]`
 
 Specifies the port number SSHD listens on.
 
-Default value: `22`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--printlastlog"></a>`printlastlog`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether SSHD should print the date and time of the last user
 login when a user logs in interactively.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--protocol"></a>`protocol`
 
-Data type: `Array[Integer[1,2]]`
+Data type: `Optional[Array[Integer[1,2]]]`
 
 @see man page for sshd_config
 
-Default value: `[2]`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--rhostsrsaauthentication"></a>`rhostsrsaauthentication`
 
@@ -566,39 +692,39 @@ using openssh 7.4 or later, only set this value if you need
 `RhostsRSAAuthentication` to be in the sshd configuration file to
 satisfy an outdated, STIG check.
 
-Default value: `$ssh::server::params::rhostsrsaauthentication`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--strictmodes"></a>`strictmodes`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 @see man page for sshd_config
 
-Default value: `true`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--subsystem"></a>`subsystem`
 
-Data type: `String`
+Data type: `Optional[String]`
 
 Configures an external subsystem for file transfers.
 
-Default value: `'sftp /usr/libexec/openssh/sftp-server'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--syslogfacility"></a>`syslogfacility`
 
-Data type: `Ssh::Syslogfacility`
+Data type: `Optional[Ssh::Syslogfacility]`
 
 Gives the facility code that is used when logging messages.
 
-Default value: `'AUTHPRIV'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--usepam"></a>`usepam`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Enables the Pluggable Authentication Module interface.
 
-Default value: `simplib::lookup('simp_options::pam', { 'default_value' => true })`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--manage_pam_sshd"></a>`manage_pam_sshd`
 
@@ -607,18 +733,26 @@ Data type: `Boolean`
 Flag indicating whether or not to manage the pam stack for sshd. This is
 required for the oath option to work properly.
 
-Default value: `$oath`
+* Managed independently of `$usepam`, which only controls the `UsePAM`
+  entry in `sshd_config`.
+
+Default value: `pick($oath, false)`
 
 ##### <a name="-ssh--server--conf--oath"></a>`oath`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 **EXPERIMENTAL FEATURE**
 Configures ssh to use pam_oath TOTP in the sshd pam stack.
-Also configures sshd_config to use required settings. Inherits from
-simp_options::oath, defaults to false if not found.
+Also configures sshd_config to use required settings.
 
-Default value: `simplib::lookup('simp_options::oath', { 'default_value' => false })`
+* When unset, OATH is not configured and nothing is forced.  Set `true`
+  to enable (forces `UsePAM` and `ChallengeResponseAuthentication` on and
+  `PasswordAuthentication` off); set `false` explicitly when disabling a
+  previously enabled OATH setup so password authentication is restored
+  (see `$passwordauthentication`).
+
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--oath_window"></a>`oath_window`
 
@@ -630,22 +764,22 @@ Default value: `1`
 
 ##### <a name="-ssh--server--conf--useprivilegeseparation"></a>`useprivilegeseparation`
 
-Data type: `Variant[Boolean,Enum['sandbox']]`
+Data type: `Optional[Variant[Boolean,Enum['sandbox']]]`
 
 Specifies whether sshd separates privileges by creating an unprivileged
 child process to deal with incoming network traffic.
 
 This option has no effect on OpenSSH >= 7.5.0 due to being deprecated.
 
-Default value: `'sandbox'`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--x11forwarding"></a>`x11forwarding`
 
-Data type: `Boolean`
+Data type: `Optional[Boolean]`
 
 Specifies whether X11 forwarding is permitted.
 
-Default value: `false`
+Default value: `undef`
 
 ##### <a name="-ssh--server--conf--custom_entries"></a>`custom_entries`
 
@@ -665,11 +799,54 @@ without any validation.
 
 Default value: `undef`
 
+##### <a name="-ssh--server--conf--sshd_config_entries"></a>`sshd_config_entries`
+
+Data type: `Hash[String[1],Hash[String[1],NotUndef]]`
+
+A Hash of additional ``sshd_config`` entries, each declared as an
+``ssh::server::sshd_config_entry``.  Each key is a resource title and each
+value is a hash of parameters for that defined type (``ensure``, ``key``,
+``value``, ``condition``, ``target``, ``array_append``, ``comment``, plus
+any metaparameters such as ``require``).  Values are not validated against
+what ``sshd`` accepts.
+
+Unlike ``$custom_entries`` (bare keyword/value pairs in the default
+``/etc/ssh/sshd_config``), this exposes the full type through Hiera — most
+notably ``target``, which manages a keyword inside a drop-in file.  The
+class's own parameters already go to ``00-simp.conf`` on EL9+ (see the
+class description), so this is for keywords the class has no parameter
+for, or for editing a vendor drop-in such as
+``/etc/ssh/sshd_config.d/50-redhat.conf`` directly.
+
+* Give each entry a title distinct from any module-managed keyword (module
+  entries use the bare keyword as the title) and set ``key`` explicitly.
+* Do not target ``00-simp.conf``, which the class owns; use a drop-in of
+  your own.  An entry there that sets a value takes precedence over the
+  class for its keyword, and an ``ensure: absent`` entry there yields to
+  the class's value (see ``ssh::server::sshd_config_entry``).
+* Each entry requires ``Package['openssh-server']`` in addition to any
+  ``require`` the entry provides.
+* When service management is enabled, changes notify the sshd service;
+  with an unmanaged service nothing is restarted.
+
+@example Override the vendor drop-in on EL9+
+  ---
+  ssh::server::conf::sshd_config_entries:
+    '50-redhat X11Forwarding':
+      key: 'X11Forwarding'
+      value: 'no'
+      target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+
+Default value: `{}`
+
 ##### <a name="-ssh--server--conf--remove_entries"></a>`remove_entries`
 
 Data type: `Optional[Array[String[1]]]`
 
 List of configuration parameters that will be removed.
+
+* Removed from ``/etc/ssh/sshd_config`` and, on EL9+ for keywords the
+  class writes there, from ``/etc/ssh/sshd_config.d/00-simp.conf``.
 
 * NOTE: Due to complexity, ``Match`` entries are not supported and will
   need to be removed using ``sshd_config_match`` resources as described in
@@ -694,7 +871,7 @@ Data type: `String`
 
 * If pki = false, this variable has no effect.
 
-Default value: `simplib::lookup('simp_options::pki::source', { 'default_value' => '/etc/pki/simp/x509' })`
+Default value: `'/etc/pki/simp/x509'`
 
 ##### <a name="-ssh--server--conf--app_pki_key"></a>`app_pki_key`
 
@@ -705,48 +882,35 @@ the system SSH certificates for consistency.
 
 Default value: `"/etc/pki/simp_apps/sshd/x509/private/${facts['networking']['fqdn']}.pem"`
 
-##### <a name="-ssh--server--conf--enable_fallback_ciphers"></a>`enable_fallback_ciphers`
-
-Data type: `Boolean`
-
-If true, add the fallback ciphers from ssh::server::params to the cipher
-list. This is intended to provide compatibility with non-SIMP systems in a
-way that properly supports FIPS 140-2.
-
-Default value: `true`
-
-##### <a name="-ssh--server--conf--fallback_ciphers"></a>`fallback_ciphers`
-
-Data type: `Array[String]`
-
-The set of ciphers that should be used should no other cipher be declared.
-This is used when $ssh::server::conf::enable_fallback_ciphers is enabled.
-
-Default value: `$ssh::server::params::fallback_ciphers`
-
-##### <a name="-ssh--server--conf--fips"></a>`fips`
-
-Data type: `Boolean`
-
-If set or FIPS is already enabled, adjust for FIPS mode.
-
-Default value: `simplib::lookup('simp_options::fips', { 'default_value' => false })`
-
 ##### <a name="-ssh--server--conf--firewall"></a>`firewall`
 
 Data type: `Boolean`
 
 If true, use the SIMP iptables class.
 
-Default value: `simplib::lookup('simp_options::firewall', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--haveged"></a>`haveged`
 
 Data type: `Boolean`
 
-If true, include the haveged module to assist with entropy generation.
+Deprecated; use `rngd` instead. If true, include the haveged module to
+assist with entropy generation. `simp/haveged` is an optional dependency
+and must be installed separately. This parameter will be removed in the
+next major release.
 
-Default value: `simplib::lookup('simp_options::haveged', { 'default_value' => false })`
+Default value: `false`
+
+##### <a name="-ssh--server--conf--rngd"></a>`rngd`
+
+Data type: `Boolean`
+
+If true, include the `rngd` class to assist with entropy generation.
+`simp/rngd` is an optional dependency and must be installed separately.
+By default `rngd` only installs `rng-tools`; set `rngd::service_ensure`
+and `rngd::service_enable` to manage the service.
+
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--ldap"></a>`ldap`
 
@@ -756,7 +920,7 @@ If true, enable LDAP support on the system. If
 authorizedkeyscommand is empty, this will set the authorizedkeyscommand to
 ssh-ldap-wrapper so that SSH public keys can be stored directly in LDAP.
 
-Default value: `simplib::lookup('simp_options::ldap', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--pki"></a>`pki`
 
@@ -774,7 +938,7 @@ Data type: `Variant[Enum['simp'],Boolean]`
   * app_pki_ca
   * app_pki_ca_dir
 
-Default value: `simplib::lookup('simp_options::pki', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--sssd"></a>`sssd`
 
@@ -782,7 +946,7 @@ Data type: `Boolean`
 
 If true, use sssd
 
-Default value: `simplib::lookup('simp_options::sssd', { 'default_value' => false })`
+Default value: `false`
 
 ##### <a name="-ssh--server--conf--ensure_sssd_packages"></a>`ensure_sssd_packages`
 
@@ -801,11 +965,6 @@ Data type: `Simplib::Netlist`
 The networks to allow to connect to SSH.
 
 Default value: `['ALL']`
-
-### <a name="ssh--server--params"></a>`ssh::server::params`
-
-* ``Curve`` exchange was not fully supported until openssh 6.5
-* RhostsRSAAuthentication was removed in openssh 7.4
 
 ## Defined types
 
@@ -1355,10 +1514,12 @@ the start of the array to the end of the array. Default:
 Default value:
 
 ```puppet
-[ 'publickey',
-                                                                                              'hostbased',
-                                                                                              'keyboard-interactive',
-                                                                                              'password' ]
+[
+    'publickey',
+    'hostbased',
+    'keyboard-interactive',
+    'password',
+  ]
 ```
 
 ##### <a name="-ssh--client--host_config_entry--protocol"></a>`protocol`
@@ -1434,20 +1595,22 @@ should be sent to the server.
 Default value:
 
 ```puppet
-[ 'LANG',
-                                                                                              'LC_CTYPE',
-                                                                                              'LC_NUMERIC',
-                                                                                              'LC_TIME',
-                                                                                              'LC_COLLATE',
-                                                                                              'LC_MONETARY',
-                                                                                              'LC_MESSAGES',
-                                                                                              'LC_PAPER',
-                                                                                              'LC_NAME',
-                                                                                              'LC_ADDRESS',
-                                                                                              'LC_TELEPHONE',
-                                                                                              'LC_MEASUREMENT',
-                                                                                              'LC_IDENTIFICATION',
-                                                                                              'LC_ALL' ]
+[
+    'LANG',
+    'LC_CTYPE',
+    'LC_NUMERIC',
+    'LC_TIME',
+    'LC_COLLATE',
+    'LC_MONETARY',
+    'LC_MESSAGES',
+    'LC_PAPER',
+    'LC_NAME',
+    'LC_ADDRESS',
+    'LC_TELEPHONE',
+    'LC_MEASUREMENT',
+    'LC_IDENTIFICATION',
+    'LC_ALL',
+  ]
 ```
 
 ##### <a name="-ssh--client--host_config_entry--serveralivecountmax"></a>`serveralivecountmax`
@@ -1573,6 +1736,128 @@ program.
 
 Default value: `'/usr/bin/xauth'`
 
+### <a name="ssh--server--sshd_config_entry"></a>`ssh::server::sshd_config_entry`
+
+A thin wrapper around the [`sshd_config`][aug_ssh__sshd_config] type from
+``augeasproviders_ssh`` that wires the entry into this module's opt-in
+service management:
+
+* ``ssh::server`` is included, so the ``openssh-server`` package is in the
+  catalog and the entry is applied only after it is installed.
+* When ``ssh::server`` manages the ``sshd`` service
+  (``ssh::server::service_ensure``/``ssh::server::service_enable``), the
+  entry notifies ``Service['sshd']`` so the change takes effect.  When the
+  service is unmanaged, nothing is notified and the catalog still compiles.
+
+Other modules should use this instead of a raw ``sshd_config`` resource that
+references ``Package['openssh-server']`` or ``Service['sshd']`` directly,
+since neither resource is guaranteed to be in the catalog.
+
+Give each entry a title distinct from any module-managed keyword (module
+entries use the bare keyword as the title) and set ``key`` explicitly when
+the title is not the keyword itself.
+
+Use a drop-in of your own rather than ``00-simp.conf``, which
+``ssh::server::conf`` owns on EL9+.  An entry there that sets a value takes
+precedence over the class for its keyword, and an ``ensure => absent`` entry
+there yields to the class's value: the line is removed only while the class
+does not set the keyword.
+
+#### Examples
+
+##### Match-block entry from a profile module
+
+```puppet
+ssh::server::sshd_config_entry { 'AuthorizedKeysFile GitLab user':
+  key       => 'AuthorizedKeysFile',
+  condition => 'User git',
+  value     => '/var/opt/gitlab/.ssh/authorized_keys',
+}
+```
+
+##### Remove a setting from the EL9+ vendor drop-in
+
+```puppet
+ssh::server::sshd_config_entry { '50-redhat GSSAPIAuthentication':
+  ensure => 'absent',
+  key    => 'GSSAPIAuthentication',
+  target => '/etc/ssh/sshd_config.d/50-redhat.conf',
+}
+```
+
+#### Parameters
+
+The following parameters are available in the `ssh::server::sshd_config_entry` defined type:
+
+* [`ensure`](#-ssh--server--sshd_config_entry--ensure)
+* [`key`](#-ssh--server--sshd_config_entry--key)
+* [`value`](#-ssh--server--sshd_config_entry--value)
+* [`condition`](#-ssh--server--sshd_config_entry--condition)
+* [`target`](#-ssh--server--sshd_config_entry--target)
+* [`array_append`](#-ssh--server--sshd_config_entry--array_append)
+* [`comment`](#-ssh--server--sshd_config_entry--comment)
+
+##### <a name="-ssh--server--sshd_config_entry--ensure"></a>`ensure`
+
+Data type: `Enum['present','absent']`
+
+Whether the entry should be present or absent
+
+Default value: `'present'`
+
+##### <a name="-ssh--server--sshd_config_entry--key"></a>`key`
+
+Data type: `String[1]`
+
+The ``sshd_config`` keyword.  Defaults to the resource title.
+
+Default value: `$title`
+
+##### <a name="-ssh--server--sshd_config_entry--value"></a>`value`
+
+Data type: `Optional[Variant[String[1],Integer,Array[Variant[String[1],Integer],1]]]`
+
+The value(s) of the keyword.  Required unless ``ensure`` is
+``absent``.  Integers are accepted (and stringified by the type) so that
+e.g. ``value: 22`` from Hiera works; use a non-empty Array for keywords
+that take multiple values.
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--condition"></a>`condition`
+
+Data type: `Optional[String[1]]`
+
+A ``Match`` block condition (e.g. ``User git``) to place
+the entry in
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--target"></a>`target`
+
+Data type: `Optional[Stdlib::Absolutepath]`
+
+The file to manage the entry in.  Defaults to
+``/etc/ssh/sshd_config``.
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--array_append"></a>`array_append`
+
+Data type: `Optional[Boolean]`
+
+Whether to add to existing array values or replace them
+
+Default value: `undef`
+
+##### <a name="-ssh--server--sshd_config_entry--comment"></a>`comment`
+
+Data type: `Optional[String]`
+
+Text to store in a comment immediately above the entry
+
+Default value: `undef`
+
 ## Resource types
 
 ### <a name="sshkey_prune"></a>`sshkey_prune`
@@ -1615,11 +1900,29 @@ usually discover the appropriate provider for your platform.
 
 Type: Puppet Language
 
-Add a sshd_config entry if it is not in the remove list
+Add a sshd_config entry if it has a value and is not in the remove list
 
-#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [ Service['sshd'] ])`
+A `$value` of `undef` is skipped entirely so that an unset class parameter
+declares no `sshd_config` resource (reduced blast radius: Puppet leaves that
+setting exactly as the package/admin left it).
 
-Add a sshd_config entry if it is not in the remove list
+The entry is written to the file `ssh::sshd_config_target` returns for the
+key: a drop-in that sorts first on EL9+, so vendor and installer drop-ins
+cannot override it, or `/etc/ssh/sshd_config`.  The drop-in is declared only
+once something is written to it.
+
+#### `ssh::add_sshd_config(String[1] $key, Any $value, Variant[Array[String[1]],Undef] $remove_keys, Array[Type[Catalogentry]] $resources_to_notify = [])`
+
+Add a sshd_config entry if it has a value and is not in the remove list
+
+A `$value` of `undef` is skipped entirely so that an unset class parameter
+declares no `sshd_config` resource (reduced blast radius: Puppet leaves that
+setting exactly as the package/admin left it).
+
+The entry is written to the file `ssh::sshd_config_target` returns for the
+key: a drop-in that sorts first on EL9+, so vendor and installer drop-ins
+cannot override it, or `/etc/ssh/sshd_config`.  The drop-in is declared only
+once something is written to it.
 
 Returns: `Nil`
 
@@ -1639,14 +1942,16 @@ The value of the sshd configuration parameter
 
 Data type: `Variant[Array[String[1]],Undef]`
 
-List of sshd configuration parameters to be removed
+List of sshd configuration parameters not to add,
+compared case-insensitively
 
 ##### `resources_to_notify`
 
 Data type: `Array[Type[Catalogentry]]`
 
 Catalog resources to notify when the sshd
-configuration has changed
+configuration has changed.  Defaults to none, since the `sshd` service is
+not managed unless service management is explicitly requested.
 
 ### <a name="ssh--autokey"></a>`ssh::autokey`
 
@@ -1733,6 +2038,19 @@ Returns: `Any` transformed config_item
 ##### `config_item`
 
 Data type: `Boolean`
+
+Configuration item to be translated
+
+#### `ssh::config_bool_translate(Undef $config_item)`
+
+An unset (undef) item passes through unchanged so that callers can skip
+declaring a sshd_config resource for an unmanaged setting.
+
+Returns: `Any` transformed config_item
+
+##### `config_item`
+
+Data type: `Undef`
 
 Configuration item to be translated
 
@@ -1843,6 +2161,72 @@ Data type: `String`
 
 The ssh key, can be pasted from ~/.ssh/id_rsa.pub or similar
 
+### <a name="ssh--sshd_config_target"></a>`ssh::sshd_config_target`
+
+Type: Puppet Language
+
+Return the file a module-managed sshd keyword is written to
+
+On EL9+ the vendor `sshd_config` `Include`s `/etc/ssh/sshd_config.d/*.conf`
+at the top of the file, and sshd uses the first value it reads for most
+keywords.  Any drop-in that sets a keyword (the vendor `50-redhat.conf`,
+`25-permitrootlogin.conf` written by the `openssh-server` scriptlet, or
+`01-permitrootlogin.conf` written by Anaconda) therefore overrides what the
+module writes to `sshd_config`.  Those keywords go to a drop-in that sorts
+before all of them instead.
+
+Two groups of keywords stay in `sshd_config`:
+
+* Keywords sshd accumulates across files rather than taking the first
+  value.  No vendor drop-in sets them, so they already take effect in
+  `sshd_config`, and moving them would leave the lines earlier releases
+  wrote there in effect alongside the drop-in: a changed `Port` would keep
+  listening on the old one, and `AllowUsers` would allow both lists.
+* `Ciphers`, `MACs` and `KexAlgorithms`.  On EL9+ the system crypto policy
+  sets them through a vendor drop-in, and it stays in charge of them.
+  Choosing which algorithms override the policy is the job of a crypto
+  sub-policy, not of sshd keywords that would bypass it.
+
+`sshd_config` itself is never edited to make room for the drop-in.  The
+lines earlier releases wrote there stay in place and have no effect once the
+drop-in sets the same keyword.
+
+#### `ssh::sshd_config_target(String[1] $key)`
+
+Return the file a module-managed sshd keyword is written to
+
+On EL9+ the vendor `sshd_config` `Include`s `/etc/ssh/sshd_config.d/*.conf`
+at the top of the file, and sshd uses the first value it reads for most
+keywords.  Any drop-in that sets a keyword (the vendor `50-redhat.conf`,
+`25-permitrootlogin.conf` written by the `openssh-server` scriptlet, or
+`01-permitrootlogin.conf` written by Anaconda) therefore overrides what the
+module writes to `sshd_config`.  Those keywords go to a drop-in that sorts
+before all of them instead.
+
+Two groups of keywords stay in `sshd_config`:
+
+* Keywords sshd accumulates across files rather than taking the first
+  value.  No vendor drop-in sets them, so they already take effect in
+  `sshd_config`, and moving them would leave the lines earlier releases
+  wrote there in effect alongside the drop-in: a changed `Port` would keep
+  listening on the old one, and `AllowUsers` would allow both lists.
+* `Ciphers`, `MACs` and `KexAlgorithms`.  On EL9+ the system crypto policy
+  sets them through a vendor drop-in, and it stays in charge of them.
+  Choosing which algorithms override the policy is the job of a crypto
+  sub-policy, not of sshd keywords that would bypass it.
+
+`sshd_config` itself is never edited to make room for the drop-in.  The
+lines earlier releases wrote there stay in place and have no effect once the
+drop-in sets the same keyword.
+
+Returns: `Optional[Stdlib::Absolutepath]` The drop-in path, or `undef` for the default `/etc/ssh/sshd_config`
+
+##### `key`
+
+Data type: `String[1]`
+
+The sshd configuration keyword
+
 ## Data types
 
 ### <a name="Ssh--Authentications"></a>`Ssh::Authentications`
@@ -1868,4 +2252,3 @@ Alias of `Variant[Boolean, Enum['prohibit-password', 'without-password', 'forced
 Valid SSH Syslog Facility Settings
 
 Alias of `Enum['DAEMON', 'USER', 'AUTH', 'AUTHPRIV', 'LOCAL0', 'LOCAL1', 'LOCAL2', 'LOCAL3', 'LOCAL4', 'LOCAL5', 'LOCAL6', 'LOCAL7']`
-

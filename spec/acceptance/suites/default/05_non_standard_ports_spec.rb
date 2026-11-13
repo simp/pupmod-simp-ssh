@@ -3,19 +3,41 @@ require_relative '../../support/lib/helpers/dump_sshd_ciphers'
 
 test_name 'ssh non-standard ports'
 
-describe 'ssh class' do
-  target_ports = [22, 2222, 22_222]
+def target_ports
+  @target_ports ||= [22, 2222, 22_222]
+end
 
+describe 'ssh class' do
   let(:server_manifest) { "include 'ssh::server'" }
+
+  # The SIMP iptables stack manages the kernel firewall via iptables-restore
+  # and the legacy iptables init service. Those kernel-level operations cannot
+  # run under a container runtime (rootless podman + seccomp in CI is even
+  # stricter than local docker), so we only exercise the firewall path on a
+  # full-VM hypervisor. Under docker we leave the firewall unmanaged; sshd
+  # still binds the non-standard ports, so the multi-port login coverage is
+  # preserved -- only the kernel firewall assertion is dropped.
+  let(:manage_firewall) { hosts.none? { |h| h[:hypervisor] == 'docker' } }
 
   let(:server_hieradata) do
     {
       'simp_options::trusted_nets'                => ['ALL'],
-      'simp_options::firewall'                    => true,
+      'simp_options::firewall'                    => manage_firewall,
+      # 9.0.0 removed the simp_options seams from ssh::server::conf, so the
+      # simp_options::firewall key above no longer reaches the ssh module (it
+      # is kept for the iptables stack); opt in to firewall management directly.
+      'ssh::server::conf::firewall'               => manage_firewall,
+      # Opt in to service management so sshd restarts to bind the
+      # non-standard ports; otherwise the running daemon never sees them.
+      'ssh::server::service_ensure'               => 'running',
+      'ssh::server::service_enable'               => true,
       'ssh::server::conf::banner'                 => '/dev/null',
       'ssh::server::conf::permitrootlogin'        => true,
       'ssh::server::conf::passwordauthentication' => true,
       'ssh::server::conf::port'                   => target_ports,
+      # The key-login tests plant keys in the (formerly default, now opt-in)
+      # central authorized-keys location.
+      'ssh::server::conf::authorizedkeysfile'     => '/etc/ssh/local_keys/%u',
     }
   end
 

@@ -19,6 +19,13 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
     require 'find'
     require 'fileutils'
 
+    # This function writes and deletes files on disk; honor `--noop` by doing
+    # nothing during a noop run rather than mutating state at compile time.
+    if Puppet.settings[:noop]
+      Puppet.debug('ssh::global_known_hosts: skipping known_hosts updates during a noop run')
+      return
+    end
+
     env = closure_scope.lookupvar('::environment')
     basedir = "#{Puppet[:vardir]}/simp/environments/#{env}/simp_autofiles/ssh_global_known_hosts"
 
@@ -58,9 +65,9 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
       raise("ssh::global_known_hosts: Error, #{basedir} must be writable by #{Process.uid}")
     end
 
-    hostkey = File.open("#{basedir}/#{fqdn}", 'w+', 0o640)
-    hostkey.puts(rsakey)
-    hostkey.close
+    File.open("#{basedir}/#{fqdn}", 'w+', 0o640) do |hostkey|
+      hostkey.puts(rsakey)
+    end
   end
 
   def collect_hostnames(basedir)
@@ -119,7 +126,7 @@ Puppet::Functions.create_function(:'ssh::global_known_hosts', Puppet::Functions:
         hname => {
           type: 'ssh-rsa',
           host_aliases: hname.split('.').first,
-          key: File.open(file, 'r').read.strip,
+          key: File.read(file).strip,
           ensure: ssh_ensure,
         }
       }

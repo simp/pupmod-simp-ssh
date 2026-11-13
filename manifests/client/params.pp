@@ -3,7 +3,7 @@
 # @author https://github.com/simp/pupmod-simp-ssh/graphs/contributors
 #
 class ssh::client::params {
-  $_fallback_macs = [ 'hmac-sha1' ]
+  $_fallback_macs = ['hmac-sha1']
   $_fallback_ciphers = [
     'aes256-ctr',
     'aes192-ctr',

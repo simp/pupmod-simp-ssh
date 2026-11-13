@@ -13,4 +13,3 @@ type Ssh::Syslogfacility = Enum[
   'LOCAL6',
   'LOCAL7'
 ]
-

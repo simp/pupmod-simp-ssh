@@ -11,6 +11,8 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Module Description](#module-description)
+* [Breaking changes in 10.0.0](#breaking-changes-in-1000)
+* [Breaking changes in 9.0.0](#breaking-changes-in-900)
 * [Setup](#setup)
   * [What ssh affects](#what-ssh-affects)
   * [Setup requirements](#setup-requirements)
@@ -42,13 +44,97 @@
 
 Manages the SSH Client and Server
 
+## Breaking changes in 10.0.0
+
+On EL9+, `ssh::server::conf` writes its settings to
+`/etc/ssh/sshd_config.d/00-simp.conf` instead of `/etc/ssh/sshd_config`. The
+vendor `sshd_config` reads `sshd_config.d/*.conf` before its own lines, and
+`sshd` keeps the first value it reads, so drop-ins such as `50-redhat.conf`
+used to override what this module wrote. `00-simp.conf` sorts before them, so
+the values you set now take effect. EL8 is unchanged.
+
+Before upgrading an EL9+ host, compare the parameters you set with its
+drop-ins in `/etc/ssh/sshd_config.d`; wherever they differ, the module's value
+now wins. In particular:
+
+- **Cloud images:** `simp:defaults` sets `passwordauthentication: true`.
+  cloud-init writes `PasswordAuthentication no` to `50-cloud-init.conf`, which
+  used to win. Set `ssh::server::conf::passwordauthentication: false` to keep
+  password authentication off.
+- **Entries in `00-simp.conf`:** releases 9.1.0 to 9.3.0 suggested pointing
+  `sshd_config_entries` (or `ssh::server::sshd_config_entry`) at
+  `00-simp.conf`. Such an entry that sets a value keeps precedence over the
+  class's value for its keyword, as before. An `ensure: absent` entry there
+  yields to the class's value. Move these entries to a drop-in of your own.
+
+Some keywords are still written to `/etc/ssh/sshd_config`: those `sshd` adds
+up across files (`AcceptEnv`, `AllowGroups`, `AllowUsers`, `DenyGroups`,
+`DenyUsers`, `ListenAddress`, `Port`) and those the system crypto policy sets
+(`Ciphers`, `MACs`, `KexAlgorithms`; use a crypto sub-policy to change them).
+`/etc/ssh/sshd_config` itself is not edited to make way for the drop-in: lines
+earlier releases wrote there stay, and `00-simp.conf` overrides them.
+
+## Breaking changes in 9.0.0
+
+Version 9.0.0 drastically reduces the "blast radius" of `include ssh`. A bare
+`include ssh` now **installs the `openssh-server`/`openssh-clients` packages
+and manages only the `/etc/ssh` directory** — it does *not* manage the `sshd`
+service, rewrite `/etc/ssh/sshd_config` or `/etc/ssh/ssh_config`, or silently
+enable any `simp_options::*` feature. Everything that used to be automatic is
+now opt-in:
+
+- The `sshd` service (and the `sshd` user/group, `/var/empty/sshd`,
+  host-key file management) is only managed when `ssh::server::service_ensure`
+  or `ssh::server::service_enable` is set.
+- Each `ssh::server::conf` setting defaults to `undef` and only writes a
+  `sshd_config` entry when you set it. A bare include leaves
+  `/etc/ssh/sshd_config` exactly as the package and administrator left it.
+- `ssh::client::add_default_entry` now defaults to `false`, so the `Host *`
+  entry in `/etc/ssh/ssh_config` is no longer written automatically.
+- The `simp_options::*` lookups are gone, along with the server-side
+  FIPS/version cipher auto-detection and the `ssh::server::conf::fips`,
+  `enable_fallback_ciphers`, and `fallback_ciphers` parameters.
+- **IPA-joined hosts:** the automatic `GSSAPIAuthentication yes` (driven by
+  the `ipa` fact) is gone, and the `simp:defaults` profile deliberately leaves
+  `GSSAPIAuthentication` unmanaged so it cannot break Kerberos SSO. If your
+  users log in via Kerberos/GSSAPI, set
+  `ssh::server::conf::gssapiauthentication: true` explicitly.
+- **OATH:** `ssh::server::conf::oath` now defaults to unset. Enabling it still
+  forces `PasswordAuthentication no`; when you later disable it, set
+  `oath: false` *explicitly* (rather than removing the key) so the module
+  restores `PasswordAuthentication` and you are not locked out.
+
+There are **two ways to restore the previous behavior**:
+
+1. **Per parameter** — set the specific `ssh::*` parameters you want (e.g.
+   `ssh::server::service_ensure: running`,
+   `ssh::server::conf::permitrootlogin: false`,
+   `ssh::client::add_default_entry: true`).
+2. **The `simp:defaults` profile** — the module ships a
+   [compliance_engine][compliance_engine] profile named `simp:defaults` that is
+   a drop-in restoration of the pre-9.0.0 behavior. Enable it stack-wide with a
+   single Hiera key:
+
+   ```yaml
+   compliance_engine::enforcement:
+     - simp:defaults
+   ```
+
+   This is opinionated for SIMP sites: it manages the service, re-applies the
+   hardening defaults and FIPS-aware crypto, and **re-enables** the SIMP
+   integrations (firewall, PKI, rngd, tcpwrappers). Site Hiera outranks the
+   profile, so to get "old behavior, but safer" enable the profile and then
+   override the individual keys you care about (e.g.
+   `ssh::server::conf::firewall: false`) in your own Hiera.
 
 ## Setup
 
 ### What ssh affects
 
-SSH installs the SSH package, runs the sshd service and manages files primarily
-in `/etc/ssh`
+A bare `include ssh` installs the SSH packages and manages the `/etc/ssh`
+directory. The sshd service and the contents of the files in `/etc/ssh` are
+managed only when the relevant parameters are set (or the `simp:defaults`
+profile is enabled) — see [Breaking changes in 9.0.0](#breaking-changes-in-900).
 
 ### Setup requirements
 
@@ -84,12 +170,13 @@ class{ 'ssh':
 
 #### Managing client settings
 
-Including `ssh::client` with no other options will automatically manage client
-settings to be used with all hosts (`Host *`).
+As of 9.0.0, `ssh::client` does **not** manage `/etc/ssh/ssh_config` by
+default. Set `ssh::client::add_default_entry: true` to manage the `Host *`
+entry with the module's sane defaults.
 
-If you want to customize any of these settings, you must disable the creation
-of the default entry with `ssh::client::add_default_entry: false` and manage
-`Host *` manually with the defined type `ssh::client::host_config_entry`:
+If you want to customize the default entry, leave `add_default_entry` at its
+default of `false` and manage `Host *` directly with the defined type
+`ssh::client::host_config_entry`:
 
 <!--
   Maintainers: You can validate these examples with the acceptance test
@@ -170,8 +257,11 @@ class{ 'ssh':
 
 #### Managing server settings
 
-Including `ssh::server` with the default options will manage the server with
-reasonable settings for each host's environment.
+As of 9.0.0, `ssh::server` only manages the `sshd` service and the contents of
+`/etc/ssh/sshd_config` when you opt in. Set `ssh::server::service_ensure` and
+`ssh::server::service_enable` to manage the service, and set the individual
+`ssh::server::conf` parameters (or enable the `simp:defaults` profile) for the
+hardening defaults.
 
 ```puppet
 include 'ssh::server'
@@ -228,6 +318,93 @@ NOTE: This is parameter is **not validated**.  Be careful to only specify
 options that are allowed for your particular SSH daemon. Invalid options may
 cause the ssh service to fail on restart. Duplicate settings will result in
 duplicate Puppet resources (i.e., manifest compilation failures).
+
+##### Managing settings in drop-in files (``sshd_config.d``)
+
+On EL9+ the vendor ``sshd_config`` ``Include``s ``/etc/ssh/sshd_config.d/*.conf``
+at the *top* of the file, and ``sshd`` uses the first obtained value — so a
+keyword the vendor pre-sets in ``50-redhat.conf`` (``X11Forwarding``,
+``GSSAPIAuthentication``, ``UsePAM``, …) silently overrides anything written to
+the main file.  ``ssh::server::conf``'s own parameters are therefore written to
+``/etc/ssh/sshd_config.d/00-simp.conf``, which sorts before the vendor drop-ins
+(see the class documentation for the keywords that stay in ``sshd_config``).
+For a keyword the class has no parameter for, manage it in the drop-in itself
+with ``ssh::server::conf::sshd_config_entries``, which declares
+``ssh::server::sshd_config_entry`` resources (see below) — including the
+[`sshd_config`][aug_ssh__sshd_config] type's ``target`` attribute — through
+Hiera:
+
+```yaml
+---
+ssh::server::conf::sshd_config_entries:
+  '50-redhat X11Forwarding':
+    key: 'X11Forwarding'
+    value: 'no'
+    target: '/etc/ssh/sshd_config.d/50-redhat.conf'
+```
+
+Give each entry a title distinct from any module-managed keyword (module
+entries use the bare keyword as the title) and set ``key`` explicitly.  When
+the ``sshd`` service is managed, changes notify it; with an unmanaged service
+nothing is restarted.  Each entry is ordered after the openssh package in
+addition to any ``require`` it declares itself.
+
+Instead of editing the vendor file you may also point entries at a drop-in of
+your own that sorts before it (e.g.
+``target: '/etc/ssh/sshd_config.d/10-site.conf'`` — augeas creates the file):
+that wins the same first-obtained-value race without modifying vendor content,
+so the next openssh update does not leave an ``.rpmnew`` behind.  Editing the
+vendor file remains supported — some compliance audits check the vendor file's
+own contents, which only an in-place edit satisfies.
+
+Do not target ``00-simp.conf``: the class owns it.  So that two resources do
+not rewrite the same line, an entry there that sets a value takes precedence
+over the class for its keyword, and an ``ensure: absent`` entry there yields to
+the class's value.  A keyword set both by the class and in your own drop-in
+takes the class's value, because ``00-simp.conf`` sorts first.
+
+The client has the equivalent ``ssh::client::ssh_config_entries`` for raw
+``ssh_config`` resources.  Note that the vendor *client* drop-ins
+(``/etc/ssh/ssh_config.d/05-redhat.conf`` on EL8, ``50-redhat.conf`` on EL9+)
+wrap their settings in a ``Match final all`` block, which the ``ssh_config``
+type cannot edit (it only manages ``Host`` blocks) and which ssh applies last,
+only for options nothing else has set.  So on the client, do **not** point
+entries at the vendor file — manage a drop-in of your own that ssh reads
+first, e.g.:
+
+```yaml
+---
+ssh::client::ssh_config_entries:
+  'simp GSSAPIAuthentication':
+    key: 'GSSAPIAuthentication'
+    value: 'no'
+    target: '/etc/ssh/ssh_config.d/00-simp.conf'
+```
+
+##### Managing an entry from another module
+
+Other modules (e.g. application profiles) that need an ``sshd`` setting should
+declare it with ``ssh::server::sshd_config_entry`` rather than a raw
+``sshd_config`` resource.  The defined type includes ``ssh::server``, orders
+the entry after the ``openssh-server`` package, and notifies ``Service['sshd']``
+only when this module has been asked to manage the service — so the catalog
+compiles whether or not the service is managed, and neither
+``Package['openssh-server']`` nor ``Service['sshd']`` has to be referenced from
+outside this module:
+
+```puppet
+ssh::server::sshd_config_entry { 'AuthorizedKeysFile GitLab user':
+  key       => 'AuthorizedKeysFile',
+  condition => 'User git',
+  value     => '/var/opt/gitlab/.ssh/authorized_keys',
+}
+```
+
+It accepts the ``sshd_config`` type's attributes (``ensure``, ``key``,
+``value``, ``condition``, ``target``, ``array_append``, ``comment``); ``key``
+defaults to the title.  The same entries can be declared from Hiera with
+``ssh::server::conf::sshd_config_entries`` (above), which is implemented with
+this defined type.
 
 ##### Using ``sshd_config``
 
@@ -295,44 +472,38 @@ Note: including `ssh::client` directly would still manage the SSH client
 
 ### Managing SSH ciphers
 
-Unless instructed otherwise, the `ssh::` classes select ciphers based on the OS
-environment (the OS version, the version of the SSH server, whether [FIPS
-mode][fips_mode] is enabled, etc).
-
 #### Server ciphers
 
-<!--
-   Maintainers: You can validate these examples by setting the environment
-   variable `SIMP_SSH_report_dir` to a valid directory path while running
-   the acceptance tests in spec/acceptance/suites/default/ssh_spec.rb.
--->
+As of 9.0.0, the server classes no longer auto-select ciphers: when
+`ssh::server::conf::ciphers`, `ssh::server::conf::macs`, or
+`ssh::server::conf::kex_algorithms` are unset, no corresponding `sshd_config`
+line is managed and the OpenSSH/crypto-policy defaults apply. (The old
+FIPS/version auto-detection and the `ssh::server::conf::fips`,
+`enable_fallback_ciphers`, and `fallback_ciphers` parameters were removed —
+see [Breaking changes in 9.0.0](#breaking-changes-in-900).)
 
-At the time of 6.4.0, the default ciphers for `ssh::server` on EL7 when FIPS
-mode is _disabled_ are:
+To manage them, either set the parameters explicitly:
 
-- `aes256-gcm@openssh.com`
-- `aes128-gcm@openssh.com`
-- `aes256-ctr`
-- `aes192-ctr`
-- `aes128-ctr`
+```yaml
+ssh::server::conf::ciphers:
+  - aes256-gcm@openssh.com
+  - aes128-gcm@openssh.com
+  - aes256-ctr
+  - aes192-ctr
+  - aes128-ctr
+```
 
-There are also 'fallback' ciphers, which are required in order to communicate
-with systems that are compliant with [FIPS-140-2][fips140_2].  These are
-_always_ included by default unless the parameter
-`ssh::server::conf::enable_fallback_ciphers` is set to `false`:
-
-- `aes256-ctr`
-- `aes192-ctr`
-- `aes128-ctr`
-
-At the time of 6.4.0, the 'fallback' ciphers are the default ciphers for
-`ssh::server` on EL7 when FIPS mode is enabled and EL6 in either mode.
-
+or enable the `simp:defaults` profile, which supplies the strong, FIPS-aware
+cipher/MAC/key-exchange sets the module used to auto-detect (the profile
+selects the FIPS or non-FIPS variant based on the node's [FIPS
+mode][fips_mode] via a `fips_enabled` confine).
 
 #### Client ciphers
 
-By default, the system client ciphers in `/etc/ssh/ssh_config` are configured
-to strong ciphers that are recommended for use.
+When the default `Host *` entry is managed (`ssh::client::add_default_entry:
+true`, or any `ssh::client::host_config_entry`), the client ciphers in
+`/etc/ssh/ssh_config` are configured to strong ciphers that are recommended
+for use.
 
 If you need to connect to a system that does not support these ciphers but uses
 older or weaker ciphers, you should either:
@@ -420,6 +591,7 @@ Some environment variables may be useful:
   to validate and update the information in the [Server
   ciphers](#server-ciphers) section.
 
+[compliance_engine]: https://github.com/simp/rubygem-simp-compliance_engine
 [fips140_2]: https://csrc.nist.gov/publications/detail/fips/140/2/final
 [ssh_man]: https://man.openbsd.org/ssh
 [aug_ssh]: https://github.com/hercules-team/augeasproviders_ssh/

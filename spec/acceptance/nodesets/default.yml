@@ -1,44 +1,30 @@
 ---
 HOSTS:
-  el7-server:
+  alma9-server:
     roles:
     - default
+    - master
     - server
-    platform: el-7-x86_64
-    box: centos/7
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: centos-cloud/centos-7
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
-  el7-client:
+  alma9-client:
     roles:
     - client
-    platform: el-7-x86_64
-    box: centos/7
+    - el9
+    platform: el-9-x86_64
+    box: almalinux/9
     hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    family: centos-cloud/centos-7
-    gce_machine_type: n1-standard-2
-  el8-server:
-    roles:
-    - server
-    platform: el-8-x86_64
-    box: generic/centos8
-    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    options:
-      memory: 1024
-    family: centos-cloud/centos-stream-8
-    gce_machine_type: n1-standard-2
-  el8-client:
-    roles:
-    - client
-    platform: el-8-x86_64
-    box: generic/centos8
-    hypervisor: "<%= ENV.fetch('BEAKER_HYPERVISOR', 'vagrant') %>"
-    options:
-      memory: 1024
-    family: centos-cloud/centos-stream-8
+    vagrant_memsize: 2048
+    vagrant_cpus: 2
+    family: almalinux-cloud/almalinux-9
     gce_machine_type: n1-standard-2
 CONFIG:
   log_level: verbose
   type: aio
-  vagrant_memsize: 256
-  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'puppet7') %>"
+  puppet_collection: "<%= ENV.fetch('BEAKER_PUPPET_COLLECTION', 'openvox9') %>"

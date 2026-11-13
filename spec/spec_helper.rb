@@ -8,7 +8,7 @@
 # The next baseline sync will overwrite any local changes made to this file.
 # ------------------------------------------------------------------------------
 
-require 'puppetlabs_spec_helper/module_spec_helper'
+require 'voxpupuli/test/spec_helper'
 require 'rspec-puppet'
 require 'simp/rspec-puppet-facts'
 include Simp::RspecPuppetFacts
@@ -28,10 +28,6 @@ default_hiera_config = <<~HIERA_CONFIG
   ---
   version: 5
   hierarchy:
-    - name: SIMP Compliance Engine
-      lookup_key: compliance_markup::enforcement
-      options:
-        enabled_sce_versions: [2]
     - name: Custom Test Hiera
       path: "%{custom_hiera}.yaml"
     - name: "%{module_name}"
@@ -93,14 +89,15 @@ RSpec.configure do |c|
     production: {
       # :fqdn           => 'production.rspec.test.localdomain',
       path: '/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
-      concat_basedir: '/tmp'
-    }
+      concat_basedir: '/tmp',
+    },
   }
 
   c.mock_framework = :rspec
   c.mock_with :rspec
 
   c.module_path = File.join(fixture_path, 'modules')
+  c.manifest_dir = File.join(fixture_path, 'manifests') if c.respond_to?(:manifest_dir)
 
   c.hiera_config = File.join(fixture_path, 'hieradata', 'hiera.yaml')
 
@@ -116,8 +113,7 @@ RSpec.configure do |c|
     c.backtrace_clean_patterns = backtrace_exclusion_patterns
   end
 
-  # rubocop:disable RSpec/BeforeAfterAll
-  c.before(:all) do
+  c.before(:all) do # rubocop:disable RSpec/BeforeAfterAll
     data = YAML.safe_load(default_hiera_config)
     data.each_key do |key|
       next unless data[key].is_a?(Hash)
@@ -129,11 +125,14 @@ RSpec.configure do |c|
       end
     end
 
-    File.open(c.hiera_config, 'w') do |f|
-      f.write data.to_yaml
-    end
+    # Write atomically (write + rename) — every parallel_spec worker runs
+    # this hook, and a truncating write here can be observed as an empty
+    # hiera.yaml by a catalogue compile in another worker, silently dropping
+    # all custom hieradata (simp/pupmod-simp-simplib#362)
+    tmpfile = "#{c.hiera_config}.#{Process.pid}"
+    File.write(tmpfile, data.to_yaml)
+    File.rename(tmpfile, c.hiera_config)
   end
-  # rubocop:enable RSpec/BeforeAfterAll
 
   c.before(:each) do
     @spec_global_env_temp = Dir.mktmpdir('simpspec')
