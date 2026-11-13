@@ -107,8 +107,7 @@ crypto lists.
     `UsePrivilegeSeparation` is written on openssh < 7.5 and removed on >= 7.5.
   - **Optional integrations**, each guarded by `assert_optional_dependency`:
     PKI (`server/conf.pp`), SELinux port labeling for non-22 ports
-    (`server/conf.pp`), firewall via `iptables`
-    (`server/conf.pp`), and `tcpwrappers` (`server/conf.pp`).
+    (`server/conf.pp`), and firewall via `iptables` (`server/conf.pp`).
 
 ### Gotchas / non-obvious details
 
@@ -162,7 +161,6 @@ explicit default, so the module works whether or not `simp_options` is included.
 | `simp_options::fips` | `client.pp`, `server/conf.pp` | `false` |
 | `simp_options::package_ensure` | `client.pp`, `server.pp`, `server.pp` | `'installed'` |
 | `simp_options::pam` | `server/conf.pp` | `true` |
-| `simp_options::tcpwrappers` | `server/conf.pp` | `false` |
 | `simp_options::pki::source` | `server/conf.pp` | `'/etc/pki/simp/x509'` |
 | `simp_options::firewall` | `server/conf.pp` | `false` |
 | `simp_options::ldap` | `server/conf.pp` | `false` |
@@ -196,7 +194,6 @@ at the cited line:
 - `simp/vox_selinux` `>= 3.1.0 < 7.0.0` — `server/conf.pp`
 - `puppet/selinux` `>= 1.6.1 < 7.0.0` — `server/conf.pp`
 - `simp/iptables` `>= 6.5.3 < 10.0.0` — `server/conf.pp`
-- `simp/tcpwrappers` `>= 6.2.0 < 7.0.0` — `server/conf.pp`
 - `simp/pam` `>= 6.8.3 < 10.0.0` — declared optional but has **no**
   `assert_optional_dependency` call; consumed via the `simp_options::pam` seam
   and the in-module PAM template (see Gotchas).
@@ -290,7 +287,7 @@ Relevant gem pins (from `Gemfile`): the tested Puppet range defaults to
   in sync when changing crypto policy.
 - Guard every optional integration with `simplib::assert_optional_dependency`
   before `include`-ing it, as the existing PKI / SELinux / firewall /
-  tcpwrappers / rngd / oath branches do — never hard-`include` an optional
+  rngd / oath branches do — never hard-`include` an optional
   module.
 - Continue routing SIMP feature toggles through
   `simplib::lookup('simp_options::*', { 'default_value' => ... })` rather than
