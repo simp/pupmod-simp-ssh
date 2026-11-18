@@ -1,3 +1,14 @@
+* Wed Nov 18 2026 Steven Pritchard <steve@sicura.us> - 10.2.0
+- The `simp:defaults` profile now sets `ssh::server::conf::firewall` from
+  `simp_options::firewall` instead of always `true`. A site that enforces
+  `simp:defaults` with `simp_options::firewall` unset or `false` no longer gets
+  the sshd firewall rule or the `iptables` class from ssh. Set
+  `simp_options::firewall: true` to keep it (SIMP scenarios `simp` already do)
+- A site enforcing `simp:defaults` needs the `simp_options` module installed (a
+  release that ships `simp_options::firewall: false` as module data) or
+  `simp_options::firewall` set in its own Hiera. Otherwise compilation fails
+  with `parameter 'firewall' expects a Boolean value, got String`
+
 * Thu Nov 12 2026 Steven Pritchard <steve@sicura.us> - 10.1.0
 - Add `ssh::client::rngd` and `ssh::server::conf::rngd` to include the `rngd`
   class for entropy generation. `simp/rngd` is an optional dependency and must

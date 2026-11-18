@@ -56,8 +56,8 @@ describe 'ssh' do
         it { is_expected.to create_ssh__client__host_config_entry('*') }
         it { is_expected.to contain_file('/etc/ssh/ssh_config') }
 
-        # SIMP integrations restored to their typical site value
-        it { is_expected.to contain_class('iptables') }
+        # SIMP integrations restored (the firewall follows simp_options::firewall;
+        # see the firewall contexts below)
         it { is_expected.not_to contain_class('tcpwrappers') }
         it { is_expected.to contain_class('rngd') }
         it { is_expected.to contain_service('rngd').with_ensure('running').with_enable(true) }
@@ -68,6 +68,40 @@ describe 'ssh' do
         # so pinning either value would be wrong for someone (see checks.yaml).
         it { is_expected.not_to contain_sshd_config('GSSAPIAuthentication') }
       end
+    end
+  end
+
+  context 'firewall integration follows simp_options::firewall' do
+    let(:os_facts) { on_supported_os.first.last }
+    let(:base_facts) do
+      os_facts.merge(
+        openssh_version: '8.0',
+        timezone_file: '/etc/localtime',
+        fips_enabled: false,
+      )
+    end
+
+    context 'with the key unset (simp_options module data supplies false)' do
+      let(:facts) { base_facts.merge(custom_hiera: 'simp_defaults_enforced') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_class('ssh::server::conf').with_firewall(false) }
+      it { is_expected.not_to contain_class('iptables') }
+    end
+
+    context 'with simp_options::firewall: true' do
+      let(:facts) { base_facts.merge(custom_hiera: 'simp_defaults_firewall_true') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_class('ssh::server::conf').with_firewall(true) }
+      it { is_expected.to contain_class('iptables') }
+    end
+
+    context 'with simp_options::firewall: true and ssh::server::conf::firewall: false' do
+      let(:facts) { base_facts.merge(custom_hiera: 'simp_defaults_firewall_true_ssh_false') }
+
+      it { is_expected.to compile.with_all_deps }
+      it { is_expected.to contain_class('ssh::server::conf').with_firewall(false) }
     end
   end
 
@@ -142,7 +176,11 @@ describe 'ssh' do
         applicable.each do |name, check|
           it "pins #{check['settings']['parameter']} to the profile value (#{name})" do
             klass, _sep, param = check['settings']['parameter'].rpartition('::')
-            is_expected.to contain_class(klass).with(param => check['settings']['value'])
+            value = check['settings']['value']
+            # An alias() check resolves from simp_options::firewall, which the
+            # simp_options module data sets to false when the key is unset.
+            value = false if value.is_a?(String) && value.start_with?('%{alias(')
+            is_expected.to contain_class(klass).with(param => value)
           end
         end
       end

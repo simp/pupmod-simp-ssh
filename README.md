@@ -122,10 +122,21 @@ There are **two ways to restore the previous behavior**:
 
    This is opinionated for SIMP sites: it manages the service, re-applies the
    hardening defaults and FIPS-aware crypto, and **re-enables** the SIMP
-   integrations (firewall, PKI, rngd, tcpwrappers). Site Hiera outranks the
-   profile, so to get "old behavior, but safer" enable the profile and then
-   override the individual keys you care about (e.g.
-   `ssh::server::conf::firewall: false`) in your own Hiera.
+   integrations (PKI, rngd). Site Hiera outranks the profile, so to get "old
+   behavior, but safer" enable the profile and then override the individual
+   keys you care about in your own Hiera.
+
+   The firewall integration follows `simp_options::firewall` instead of being
+   forced on: with that key `true`, the profile sets
+   `ssh::server::conf::firewall: true` (opening the sshd port through
+   `iptables`); with it `false` or unset, no firewall rule is managed. A site
+   enforcing `simp:defaults` needs either the `simp_options` module installed
+   (it ships `simp_options::firewall: false` as module data) or
+   `simp_options::firewall` set in its own Hiera. Otherwise compilation fails
+   with `parameter 'firewall' expects a Boolean value, got String`. SIMP
+   scenarios that set `simp_options::firewall: true` keep the firewall rule. To
+   override the profile for ssh alone, set `ssh::server::conf::firewall` in
+   your own Hiera.
 
 ## Setup
 

@@ -20,7 +20,11 @@ fixtures:
     pki: https://github.com/simp/pupmod-simp-pki.git
     rngd: https://github.com/simp/pupmod-simp-rngd.git
     rsyslog: https://github.com/simp/pupmod-simp-rsyslog.git
-    simp_options: https://github.com/simp/pupmod-simp-simp_options.git
+    # TEMPORARY: needs the `simp_options::firewall` module-data default, which is
+    # not released yet.  Switch back to the simp repo and a released ref once it is.
+    simp_options:
+      repo: https://github.com/silug/pupmod-simp-simp_options.git
+      branch: firewall-module-data
     simplib: https://github.com/simp/pupmod-simp-simplib.git
     stdlib: https://github.com/simp/puppetlabs-stdlib.git
     tcpwrappers: https://github.com/simp/pupmod-simp-tcpwrappers.git

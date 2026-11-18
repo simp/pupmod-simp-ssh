@@ -1,7 +1,8 @@
 ---
 # Restores the pre-9.0.0 `pupmod-simp-ssh` behavior.  Each check pins a class
-# parameter back to the value (or typical SIMP-site value) that a bare
-# `include ssh` used to apply automatically.  The compliance_engine gem
+# parameter back to the value that a bare `include ssh` used to apply
+# automatically, except the firewall check, which follows the site's
+# `simp_options::firewall` setting.  The compliance_engine gem
 # deep-merges these with every other module's `simp:defaults` checks, so a
 # single `compliance_engine::enforcement: [simp:defaults]` Hiera key restores
 # the whole stack.
@@ -178,12 +179,14 @@ checks:
       parameter: ssh::server::conf::x11forwarding
       value: false
 
-  # --- SIMP integrations restored to their typical SIMP-site value ---
+  # --- SIMP integrations ---
+  # The firewall follows the site's `simp_options::firewall`; see the header
+  # for the `simp_options` module / key requirement.
   simp:defaults.ssh.firewall:
     type: puppet-class-parameter
     settings:
       parameter: ssh::server::conf::firewall
-      value: true
+      value: "%{alias('simp_options::firewall')}"
   simp:defaults.ssh.rngd:
     type: puppet-class-parameter
     settings:

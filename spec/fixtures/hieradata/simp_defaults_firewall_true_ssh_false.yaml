@@ -1,0 +1,6 @@
+---
+compliance_engine::enforcement:
+  - simp:defaults
+simp_options::firewall: true
+# A site value must outrank the profile.
+ssh::server::conf::firewall: false
