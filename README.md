@@ -11,6 +11,7 @@
 <!-- vim-markdown-toc GFM -->
 
 * [Module Description](#module-description)
+* [Breaking changes in 11.0.0](#breaking-changes-in-1100)
 * [Breaking changes in 10.0.0](#breaking-changes-in-1000)
 * [Breaking changes in 9.0.0](#breaking-changes-in-900)
 * [Setup](#setup)
@@ -43,6 +44,14 @@
 ## Module Description
 
 Manages the SSH Client and Server
+
+## Breaking changes in 11.0.0
+
+`ssh::server::conf::tcpwrappers` has been removed, along with the optional
+dependency on the archived `simp/tcpwrappers` module. `sshd` on EL8 and later
+is not built with libwrap, so the parameter had no effect on access control.
+Remove `ssh::server::conf::tcpwrappers` from your Hiera data and from any
+resource-style declarations of `ssh::server::conf`.
 
 ## Breaking changes in 10.0.0
 
@@ -122,7 +131,7 @@ There are **two ways to restore the previous behavior**:
 
    This is opinionated for SIMP sites: it manages the service, re-applies the
    hardening defaults and FIPS-aware crypto, and **re-enables** the SIMP
-   integrations (firewall, PKI, rngd, tcpwrappers). Site Hiera outranks the
+   integrations (firewall, PKI, rngd). Site Hiera outranks the
    profile, so to get "old behavior, but safer" enable the profile and then
    override the individual keys you care about (e.g.
    `ssh::server::conf::firewall: false`) in your own Hiera.

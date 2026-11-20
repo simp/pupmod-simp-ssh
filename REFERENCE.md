@@ -351,7 +351,6 @@ The following parameters are available in the `ssh::server::conf` class:
 * [`strictmodes`](#-ssh--server--conf--strictmodes)
 * [`subsystem`](#-ssh--server--conf--subsystem)
 * [`syslogfacility`](#-ssh--server--conf--syslogfacility)
-* [`tcpwrappers`](#-ssh--server--conf--tcpwrappers)
 * [`usepam`](#-ssh--server--conf--usepam)
 * [`manage_pam_sshd`](#-ssh--server--conf--manage_pam_sshd)
 * [`oath`](#-ssh--server--conf--oath)
@@ -718,14 +717,6 @@ Data type: `Optional[Ssh::Syslogfacility]`
 Gives the facility code that is used when logging messages.
 
 Default value: `undef`
-
-##### <a name="-ssh--server--conf--tcpwrappers"></a>`tcpwrappers`
-
-Data type: `Boolean`
-
-If true, enable sshd tcpwrappers.
-
-Default value: `false`
 
 ##### <a name="-ssh--server--conf--usepam"></a>`usepam`
 

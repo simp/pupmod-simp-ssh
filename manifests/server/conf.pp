@@ -192,9 +192,6 @@
 # @param syslogfacility
 #   Gives the facility code that is used when logging messages.
 #
-# @param tcpwrappers
-#   If true, enable sshd tcpwrappers.
-#
 # @param usepam
 #   Enables the Pluggable Authentication Module interface.
 #
@@ -387,7 +384,6 @@ class ssh::server::conf (
   Optional[Boolean]                                      $strictmodes                     = undef,
   Optional[String]                                       $subsystem                       = undef,
   Optional[Ssh::Syslogfacility]                          $syslogfacility                  = undef,
-  Boolean                                                $tcpwrappers                     = false,
   Optional[Variant[Boolean,Enum['sandbox']]]             $useprivilegeseparation          = undef,
   Optional[Boolean]                                      $x11forwarding                   = undef,
   Optional[Hash[String[1],NotUndef]]                     $custom_entries                  = undef,
@@ -724,17 +720,6 @@ class ssh::server::conf (
       order        => 8,
       trusted_nets => $trusted_nets,
       dports       => $_ports,
-    }
-  }
-
-  if $tcpwrappers {
-    simplib::assert_optional_dependency($module_name, 'simp/tcpwrappers')
-
-    include 'tcpwrappers'
-
-    tcpwrappers::allow { 'sshd':
-      pattern => simplib::nets2ddq($trusted_nets),
-      order   => 1
     }
   }
 }
