@@ -1,3 +1,6 @@
+* Mon Nov 23 2026 Steven Pritchard <steve@sicura.us> - 11.0.1
+- Allow simp/iptables 10.x
+
 * Fri Nov 13 2026 Steven Pritchard <steve@sicura.us> - 11.0.0
 - BREAKING CHANGE: remove `ssh::server::conf::tcpwrappers`. It included the
   archived `simp/tcpwrappers` module, and `sshd` on EL8+ is not built with
