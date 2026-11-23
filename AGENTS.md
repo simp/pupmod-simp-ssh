@@ -193,7 +193,7 @@ at the cited line:
 - `simp/selinux` `>= 2.6.1 < 5.0.0` — `server/conf.pp`
 - `simp/vox_selinux` `>= 3.1.0 < 7.0.0` — `server/conf.pp`
 - `puppet/selinux` `>= 1.6.1 < 7.0.0` — `server/conf.pp`
-- `simp/iptables` `>= 6.5.3 < 10.0.0` — `server/conf.pp`
+- `simp/iptables` `>= 6.5.3 < 11.0.0` — `server/conf.pp`
 - `simp/pam` `>= 6.8.3 < 10.0.0` — declared optional but has **no**
   `assert_optional_dependency` call; consumed via the `simp_options::pam` seam
   and the in-module PAM template (see Gotchas).
