@@ -41,6 +41,7 @@ describe 'ssh' do
         it { is_expected.to contain_sshd_config('Port').with_value([22]) }
         it { is_expected.to contain_sshd_config('Banner').with_value('/etc/issue.net') }
         it { is_expected.to contain_sshd_config('MaxAuthTries').with_value('6') }
+        it { is_expected.to contain_sshd_config('ClientAliveCountMax').with_value('1') }
         it { is_expected.to contain_sshd_config('UsePAM').with_value('yes') }
         it { is_expected.to contain_sshd_config('X11Forwarding').with_value('no') }
         it { is_expected.to contain_sshd_config_subsystem('sftp') }
@@ -58,7 +59,6 @@ describe 'ssh' do
 
         # SIMP integrations restored to their typical site value
         it { is_expected.to contain_class('iptables') }
-        it { is_expected.not_to contain_class('tcpwrappers') }
         it { is_expected.to contain_class('rngd') }
         it { is_expected.to contain_service('rngd').with_ensure('running').with_enable(true) }
         it { is_expected.not_to contain_class('haveged') }

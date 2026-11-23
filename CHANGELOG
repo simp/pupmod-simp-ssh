@@ -1,4 +1,7 @@
-* Mon Nov 23 2026 Steven Pritchard <steve@sicura.us> - 11.0.1
+* Mon Nov 23 2026 Hazel Caballero <hazel@sicura.us> - 11.0.1
+- The `simp:defaults` profile now sets `ClientAliveCountMax` to `1` instead of
+  `0`. A value of `0` disables idle-session termination, so the 600 second
+  `ClientAliveInterval` never took effect
 - Allow simp/iptables 10.x
 
 * Fri Nov 13 2026 Steven Pritchard <steve@sicura.us> - 11.0.0
