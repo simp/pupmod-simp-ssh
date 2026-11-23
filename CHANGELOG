@@ -1,3 +1,8 @@
+* Mon Nov 23 2026 Hazel Caballero <hazel@sicura.us> - 11.0.1
+- The `simp:defaults` profile now sets `ClientAliveCountMax` to `1` instead of
+  `0`. A value of `0` disables idle-session termination, so the 600 second
+  `ClientAliveInterval` never took effect
+
 * Fri Nov 13 2026 Steven Pritchard <steve@sicura.us> - 11.0.0
 - BREAKING CHANGE: remove `ssh::server::conf::tcpwrappers`. It included the
   archived `simp/tcpwrappers` module, and `sshd` on EL8+ is not built with
